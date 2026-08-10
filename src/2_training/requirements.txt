@@ -1,0 +1,10 @@
+# patched for a modern local run (macOS arm64 / MPS, Python 3.11)
+# tested with: pip install -r requirements.txt
+numpy==2.4.6
+pandas==3.0.5
+scikit-learn==1.9.0
+torch==2.13.0
+tqdm==4.70.0
+transformers==5.15.0
+requests==2.34.2
+filelock==3.32.2
