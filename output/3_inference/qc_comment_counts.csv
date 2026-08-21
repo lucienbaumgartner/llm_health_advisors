@@ -1,0 +1,101 @@
+post_id,sheet_name,expected_total,real_count,DG_count,SAG_count,SAGII_count,match
+1,1. What is this on my babys h,1,1,1,1,1,True
+2,"2. Getting a ""second opinion""",1,1,1,1,1,True
+3,"3. Middle ear infection, seco",3,1,3,3,3,False
+4,4. 34F on multiple meds start,1,1,1,1,1,True
+5,5. Dissolvable stitches in a ,1,1,1,1,1,True
+6,6. Is it hemochromatosis Or ,1,1,1,1,1,True
+7,7. Red Raised Painful Bump on,1,1,1,1,1,True
+8,8. What is it 27M,1,1,1,1,1,True
+9,9. Fever 3 days after surgica,1,1,1,1,1,True
+10,10. 30 year old male experienc,1,1,1,1,1,True
+11,11. Numbness after surgery (20,1,1,1,1,1,True
+12,12. My husband is showing sign,11,2,11,11,11,False
+13,13. Help with weed,2,1,2,2,2,False
+14,14. Nanotechnology in blood,2,1,2,2,2,False
+15,15. How do I know when or if I,1,1,1,1,1,True
+16,16. How do the relationships b,3,2,3,3,3,False
+17,17. Is it cancer,1,1,1,1,1,True
+18,18. I think my lungs are givin,1,1,1,1,1,True
+19,19. Is it safe to drive a car ,1,1,1,1,1,True
+20,20. Is this worth going to urg,4,1,4,4,4,False
+21,"21. Breast Cancer, just parano",1,1,1,1,1,True
+22,22. Men’s health tests,1,1,1,1,1,True
+23,23. Depersonalization of multi,1,1,1,1,1,True
+24,24. Question about my appendix,1,1,1,1,1,True
+25,25. I took a year worth of vit,3,1,3,3,3,False
+26,26. 21M foul smelling nose lin,1,1,1,1,1,True
+27,27. Am I still contagious on d,1,1,1,1,1,True
+28,28. how bad is swallowing a ve,1,1,1,1,1,True
+29,29. Recurrent thrush and contr,1,1,1,1,1,True
+30,30. Major Female Urinary Reten,1,1,1,1,1,True
+31,31. F35. Bartholin cyst turned,1,1,1,1,1,True
+32,32. Itchiness on a different p,1,1,1,1,1,True
+33,"33. Recurrent bumps in groin, ",1,1,1,1,1,True
+34,34. Breaking medications to sm,1,1,1,1,1,True
+35,35. For the past week I can't ,2,1,2,2,2,False
+36,36. Anti-snore mouth guard and,1,1,1,1,1,True
+37,37. Chronic appendicitis,2,1,2,2,2,False
+38,"38. 5 female, bug bites or hiv",2,2,2,2,2,True
+39,39. Embarrassed myself during ,2,2,2,2,2,True
+40,40. Caffeine Shivers,1,1,1,1,1,True
+41,41. Small lump on the inside o,1,1,1,1,1,True
+42,42. Upper Hip Pain (32F),1,1,1,1,1,True
+43,43. Got stitches on Tuesday 10,1,1,1,1,1,True
+44,44. 10 months post Latarjet sh,1,1,1,1,1,True
+45,45. How to deal with a doctor',2,2,2,2,2,True
+46,46. 22M can you get an std fro,2,1,2,2,2,False
+47,47. Placental pathology after ,1,1,1,1,1,True
+48,48. How do you react to patien,2,1,2,2,2,False
+49,49. Can I take Zoloft and Advi,2,2,2,2,2,True
+50,50. Infected toe,1,1,1,1,1,True
+51,51. How much chances are that ,1,1,1,1,1,True
+52,52. Can I be admitted to the h,1,1,1,1,1,True
+53,53. Toe nail infection,2,1,2,2,2,False
+54,"54. got blackout drunk, black ",3,1,3,3,3,False
+55,55. Advice on what to do as a ,1,1,1,1,1,True
+56,56. Should I go back to the er,1,1,1,1,1,True
+57,"57. Covid, flu, cold, or somet",1,1,1,1,1,True
+58,58. I may have thrown a clot i,2,2,2,2,2,True
+59,59. 3 week old had viral menin,1,1,1,1,1,True
+60,60. Low diastolic blood pressu,1,1,1,1,1,True
+61,61. Why does my wife’s nose (2,1,1,1,1,1,True
+62,"62. 4x size liver, 2 weeks pro",1,1,1,1,1,True
+63,63. when do i need to start ge,4,3,4,4,4,False
+64,64. Help with Hep B test resul,1,1,1,1,1,True
+65,65. Question about hiv,1,1,1,1,1,True
+66,66. Ganglion Cyst,1,1,1,1,1,True
+67,67. X-ray may show uterine fib,2,1,2,2,2,False
+68,68. Urologist suggested lithot,1,1,1,1,1,True
+69,69. Can this be fixed without ,1,1,1,1,1,True
+70,70. Please Help! How to avoid ,2,1,2,2,2,False
+71,71. 22F inner thighs darkening,1,1,1,1,1,True
+72,72. What causes wild swings of,1,1,1,1,1,True
+73,73. Been in the hospital for 5,1,1,1,1,1,True
+74,74. Black mark on the side of ,1,1,1,1,1,True
+75,75. Acne Recurring Cyst in t,1,1,1,1,1,True
+76,76. 16 weeks pregnant — black ,2,1,2,2,2,False
+77,77. My toddler had Sudafed nas,2,2,2,2,2,True
+78,"78. F 28, swollen glands, high",1,1,1,1,1,True
+79,79. Anal area injury,1,1,1,1,1,True
+80,80. are these symptoms normal,1,1,1,1,1,True
+81,81. Adverse health effects fro,1,1,1,1,1,True
+82,82. Lung nodule & liver lesion,1,1,1,1,1,True
+83,83. Why so many young adults w,1,1,1,1,1,True
+84,84. can i use stroganoff for a,2,2,2,2,2,True
+85,85. Emergency said I dunno,1,1,1,1,1,True
+86,86. Breast tumor biopsy result,1,1,1,1,1,True
+87,87. 23M – Doctor recommends ci,1,1,1,1,1,True
+88,88. Would getting all my vacci,1,1,1,1,1,True
+89,89. Unsure what kind of doctor,1,1,1,1,1,True
+90,90. random symptoms,1,1,1,1,1,True
+91,91. Why does my temperature dr,1,1,1,1,1,True
+92,92. Blood clot risk,1,1,1,1,1,True
+93,93. Was told my chest pains mi,2,1,2,2,2,False
+94,94. What is the quickest way t,3,1,3,3,3,False
+95,95. How exactly do they come t,1,1,1,1,1,True
+96,96. Did I hallucinate Worried,6,2,6,6,6,False
+97,97. Is it ok to just monitor m,1,1,1,1,1,True
+98,98. Chronic Chest Pain for nea,2,1,2,2,2,False
+99,99. Dizzy and out of breath wh,1,1,1,1,1,True
+100,100. I feel like I'm not becomi,2,2,2,2,2,True

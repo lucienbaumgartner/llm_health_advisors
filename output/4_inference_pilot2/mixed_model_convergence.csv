@@ -1,0 +1,7 @@
+"mechanism","model_stage","model_type","converged","message"
+"ER","A_group_omnibus","clmm",FALSE,"max|grad| = 0.00905 (didn't fully settle)"
+"ER","B_model_x_method","clmm",FALSE,"max|grad| = 0.00131 (didn't fully settle)"
+"IP","A_group_omnibus","glmer",TRUE,NA
+"IP","B_model_x_method","glmer",TRUE,NA
+"EX","A_group_omnibus","glmer",TRUE,NA
+"EX","B_model_x_method","glmer",TRUE,NA

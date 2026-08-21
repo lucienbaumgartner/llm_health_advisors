@@ -1,0 +1,242 @@
+---
+title: "Empathy in Real vs. Synthetic Clinician Comments"
+output:
+  pdf_document:
+    toc: false
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+
+out_dir <- "../../output/3_inference"
+
+qc <- read.csv(file.path(out_dir, "qc_comment_counts.csv"))
+qc$match <- as.logical(qc$match)
+
+results <- read.csv(file.path(out_dir, "inference_results.csv"))
+summary_stats <- read.csv(file.path(out_dir, "empathy_summary_stats.csv"))
+
+comparison <- read.csv(file.path(out_dir, "empathy_group_comparison.csv"))
+comparison$significant_bh_0.05 <- as.logical(comparison$significant_bh_0.05)
+
+kw <- read.csv(file.path(out_dir, "empathy_kruskal.csv"))
+
+length_corr <- read.csv(file.path(out_dir, "empathy_length_correlation.csv"))
+length_corr$significant_bh_0.05 <- as.logical(length_corr$significant_bh_0.05)
+
+length_summary <- read.csv(file.path(out_dir, "comment_length_by_group.csv"))
+
+# Everything below is derived from the data itself (group labels, mechanism
+# codes, sheet counts, ...) rather than hardcoded, so the report stays
+# accurate if the underlying data changes.
+mechanism_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+mechanisms_used <- unique(comparison$mechanism)
+methods_used <- results %>% filter(source == "synthetic") %>% pull(method) %>% unique() %>% sort()
+group_levels <- c("real", methods_used)
+
+n_sheets <- nrow(qc)
+n_mismatch <- sum(!qc$match)
+matched_sheet_names <- qc$sheet_name[qc$match]
+
+# All downstream tables/plots are restricted to the sheets where real and
+# synthetic comment counts match (see 1_xlsx_to_json.py / qc_comment_counts.csv);
+# the CSVs already reflect this, but `results` (the raw per-comment predictions)
+# needs filtering here too since the plots below are built from it directly.
+results <- results %>%
+  filter(sheet_name %in% matched_sheet_names) %>%
+  mutate(group = ifelse(source == "real", "real", method),
+         group = factor(group, levels = group_levels),
+         length = lengths(strsplit(as.character(response_post), "\\s+")))
+
+summary_stats <- summary_stats %>%
+  mutate(group = factor(group, levels = group_levels),
+         mechanism_label = mechanism_names[mechanism])
+
+comparison <- comparison %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         direction = ifelse(mean_synthetic < mean_real, "lower", "higher"),
+         fold_diff = mean_real / mean_synthetic)
+
+length_corr <- length_corr %>%
+  mutate(mechanism_label = mechanism_names[mechanism])
+
+sig_counts <- comparison %>%
+  group_by(mechanism, mechanism_label) %>%
+  summarise(n_sig = sum(significant_bh_0.05), .groups = "drop") %>%
+  arrange(desc(n_sig))
+
+describe_mechanism <- function(mech) {
+  rows <- comparison %>% filter(mechanism == mech, significant_bh_0.05)
+  if (nrow(rows) == 0) return("no synthetic method differed significantly from real comments after correction")
+  paste(sprintf("%s scored %s than real (p_adj = %.3g, r = %.2f)",
+                rows$method, rows$direction, rows$p_adj_bh, rows$rank_biserial_r),
+        collapse = "; ")
+}
+
+ex_rows <- comparison %>% filter(mechanism == "EX")
+ex_fold <- mean(ex_rows$fold_diff)
+
+real_len_summary <- length_summary %>% filter(group == "real")
+synth_len_summary <- length_summary %>% filter(group != "real")
+
+sig_length <- length_corr %>% filter(significant_bh_0.05)
+```
+
+## Summary
+
+Real comments score meaningfully higher than synthetic ones on
+**`r mechanism_names["EX"]`** (`r sprintf("%.1f", ex_fold)`x on average;
+significant for all `r length(methods_used)` methods, Kruskal-Wallis
+p = `r format.pval(kw$p_value[kw$mechanism == "EX"], digits = 2)`).
+**`r mechanism_names["ER"]`** and **`r mechanism_names["IP"]`** show no
+significant real-vs-synthetic differences after correction
+(`r sum(comparison$mechanism == "ER" & comparison$significant_bh_0.05)`/`r length(methods_used)`
+and `r sum(comparison$mechanism == "IP" & comparison$significant_bh_0.05)`/`r length(methods_used)`
+methods respectively). Effect sizes are modest throughout (rank-biserial
+r = `r sprintf("%.2f-%.2f", min(comparison$rank_biserial_r), max(comparison$rank_biserial_r))`),
+and comment length does not appear to be a general driver of these
+differences.
+
+## Data
+
+This report is restricted to the `r length(matched_sheet_names)`/`r n_sheets`
+source sheets where real and synthetic comment counts match. The other
+`r n_mismatch` sheets (`r sprintf("%.0f%%", 100 * n_mismatch / n_sheets)`) have
+real comments merged into fewer cells than their stated "real breakdown"
+total (several real comments appear to have been merged into one cell
+upstream, in the source spreadsheet), which would bias the real-comment
+group; there's no reliable way to recover the original boundaries (see
+`1_xlsx_to_json.py` and `qc_comment_counts.csv`), so those sheets are
+excluded here entirely rather than left in with mismatched counts.
+
+`r nrow(results)` comments were classified: `r sum(results$source == "real")` real
+clinician comments and `r sum(results$source == "synthetic")` synthetic comments,
+split across `r length(methods_used)` prompting strategies
+(`r toString(methods_used)`)`r if (length(unique(table(results$method[results$source == "synthetic"]))) == 1) sprintf(", %d comments each", unique(table(results$method[results$source == "synthetic"])))`.
+Predicted empathy comes from three fine-tuned RoBERTa bi-encoder classifiers
+(`r toString(mechanism_names[mechanisms_used])`; see `../2_training`), each
+producing an ordinal label: 0 = none, 1 = weak, 2 = strong.
+
+## Mean predicted empathy by group
+
+Empathy labels are ordinal (0 = none, 1 = weak, 2 = strong).
+The tests used throughout this report (Mann-Whitney U, Kruskal-Wallis,
+Spearman) are rank-based. The means shown below implicitly treat the labels
+as equally spaced, and are shown only as a quick, monotonic summary (see Table \ref{tab:means} \& Fig. \ref{fig:means}). The actual
+label distribution (the ordinal-honest view) is plotted underneath it as
+proportions per group (Fig. \ref{fig:sb}).
+
+```{r summary-table}
+summary_stats %>%
+  select(mechanism_label, group, n, mean) %>%
+  arrange(mechanism_label, factor(group, levels = group_levels)) %>%
+  kable(digits = 3, col.names = c("Mechanism", "Group", "n", "Mean"),
+        caption = "Population means per metric.\\label{tab:means}")
+```
+
+```{r plot, fig.width=6, fig.height=3, fig.cap="Average predicted empathy per population.\\label{fig:means}"}
+plot_df <- results %>%
+  pivot_longer(cols = c(ER_label, IP_label, EX_label), names_to = "mechanism", values_to = "label") %>%
+  mutate(mechanism = sub("_label", "", mechanism),
+         mechanism_label = mechanism_names[mechanism])
+
+ggplot(plot_df, aes(x = group, y = label, fill = group)) +
+  stat_summary(fun = mean, geom = "bar") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+  facet_wrap(~mechanism_label) +
+  labs(x = NULL, y = "Mean predicted empathy label (0-2)", fill = NULL) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r proportion-plot, fig.width=6, fig.height=3, fig.cap="Stacked predicted label proportions per population.\\label{fig:sb}"}
+prop_df <- summary_stats %>%
+  select(mechanism_label, group, prop_label_0, prop_label_1, prop_label_2) %>%
+  pivot_longer(cols = starts_with("prop_label_"), names_to = "label", values_to = "proportion") %>%
+  mutate(label = factor(sub("prop_label_", "", label), levels = c("0", "1", "2")))
+
+ggplot(prop_df, aes(x = group, y = proportion, fill = label)) +
+  geom_bar(position = "stack", stat = "identity") +
+  facet_wrap(~mechanism_label) +
+  labs(x = NULL, y = "Share of comments", fill = "Predicted label") +
+  scale_fill_brewer(palette = "Blues") +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank()
+  )
+```
+
+## Real vs. synthetic (Mann-Whitney U, Benjamini-Hochberg adjusted)
+
+```{r comparison-table}
+comparison %>%
+  select(mechanism_label, method, mean_real, mean_synthetic, p_value, p_adj_bh, rank_biserial_r) %>%
+  kable(digits = c(0, 0, 3, 3, 4, 4, 3),
+        col.names = c("Mechanism", "Method", "Mean (real)", "Mean (synthetic)",
+                       "p", "p (BH-adj.)", "Rank-biserial r"),
+        caption = "Mann-Whitney U test.\\label{tab:mwu}")
+```
+
+```{r kruskal-table}
+kw %>%
+  mutate(mechanism_label = mechanism_names[mechanism]) %>%
+  select(mechanism_label, H, p_value) %>%
+  kable(digits = c(0, 2, 4), col.names = c("Mechanism", "H", "p (Kruskal-Wallis)"),
+        caption = "Kruskal-Wallis Test.\\label{tab:kw}")
+```
+
+
+Across the `r length(mechanisms_used)` empathy mechanisms,
+`r sum(comparison$significant_bh_0.05)` of the `r nrow(comparison)`
+real-vs-synthetic comparisons were significant after BH correction at $\alpha = .05$ (see Table \ref{tab:mwu}):
+
+**`r mechanism_names["ER"]`:** `r describe_mechanism("ER")`.
+
+**`r mechanism_names["IP"]`:** `r describe_mechanism("IP")`.
+
+**`r mechanism_names["EX"]`:** `r describe_mechanism("EX")`.
+
+The clearest and only consistent gap is in **`r mechanism_names["EX"]`**
+(Kruskal-Wallis p = `r format.pval(kw$p_value[kw$mechanism == "EX"], digits = 2)`; see Table \ref{tab:kw}):
+every synthetic method scored lower than real comments, by an average factor of
+`r sprintf("%.1f", ex_fold)`x.
+
+## Comment length
+
+Real comments (mean `r sprintf("%.0f", real_len_summary$mean_length)` words,
+median `r sprintf("%.0f", real_len_summary$median_length)`, SD
+`r sprintf("%.0f", real_len_summary$std_length)`) are on average
+`r sprintf("%.0f", real_len_summary$mean_length - mean(synth_len_summary$mean_length))`
+words longer than synthetic comments and more variable in length. Synthetic
+comments are tightly clustered around
+`r sprintf("%.0f", mean(synth_len_summary$mean_length))` words
+(SD `r sprintf("%.0f", mean(synth_len_summary$std_length))`) regardless of
+method, suggesting the generation prompts constrain length fairly strictly.
+
+```{r length-table}
+length_summary %>%
+  kable(digits = 1, col.names = c("Group", "n", "Mean length", "Median length", "SD length"))
+```
+
+```{r length-corr-table}
+length_corr %>%
+  select(mechanism_label, group, n, spearman_rho, p_value, p_adj_bh) %>%
+  kable(digits = c(0, 0, 0, 3, 4, 4),
+        col.names = c("Mechanism", "Group", "n", "Spearman rho", "p", "p (BH-adj.)"))
+```
+
+`r nrow(sig_length)` of the `r nrow(length_corr)` length-empathy correlations
+(overall and within each group, per mechanism) are significant after BH
+correction: `r if (nrow(sig_length) == 0) "none" else paste(sprintf("%s/%s (rho = %.2f, p_adj = %.3g)", sig_length$mechanism_label, sig_length$group, sig_length$spearman_rho, sig_length$p_adj_bh), collapse = "; ")`.
+Length is not a strong general driver of predicted empathy: most
+correlations are weak and non-significant, including every pooled ("overall")
+correlation. Hence, the group differences reported above are unlikely to be a
+simple length artifact, even though real and synthetic comments differ
+somewhat in length.
+
