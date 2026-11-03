@@ -1,0 +1,18 @@
+"discipline","n_threads","share","topic","exploratory","residual"
+"Cardiovascular",498,0.0754545454545455,"cardiovascular",FALSE,FALSE
+"Dentistry",64,0.0096969696969697,"dentistry",TRUE,FALSE
+"Dermatology",715,0.108333333333333,"dermatology",FALSE,FALSE
+"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,"endocrinology_nutrition_and_metabolism",FALSE,FALSE
+"Gastroenterology",711,0.107727272727273,"gastroenterology",FALSE,FALSE
+"Genitourinary and reproductive health",695,0.10530303030303,"genitourinary_and_reproductive_health",FALSE,FALSE
+"Hematology and immunology",326,0.0493939393939394,"hematology_and_immunology",TRUE,FALSE
+"Infectious diseases",572,0.0866666666666667,"infectious_diseases",FALSE,FALSE
+"Medical; other",361,0.0546969696969697,"medical_other",FALSE,TRUE
+"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,"musculoskeletal_and_connective_tissue_conditions",FALSE,FALSE
+"Neoplasms",173,0.0262121212121212,"neoplasms",TRUE,FALSE
+"Neurology",525,0.0795454545454545,"neurology",FALSE,FALSE
+"Nonmedical",39,0.00590909090909091,"nonmedical",TRUE,TRUE
+"Ophthalmology",69,0.0104545454545455,"ophthalmology",TRUE,FALSE
+"Otolaryngology",281,0.0425757575757576,"otolaryngology",TRUE,FALSE
+"Psychiatry and mental health",596,0.0903030303030303,"psychiatry_and_mental_health",FALSE,FALSE
+"Pulmonology",174,0.0263636363636364,"pulmonology",TRUE,FALSE

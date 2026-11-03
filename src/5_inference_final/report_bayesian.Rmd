@@ -1,0 +1,367 @@
+---
+title: "Empathy in Real vs. Synthetic Clinician Comments — Bayesian Mixed-Effects Models"
+output:
+  bookdown::html_document2:
+    toc: false
+  bookdown::pdf_document2:
+    toc: false
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(knitr)
+library(stringr)
+library(kableExtra)
+
+rm(list = ls())
+if (rstudioapi::isAvailable()) {
+  setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
+
+# kableExtra 1.4.0 has a known bug (github.com/haozhu233/kableExtra/issues/831):
+# any kable() piped into row_spec() gets its bookdown caption number
+# duplicated in HTML output only, which also pushes every later table's
+# number up by one. Forcing format="html" explicitly avoids it; PDF output
+# already auto-detects "latex" correctly and isn't affected.
+html_fmt <- function() if (knitr::is_html_output()) "html" else NULL
+
+# row_spec(background = ...) emits \cellcolor in LaTeX, which needs colortbl; the
+# bookdown PDF template loads xcolor without its table option, so request it.
+if (knitr::is_latex_output()) invisible(kableExtra::usepackage_latex("colortbl"))
+
+out_dir <- "../../output/5_inference_final"
+
+# Shared labels/ordering, read from the same MWU comparison table report.Rmd
+# uses, so both documents describe the same groups/models/methods.
+comparison <- read.csv(file.path(out_dir, "empathy_group_comparison.csv"))
+mechanism_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+mechanisms_used <- unique(comparison$mechanism)
+models_used <- sort(unique(comparison$model))
+methods_used <- sort(unique(comparison$method))
+
+# Bayesian mixed-effects results (see 3c_bayesian_models.R).
+bm_convergence <- read.csv(file.path(out_dir, "bayesian_convergence.csv"))
+bm_convergence$converged <- as.logical(bm_convergence$converged)
+bm_length_effect <- read.csv(file.path(out_dir, "bayesian_length_effect.csv"))
+bm_vs_real <- read.csv(file.path(out_dir, "bayesian_contrasts_vs_real.csv"))
+bm_vs_real_nolength_ip <- read.csv(file.path(out_dir, "bayesian_contrasts_vs_real_nolength_IP.csv"))
+bm_between_model <- read.csv(file.path(out_dir, "bayesian_contrasts_between_model.csv"))
+bm_within_model <- read.csv(file.path(out_dir, "bayesian_contrasts_within_model.csv"))
+
+# Counts and weighted-vs-subsample numbers quoted in the methods, read from
+# saved outputs rather than typed in. qc_filter_and_balance.csv has one row per
+# (thread, model, method) cell with the synthetic count and the thread's real
+# count; the weights in 3c_bayesian_models.R are min(1, real_count / cell size).
+qc_cells <- read.csv(file.path(out_dir, "qc_filter_and_balance.csv"))
+n_synth_all <- sum(qc_cells$original_n)
+n_real <- sum(distinct(qc_cells, post_id, real_count)$real_count)
+n_threads <- n_distinct(qc_cells$post_id)
+n_synth_weight <- sum(pmin(qc_cells$original_n, qc_cells$real_count))
+wcmp <- read.csv(file.path(out_dir, "stability_weighted_comparison.csv")) %>%
+  mutate(diff_in_se = (weighted_estimate - subsample_mean_estimate) / subsample_mean_SE)
+fmt <- function(x) format(x, big.mark = ",")
+
+# "Credible" here means both: pd > CREDIBLE_PD (the rough two-sided-p<0.05
+# analogue - see intro) AND the 95% HPD interval for the odds ratio excludes
+# 1. The two will usually agree; requiring both is a slightly more
+# conservative flagging rule than either alone, deliberately, since pd alone
+# can be extreme even for a tiny, practically negligible effect (pd depends
+# only on which side of zero the posterior falls, not on effect size).
+CREDIBLE_PD <- 0.975
+is_credible <- function(df) df$pd > CREDIBLE_PD & (df$OR_LCL > 1 | df$OR_UCL < 1)
+
+bm_convergence <- bm_convergence %>% mutate(mechanism_label = mechanism_names[mechanism])
+bm_length_effect <- bm_length_effect %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         direction = ifelse(log_length_coef > 0, "longer", "shorter"))
+bm_vs_real <- bm_vs_real %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         direction = ifelse(odds_ratio < 1, "lower", "higher"),
+         credible = is_credible(.))
+bm_between_model <- bm_between_model %>% mutate(mechanism_label = mechanism_names[mechanism], credible = is_credible(.))
+bm_within_model <- bm_within_model %>% mutate(mechanism_label = mechanism_names[mechanism], credible = is_credible(.))
+
+describe_rhat_margin <- function() {
+  top <- bm_convergence %>% slice_max(max_rhat, n = 1, with_ties = FALSE)
+  sprintf("The largest max Rhat is %.4f (%s, %s); %d of %d fits are above 1.005, so several sit close to the 1.01 cutoff rather than well inside it.",
+          top$max_rhat, top$mechanism_label, ifelse(top$model_stage == "A_group_omnibus", "Model A", "Model B"),
+          sum(bm_convergence$max_rhat > 1.005), nrow(bm_convergence))
+}
+
+describe_convergence <- function() {
+  ok <- bm_convergence %>% filter(converged)
+  bad <- bm_convergence %>% filter(!converged)
+  if (nrow(bad) == 0) {
+    return("All six fits (Model A and Model B for all three mechanisms) converged cleanly: max Rhat < 1.01, minimum bulk-ESS ratio above 0.1, and zero divergent transitions throughout.")
+  }
+  bad_desc <- sprintf("**%s's %s** (%s)", bad$mechanism_label,
+                       ifelse(bad$model_stage == "A_group_omnibus", "Model A", "Model B"),
+                       bad$message)
+  ok_desc <- if (nrow(ok) > 0) {
+    sprintf(" %s converged cleanly.", toString(sprintf("%s's %s", ok$mechanism_label,
+                                                          ifelse(ok$model_stage == "A_group_omnibus", "Model A", "Model B"))))
+  } else ""
+  sprintf("%s did not meet the convergence criteria (max Rhat < 1.01, min ESS ratio > 0.1, zero divergences).%s",
+          toString(bad_desc), ok_desc)
+}
+
+# Whether the fit this whole document exists for - ER's Model B, which the
+# frequentist clmm fit couldn't estimate at all (non-positive-definite
+# Hessian, see report.Rmd) - actually produced usable results this time.
+er_b_status <- function() {
+  row <- bm_convergence %>% filter(mechanism == "ER", model_stage == "B_model_x_method")
+  if (nrow(row) == 0) return("no result found for Emotional Reactions' Model B - check that 3c_bayesian_models.R actually ran that fit.")
+  if (isTRUE(row$converged)) {
+    "**this is the fit the frequentist model couldn't produce at all** - it now has a full posterior, credible intervals, and simple-effects contrasts below, none of which existed in the frequentist report."
+  } else {
+    sprintf("it still didn't meet the convergence criteria here either (%s) - weakly-informative priors alone weren't enough to fully resolve this fit's difficulty; see the discussion below before trusting its contrasts.", row$message)
+  }
+}
+
+describe_length_significance_bayes <- function() {
+  credible <- bm_length_effect %>% filter(pd > CREDIBLE_PD, !(CI_LCL < 0 & CI_UCL > 0))
+  n <- nrow(bm_length_effect)
+  if (nrow(credible) == n) return(sprintf("credibly nonzero for all %d mechanisms (pd > %.3f, 95%% CrI excludes 0)", n, CREDIBLE_PD))
+  if (nrow(credible) == 0) return("not credibly nonzero for any mechanism at this threshold")
+  sprintf("credibly nonzero for %s but not for %s", toString(credible$mechanism_label),
+          toString(setdiff(bm_length_effect$mechanism_label, credible$mechanism_label)))
+}
+
+describe_length_direction_bayes <- function() {
+  longer <- bm_length_effect$mechanism_label[bm_length_effect$direction == "longer"]
+  shorter <- bm_length_effect$mechanism_label[bm_length_effect$direction == "shorter"]
+  if (length(shorter) == 0) return(sprintf("in the same direction: %s all score higher with more words.", toString(longer)))
+  if (length(longer) == 0) return(sprintf("in the same direction: %s all score lower with more words.", toString(shorter)))
+  sprintf("not in the same direction: %s score higher with more words, while %s scores lower with more words.",
+          toString(longer), toString(shorter))
+}
+
+describe_vs_real_summary_bayes <- function() {
+  all_mechs <- unique(bm_vs_real$mechanism_label)
+  higher <- bm_vs_real %>% filter(credible, direction == "higher")
+  clean_mechs <- setdiff(all_mechs, unique(higher$mechanism_label))
+  parts <- c()
+  if (length(clean_mechs) > 0) {
+    parts <- c(parts, sprintf("real scores credibly higher than every synthetic group for %s", toString(clean_mechs)))
+  }
+  if (nrow(higher) > 0) {
+    exc <- higher %>% group_by(mechanism_label) %>%
+      summarise(text = paste(sub(" - real", "", contrast), collapse = ", "), .groups = "drop")
+    parts <- c(parts, sprintf("%s %s the exception%s---%s score%s credibly *higher* than real",
+                               toString(exc$mechanism_label), ifelse(nrow(exc) > 1, "are", "is"),
+                               ifelse(nrow(exc) > 1, "s", ""), toString(exc$text),
+                               ifelse(nrow(higher) > 1, "", "s")))
+  }
+  paste0(paste(parts, collapse = "; "), ".")
+}
+
+row_bg <- function(df) which(df$credible & df$odds_ratio > 1)
+```
+
+## Scope
+
+This document is a **companion to [`report.Rmd`](report.html)**, not a
+replacement for it - it only re-does the *mixed-effects modeling* stage
+(originally `3b_mixed_effects_models.R`, fit with `ordinal::clmm` /
+`lme4::glmer`), using `brms`/Stan instead. Everything else - the data
+description, QC, and Mann-Whitney tests - lives in the main report; this
+document doesn't repeat it.
+
+**Why:** on the full dataset, Emotional Reactions' Model B (the model x
+method interaction) fails to converge under maximum likelihood - the fit's
+Hessian is not positive definite, so no valid standard error or p-value
+exists for it at all (see `report.Rmd`'s convergence discussion). The usual
+frequentist fix for this kind of separation, Firth-style penalized
+likelihood, has no mature implementation that supports *both* an ordinal
+cumulative-link outcome and a random intercept for post-clustering, in R or
+Python (checked directly: `ordinal::clm`/`clmm` have no bias-reduction
+option; `brglm2` only covers fixed-effects GLMs with no cumulative-link
+family). A Bayesian fit with weakly-informative priors resolves the same
+separation problem the same way Firth's correction does - by keeping
+estimates finite instead of letting them run to a boundary - while keeping
+the interaction and the `post_id` random intercept intact.
+
+**Data and response weights.** All `r fmt(n_real + n_synth_all)` comments are
+modeled (`r fmt(n_real)` real, `r fmt(n_synth_all)` synthetic, from
+`r fmt(n_threads)` threads): no length-outlier exclusion and no random
+subsampling (both were examined and rejected; see
+`report_outlier_exclusion`). Synthetic comments outnumber real ones within a
+thread, because they were generated against each thread's total comment count
+while the real comments are a smaller clinician-only subset. To stop long
+threads from counting for more on the synthetic side than on the real side,
+each real comment gets weight 1 and each synthetic comment gets
+`w = min(1, real count / synthetic count)` for its (thread, model, method)
+cell. The synthetic weights sum to `r fmt(n_synth_weight)` - exactly what
+per-thread subsampling would keep - and the expected subsampled
+log-likelihood equals the weighted one, so a weighted fit targets the
+average over random subsamples without depending on any single draw.
+
+`brms` multiplies each comment's log-likelihood by its weight, so this is a
+pseudo-likelihood: point estimates target the same quantity as subsampling,
+but posterior widths are approximate (they behave as if the sum of the
+weights were the sample size) and are not corrected for the weighting. A
+check that a fit with weight 2 on every comment matches an unweighted fit on
+the doubled data confirmed the weights enter the likelihood as intended. In a
+separate frequentist check on Interpretations and Explorations (50 balanced
+subsamples vs. one weighted fit), the weighted estimates sat a median of
+`r sprintf("%.2f", median(abs(wcmp$diff_in_se)))` SE from the subsample
+average (up to `r sprintf("%.1f", max(abs(wcmp$diff_in_se)))` SE), and the
+weighted fit's naive standard errors were about
+`r sprintf("%.0f", 100 * (median(wcmp$se_ratio_weighted_over_subsample) - 1))`% larger
+than a single subsample's. The weighted fit is therefore a different
+estimator, not an exact stand-in for subsampling, and that check did not
+cover Emotional Reactions. Subsampling sensitivity checks are planned
+separately.
+
+**Models**, fit separately for each mechanism, with weights `w` as above:
+
+- **A** (`label | weights(w) ~ group + log(length) + (1|post_id)`, all
+  comments): each (model, method) group vs. real.
+- **B** (`label | weights(w) ~ model * method + log(length) + (1|post_id)`,
+  synthetic comments only): simple-effects contrasts between models within
+  each method, and between methods within each model.
+
+Emotional Reactions uses `family = cumulative("logit")` (all 3 empathy
+levels); Interpretations and Explorations use `family = bernoulli("logit")`
+on `label == 2` (both never predict label 1 in this data - same as the
+frequentist version).
+
+**Priors:** `normal(0, 2.5)` on every fixed effect and (for Emotional
+Reactions) the ordinal thresholds - a standard weakly-informative default for
+logistic-type models (Gelman, Jakulin, Pittau & Su, 2008) - and
+`student_t(3, 0, 2.5)` on the `post_id` random-effect SD (brms's own
+default). This is what actually addresses separation: brms's *default*
+fixed-effect prior is an improper flat prior, which would leave the same
+non-identifiability problem the frequentist fit has.
+
+**Sampler and reproducibility:** `brms`/Stan via `cmdstanr`, 4 chains of 2000
+iterations (1000 warmup), with 4 threads per chain. The Interpretations and
+Explorations Model A fits were rerun with 4000 iterations (same warmup)
+because their max Rhat was 1.011 at 2000. The seed (20260101) is fixed, but
+within-chain threading makes exact reproduction of the draws from the seed
+alone unreliable (identical seeds with threading gave different draws in a
+direct test, because multithreaded summation order is not deterministic). The
+fitted models, including every posterior draw, are saved to disk
+(`models_bayesian/`), with the software versions and settings in
+`run_metadata.txt`; reproducibility rests on those saved fits, not on
+regenerating identical draws.
+
+**Reading this document vs. the frequentist one:** there is no p-value in a
+Bayesian fit. In place of BH-adjusted p-values, contrasts below report a 95%
+highest-posterior-density (HPD) credible interval and `pd`, the posterior
+*probability of direction* - the share of posterior draws on the same side
+of zero as the point estimate. `pd` and a p-value answer different
+questions and aren't interchangeable, but as a rough calibration, `pd >
+0.975` is comparable to two-sided `p < 0.05` (Makowski et al., 2019). A
+contrast is called **credible** below only when *both* `pd > 0.975` **and**
+the 95% CrI for the odds ratio excludes 1 - deliberately a bit more
+conservative than either alone, since `pd` can be extreme even for a tiny,
+practically negligible effect. Contrasts are odds ratios (link-scale
+estimates, exponentiated).
+
+## Convergence
+
+```{r bm-convergence}
+bm_convergence %>%
+  select(mechanism_label, model_stage, model_type, converged, max_rhat, min_neff_ratio, divergent_transitions) %>%
+  kable(digits = c(0, 0, 0, 0, 4, 3, 0),
+        col.names = c("Mechanism", "Model", "Family", "Converged", "Max Rhat", "Min ESS ratio", "Divergences"),
+        caption = "Convergence for each brms fit: max Rhat < 1.01, minimum bulk-ESS ratio above 0.1, and zero divergent transitions.")
+```
+
+`r describe_convergence()` `r describe_rhat_margin()`
+
+Emotional Reactions' Model B is the fit this document exists to try to
+rescue - `r er_b_status()`
+
+## Comment length
+
+```{r bm-length}
+bm_length_effect %>%
+  select(mechanism_label, log_length_coef, CI_LCL, CI_UCL, pd) %>%
+  kable(digits = 3, col.names = c("Mechanism", "log(length) coef.", "95% CrI (low)", "95% CrI (high)", "pd"),
+        caption = "Model A: posterior median log(length) coefficient (logit scale), with its credible interval and probability of direction.")
+```
+
+Comment length (log-transformed) is `r describe_length_significance_bayes()`,
+and `r describe_length_direction_bayes()`
+
+## Real vs. synthetic (Model A)
+
+```{r bm-vs-real}
+vs_real_df <- bm_vs_real %>%
+  mutate(contrast = sub(" - real", "", contrast)) %>%
+  select(mechanism_label, contrast, odds_ratio, OR_LCL, OR_UCL, pd, credible)
+
+vs_real_df %>%
+  select(-credible) %>%
+  kable(format = html_fmt(), digits = c(0, 0, 3, 3, 3, 3),
+        col.names = c("Mechanism", "Group", "Odds ratio", "OR 95% CrI (low)", "OR 95% CrI (high)", "pd"),
+        caption = "Model A: each (model, method) group vs. real (odds ratio below 1 = lower odds of higher empathy than real; credible rows with OR above 1 shaded).") %>%
+  row_spec(row_bg(vs_real_df), background = "#f8d7da")
+```
+
+`r describe_vs_real_summary_bayes()`
+
+```{r bm-length-confound-ip}
+describe_length_confound_ip_bayes <- function() {
+  ip_vs_real <- bm_vs_real %>% filter(mechanism == "IP") %>% select(contrast, direction)
+  nolength_dir <- bm_vs_real_nolength_ip %>%
+    mutate(direction_nolength = ifelse(odds_ratio < 1, "lower", "higher")) %>%
+    select(contrast, direction_nolength)
+  flips <- ip_vs_real %>% inner_join(nolength_dir, by = "contrast") %>%
+    filter(direction != direction_nolength)
+  if (nrow(flips) == 0) {
+    return("Refitting Interpretations' Model A without `log(length)` doesn't flip any group's direction, so the pattern above isn't a length artifact under this model either.")
+  }
+  sprintf("Refitting Interpretations' Model A without `log(length)` flips the posterior median direction for %s (%d group%s), consistent with a length confound rather than a pure model/method effect for those groups.",
+          toString(sub(" - real", "", flips$contrast)), nrow(flips), ifelse(nrow(flips) > 1, "s", ""))
+}
+```
+
+`r describe_length_confound_ip_bayes()`
+
+## Simple-effects contrasts (Model B)
+
+Same rationale as the frequentist report: rather than pooled main-effect
+means (which would be misleading wherever the model x method interaction is
+credible), two sets of simple-effects contrasts - models compared within
+each method, and methods compared within each model.
+
+```{r bm-between-model}
+between_df <- bm_between_model %>% select(mechanism_label, method, contrast, odds_ratio, OR_LCL, OR_UCL, pd, credible)
+between_df %>%
+  select(-credible) %>%
+  kable(format = html_fmt(), digits = c(0, 0, 0, 3, 3, 3, 3),
+        col.names = c("Mechanism", "Method", "Contrast", "Odds ratio", "OR 95% CrI (low)", "OR 95% CrI (high)", "pd"),
+        caption = "Model B: pairwise model contrasts within each method.") %>%
+  row_spec(row_bg(between_df), background = "#f8d7da")
+```
+
+```{r bm-within-model}
+within_df <- bm_within_model %>% select(mechanism_label, model, contrast, odds_ratio, OR_LCL, OR_UCL, pd, credible)
+within_df %>%
+  select(-credible) %>%
+  kable(format = html_fmt(), digits = c(0, 0, 0, 3, 3, 3, 3),
+        col.names = c("Mechanism", "Model", "Contrast", "Odds ratio", "OR 95% CrI (low)", "OR 95% CrI (high)", "pd"),
+        caption = "Model B: pairwise method contrasts within each model.") %>%
+  row_spec(row_bg(within_df), background = "#f8d7da")
+```
+
+```{r bm-missing-check}
+describe_bayes_vs_freq_coverage <- function() {
+  freq_missing_er <- TRUE  # ER's Model B was entirely absent from report.Rmd's simple-effects tables
+  n_er_between <- sum(bm_between_model$mechanism == "ER")
+  n_er_within <- sum(bm_within_model$mechanism == "ER")
+  if (n_er_between > 0 && n_er_within > 0) {
+    "Unlike the frequentist report - where Emotional Reactions was entirely absent from both simple-effects tables because its Model B fit was unusable - Emotional Reactions appears in both tables above."
+  } else {
+    "Emotional Reactions is still missing from one or both tables above, which would mean this Bayesian fit didn't fully resolve the frequentist model's problem either - check the convergence section before trusting any partial results."
+  }
+}
+```
+
+`r describe_bayes_vs_freq_coverage()`

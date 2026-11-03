@@ -1,0 +1,6 @@
+Topic labels produced by the collaborator's pipeline (src/classify_topics.py + export_labels.py).
+Source: https://github.com/cmstewart/llm_health_advisors/blob/main/src/output/corpora/export/topic_labels.csv
+Last commit touching the file: 0f82e90cc503e7574a59bdb4ac4e17d09f355712 2026-10-11T15:00:36Z
+Downloaded: 2026-10-15T08:29Z
+md5: 453163a8a882405ab4bd8d878c53bfee
+Unit: one row per opening post (thread), key submission_id. discipline = production-model label (label_model column).

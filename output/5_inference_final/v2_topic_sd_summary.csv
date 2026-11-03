@@ -1,0 +1,10 @@
+"mechanism","model","parameter","median","lcl","ucl"
+"ER","C2","topic_intercept_sd",0.3720645,0.197422,0.629527
+"ER","C2","topic_slope_sd",0.2107015,0.0790872,0.407916
+"ER","C2","post_id_sd",1.3354,1.26998,1.40785
+"IP","C2","topic_intercept_sd",0.0626101,2.81442e-05,0.189476
+"IP","C2","topic_slope_sd",0.252205,0.118874,0.429029
+"IP","C2","post_id_sd",1.082485,1.03603,1.1307
+"EX","C2","topic_intercept_sd",0.2191975,0.0642197,0.417046
+"EX","C2","topic_slope_sd",0.4344045,0.23029,0.751867
+"EX","C2","post_id_sd",1.417165,1.34246,1.49445

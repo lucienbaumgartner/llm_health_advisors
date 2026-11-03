@@ -1,0 +1,321 @@
+---
+title: "Length-Outlier Exclusion vs. Per-Thread Subsampling"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(stringr)
+library(kableExtra)
+
+rm(list = ls())
+if (rstudioapi::isAvailable()) {
+  setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
+
+# kableExtra 1.4.0 duplicates bookdown HTML caption numbers for tables piped
+# through row_spec()/kable_styling() (github.com/haozhu233/kableExtra/issues/831);
+# forcing format = "html" avoids it. PDF auto-detects "latex" and is unaffected.
+html_fmt <- function() if (knitr::is_html_output()) "html" else NULL
+shrink <- function(k) if (knitr::is_latex_output()) kable_styling(k, font_size = 8) else k
+
+out_dir <- "../../output/5_inference_final"
+overview <- read.csv(file.path(out_dir, "length_outlier_test_summary.csv"))
+sf <- read.csv(file.path(out_dir, "length_outlier_test_shortfall_by_group.csv"))
+nz <- read.csv(file.path(out_dir, "length_outlier_test_nonzero_by_group.csv"))
+
+mechanism_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+rules_order <- c("none", "iqr_1.5_raw", "iqr_1.5_log", "iqr_3.0_log", "mad_3.5_log",
+                 "percentile_1_99_log", "percentile_2.5_97.5_log")
+rule_labels <- c(none = "None", iqr_1.5_raw = "IQR1.5 raw", iqr_1.5_log = "IQR1.5 log",
+                 iqr_3.0_log = "IQR3 log", mad_3.5_log = "MAD3.5 log",
+                 percentile_1_99_log = "P1-99 log", `percentile_2.5_97.5_log` = "P2.5-97.5 log")
+chosen_rule <- "mad_3.5_log"
+
+group_order <- as.vector(t(outer(c("Gemini", "Openai", "Grok"), c("DG", "SAG", "SAGII"),
+                                 paste, sep = " / ")))
+add_group <- function(d) d %>% mutate(group = paste(str_to_title(model), toupper(method), sep = " / "))
+sf <- add_group(sf)
+nz <- add_group(nz)
+
+# Wide table: rows = (model, method) group plus a pooled row, columns = rules.
+wide_table <- function(long, value, pooled) {
+  w <- long %>% select(group, outlier_rule, all_of(value)) %>%
+    pivot_wider(names_from = outlier_rule, values_from = all_of(value))
+  w <- w[match(group_order, w$group), ]
+  p <- pooled %>% pivot_wider(names_from = outlier_rule, values_from = pct) %>% mutate(group = "All synthetic")
+  out <- bind_rows(w, p)[, c("group", rules_order)]
+  colnames(out) <- c("Group", unname(rule_labels[rules_order]))
+  out
+}
+
+pooled_sf <- sf %>% group_by(outlier_rule) %>%
+  summarise(pct = 100 * sum(n_shortfall_cells) / sum(n_cells), .groups = "drop")
+pooled_nz <- function(mech) nz %>% filter(mechanism == mech) %>% group_by(outlier_rule) %>%
+  summarise(pct = 100 * sum(n_nonzero_excluded) / sum(n_nonzero), .groups = "drop")
+
+pooled_range <- function(pooled) {
+  r <- pooled %>% filter(outlier_rule != "none")
+  lo <- r %>% slice_min(pct, n = 1); hi <- r %>% slice_max(pct, n = 1)
+  sprintf("%.2f%% (%s) to %.2f%% (%s)", lo$pct, rule_labels[lo$outlier_rule], hi$pct, rule_labels[hi$outlier_rule])
+}
+
+worst_group <- function(long, value, rule) {
+  w <- long %>% filter(outlier_rule == rule) %>% slice_max(.data[[value]], n = 1, with_ties = FALSE)
+  sprintf("%.2f%% (%s)", w[[value]], w$group)
+}
+
+n_zero_baseline <- sum(sf$n_shortfall_cells[sf$outlier_rule == "none"])
+
+# Subsampling stability (3f_subsample_stability.R) and weighted full-data
+# comparison (3g_weighted_vs_subsample.R).
+stab <- read.csv(file.path(out_dir, "stability_subsample_summary.csv"))
+cmp <- read.csv(file.path(out_dir, "stability_weighted_comparison.csv")) %>%
+  mutate(diff_in_se = (weighted_estimate - subsample_mean_estimate) / subsample_mean_SE,
+         weighted_sig = abs(weighted_z) > 1.96,
+         subsamples_mostly_sig = prop_sig_subsamples > 0.5)
+n_reps <- max(stab$n_reps)
+stage_labels <- c(A_vs_real = "vs. real", B_between_model = "Models (in method)",
+                  B_within_model = "Methods (in model)")
+mech_labels <- c(IP = "Interpretations", EX = "Explorations")
+unstable <- stab %>% filter(prop_sig_05 > 0, prop_sig_05 < 1)
+stage_b <- stab %>% filter(stage != "A_vs_real")
+gt2 <- cmp %>% filter(abs(diff_in_se) > 2)
+n_gt2 <- nrow(gt2)
+n_gt2_ex <- sum(gt2$mechanism == "EX")
+n_gt2_sub_larger <- sum(abs(gt2$subsample_mean_estimate) > abs(gt2$weighted_estimate))
+stab_by_stage_med <- stab %>% group_by(mechanism, stage) %>% summarise(m = median(sd_over_se), .groups = "drop") %>% pull(m)
+qc_cells <- read.csv(file.path(out_dir, "qc_filter_and_balance.csv"))
+n_synth_all <- sum(qc_cells$original_n)
+n_balanced <- sum(pmin(qc_cells$original_n, qc_cells$real_count))
+```
+
+# Problem
+
+The synthetic comments are subsampled per thread so each (model, method)
+group has exactly as many comments per thread as the real group. That needs
+every (thread, model, method) cell to hold *at least* as many synthetic
+comments as the thread's real count. Removing length outliers *first* breaks
+this: a cell can end up with fewer synthetic comments than real ones
+("shortfall"), and since many cells hold a single comment, one flagged
+comment can empty a cell entirely. Without any exclusion,
+`r n_zero_baseline` cells fall short. Table \@ref(tab:overview) lists the six
+rules compared.
+
+```{r overview}
+overview %>%
+  mutate(method = unname(rule_labels[method])) %>%
+  select(method, synthetic_excluded_n, synthetic_excluded_pct, shortfall_cells_n, shortfall_cells_pct) %>%
+  kable(digits = c(0, 0, 2, 0, 2),
+        position = "!h",
+        col.names = c("Rule", "Comments excluded", "% excluded", "Cells short", "% cells short"),
+        caption = "Length-outlier rules compared (detected within each model x method group; log = on log word count).")
+```
+
+# Cells that fall short, by model x method
+
+Pooled over all groups, the rules push `r pooled_range(pooled_sf)` of cells
+into shortfall (none without exclusion). The rule I would have provisionally chosen
+(MAD3.5 log) reaches up to `r worst_group(sf, "pct_shortfall_cells", chosen_rule)`
+in its worst group. Table \@ref(tab:shortfall) gives all groups.
+
+```{r shortfall}
+t1 <- wide_table(sf, "pct_shortfall_cells", pooled_sf)
+t1 %>%
+  kable(format = html_fmt(), digits = 2,
+        caption = "Percent of (thread, model, method) cells with fewer synthetic comments than real ones after exclusion.") %>%
+  row_spec(nrow(t1), bold = TRUE) %>% shrink()
+```
+
+# Non-zero ratings lost, by model x method and metric
+
+Empathy labels are discrete (0 = none; > 0 = some). The tables give the
+percent of each group's *non-zero-rated* synthetic comments that a rule would
+exclude - i.e. how much of the informative signal is lost. Pooled over all
+groups the loss ranges
+`r pooled_range(pooled_nz("ER"))` for Emotional Reactions,
+`r pooled_range(pooled_nz("IP"))` for Interpretations, and
+`r pooled_range(pooled_nz("EX"))` for Explorations. The loss is not evenly
+spread: under MAD3.5 log the worst group loses
+`r worst_group(nz %>% filter(mechanism == "ER"), "pct_nonzero_excluded", chosen_rule)`,
+`r worst_group(nz %>% filter(mechanism == "IP"), "pct_nonzero_excluded", chosen_rule)`, and
+`r worst_group(nz %>% filter(mechanism == "EX"), "pct_nonzero_excluded", chosen_rule)`
+of its non-zero ratings (Emotional Reactions, Interpretations, Explorations).
+Real comments are never excluded.
+
+```{r nz-er}
+t2 <- wide_table(nz %>% filter(mechanism == "ER"), "pct_nonzero_excluded", pooled_nz("ER"))
+t2 %>%
+  kable(format = html_fmt(), digits = 2,
+        caption = "Emotional Reactions: percent of non-zero-rated synthetic comments excluded.",
+        position = "!h") %>%
+  row_spec(nrow(t2), bold = TRUE) %>% shrink()
+```
+
+```{r nz-ip}
+t3 <- wide_table(nz %>% filter(mechanism == "IP"), "pct_nonzero_excluded", pooled_nz("IP"))
+t3 %>%
+  kable(format = html_fmt(), digits = 2,
+        caption = "Interpretations: percent of non-zero-rated synthetic comments excluded.",
+        position = "!h") %>%
+  row_spec(nrow(t3), bold = TRUE) %>% shrink()
+```
+
+```{r nz-ex}
+t4 <- wide_table(nz %>% filter(mechanism == "EX"), "pct_nonzero_excluded", pooled_nz("EX"))
+t4 %>%
+  kable(format = html_fmt(), digits = 2,
+        caption = "Explorations: percent of non-zero-rated synthetic comments excluded.",
+        position = "!h") %>%
+  row_spec(nrow(t4), bold = TRUE) %>% shrink()
+```
+
+# Why the Bayesian models do not need this step
+
+1. **The outcome cannot have outliers in the usual sense.** Outlier removal
+   protects against heavy-tailed *outcome* noise. Here the outcome is a
+   bounded category (0/1/2, or 0/1 for Interpretations and Explorations)
+   under a Bernoulli or cumulative-logit likelihood, so no single comment can
+   contribute an unbounded residual. "Outlier" can only mean an unusual
+   *covariate* value, comment length.
+2. **Length is modeled, not ignored.** `log(length)` is a covariate in every
+   model, so unusual lengths are absorbed by the length slope rather than
+   distorting the group contrasts, and the log transform compresses the long
+   tail so no comment gets extreme leverage. The rules above touch only
+   `r sprintf("%.2f", min(overview$synthetic_excluded_pct))`% to
+   `r sprintf("%.2f", max(overview$synthetic_excluded_pct))`% of synthetic
+   comments, a small share of the data, which limits how much influence they can have either way.
+3. **Priors and pooling limit any small set of points.** Weakly informative
+   priors on all coefficients and the `post_id` random intercept's shrinkage
+   toward the population mean cap how far a handful of comments can pull an
+   estimate.
+4. **Exclusion is not neutral.** Dropping comments on a variable associated
+   with the outcome removes non-zero ratings unevenly across groups (tables
+   above), which can bias exactly the group contrasts we care about. That
+   cost is real, while the protection it buys is small (points 1-3).
+
+Robustness here comes from the model's structure (bounded categorical
+likelihood, length adjustment, priors), not from Bayesian inference in
+general - a Gaussian model of a continuous outcome would need a robust
+likelihood instead. If desired, the claim can be checked directly with a
+sensitivity fit with and without the excluded comments; that is cheap for
+Interpretations and Explorations, slow for Emotional Reactions.
+
+# Per-thread subsampling is not neutral either
+
+Keeping a random `min(n, real count)` synthetic comments per cell means the
+whole analysis rests on one arbitrary draw. To see how much that matters,
+the Interpretations and Explorations models (binomial `glmer` versions of the
+Bayesian models, which are fast enough to repeat) were refit on `r n_reps`
+independent balanced subsamples, with no outlier exclusion. Emotional
+Reactions was not assessed: its ordinal fits are too slow to repeat.
+
+Table \@ref(tab:stability) compares, for each contrast, the spread of its
+estimate across subsamples (SD) with the standard error of a single fit (SE).
+If the SD were small relative to the SE, the draw would not matter. Instead,
+the median SD/SE is `r sprintf("%.2f", min(stab_by_stage_med))` to
+`r sprintf("%.2f", max(stab_by_stage_med))` across contrast sets, and a single
+draw adds up to `r sprintf("%.0f", 100 * (max(stab$variance_inflation) - 1))`%
+to the variance of the most affected contrast (relative to that fit's own SE).
+
+```{r stability}
+stab_tbl <- stab %>%
+  group_by(mechanism, stage) %>%
+  summarise(n = n(), med = median(sd_over_se), mx = max(sd_over_se),
+            infl = max(variance_inflation), unst = sum(prop_sig_05 > 0 & prop_sig_05 < 1), .groups = "drop") %>%
+  mutate(mechanism = mech_labels[mechanism], stage = stage_labels[stage])
+stab_tbl %>%
+  kable(format = html_fmt(), digits = 2, position = "!h",
+        col.names = c("Metric", "Contrast set", "N", "Median SD/SE", "Max SD/SE",
+                      "Max var. infl.", "Unstable sig."),
+        caption = "Spread of estimates across balanced subsamples relative to a single fit's standard error.") %>%
+  shrink()
+```
+
+The headline group-vs-real contrasts never change nominal significance across
+draws (`r sum(stab$stage == "A_vs_real" & stab$prop_sig_05 > 0 & stab$prop_sig_05 < 1)`
+of `r sum(stab$stage == "A_vs_real")` unstable). The simple-effects contrasts
+are less safe: `r nrow(unstable)` of `r nrow(stage_b)` reach nominal
+significance (|z| > 1.96) in some draws but not others
+(Table \@ref(tab:unstable)), so whether they look significant partly depends
+on which comments happened to be kept.
+
+```{r unstable}
+unstable %>%
+  arrange(mechanism, stage, desc(prop_sig_05)) %>%
+  mutate(mechanism = mech_labels[mechanism], stage = stage_labels[stage],
+         cond = ifelse(is.na(cond), "", ifelse(cond %in% c("dg", "sag", "sagii"), toupper(cond), str_to_title(cond))),
+         prop_sig_05 = 100 * prop_sig_05) %>%
+  select(mechanism, stage, cond, contrast, mean_estimate, mean_SE, prop_sig_05) %>%
+  kable(format = html_fmt(), digits = 2, position = "!h",
+        col.names = c("Metric", "Contrast set", "Within", "Contrast", "Mean est. (log OR)", "Mean SE", "% draws sig."),
+        caption = "Simple-effects contrasts whose nominal significance depends on the subsample drawn.") %>%
+  shrink()
+```
+
+## Weighting instead of subsampling
+
+A deterministic alternative keeps *all* synthetic comments and gives each
+weight `min(1, real count / cell size)` (real comments weight 1), so the
+weights sum to exactly the subsampled n (`r format(n_balanced, big.mark = ",")`). The
+expected subsampled log-likelihood over the random draw equals this weighted
+log-likelihood, so a single weighted fit does not depend on any one draw and
+uses all `r format(n_synth_all, big.mark = ",")` synthetic comments rather than
+the `r format(n_balanced, big.mark = ",")` a subsample keeps. The same models
+were fit with these weights and compared with the subsample results
+(Table \@ref(tab:weighted)).
+
+```{r weighted}
+w_tbl <- cmp %>%
+  group_by(mechanism, stage) %>%
+  summarise(med_diff = median(abs(diff_in_se)), max_diff = max(abs(diff_in_se)),
+            se_ratio = median(se_ratio_weighted_over_subsample),
+            agree = sum(weighted_sig == subsamples_mostly_sig), n = n(), .groups = "drop") %>%
+  mutate(mechanism = mech_labels[mechanism], stage = stage_labels[stage],
+         agree = sprintf("%d / %d", agree, n)) %>%
+  select(-n)
+w_tbl %>%
+  kable(format = html_fmt(), digits = 2, position = "!h",
+        col.names = c("Metric", "Contrast set", "Median |diff| (SE)", "Max |diff| (SE)",
+                      "Median SE ratio", "Sig. agrees"),
+        caption = "Weighted full-data fit vs. the average of the balanced subsamples: difference in estimates (in single-fit SEs), ratio of standard errors, and agreement in nominal significance.") %>%
+  shrink()
+```
+
+The weighted estimates sit a median of
+`r sprintf("%.2f", median(abs(cmp$diff_in_se)))` SE from the subsample average
+and agree on nominal significance for `r sum(cmp$weighted_sig == cmp$subsamples_mostly_sig)`
+of `r nrow(cmp)` contrasts, but they are **not** a drop-in replacement: 
+`r n_gt2` contrasts differ by more than 2 SE (`r n_gt2_ex` of them Explorations),
+the largest gap being `r sprintf("%.1f", max(abs(cmp$diff_in_se)))` SE. The
+direction is not uniform: among those `r n_gt2`, the subsample estimate is
+larger in magnitude for `r n_gt2_sub_larger`. One possible explanation is
+rare-event bias inflating estimates in smaller samples (few non-zero
+ratings), but this was not tested. The weighted
+models' standard errors are also naive (`glmer` treats weights as precision
+weights, no sandwich correction) and come out about
+`r sprintf("%.0f", 100 * (median(cmp$se_ratio_weighted_over_subsample) - 1))`% larger
+than a single subsample's.
+
+## Implication
+
+- Subsampling has a measurable effect: one random draw adds substantial
+  variance and can flip the significance of borderline simple-effects
+  contrasts, so a single draw should not be the primary analysis.
+- Weighting all comments is a reasonable primary alternative - it is
+  deterministic and uses all the data - but it is a different estimator, with
+  differences of up to a few SEs from the subsample average for some
+  contrasts. It should be adopted knowingly, not assumed
+  equivalent.
+- A weighted Bayesian fit would need its own check (`brms` weights give a
+  pseudo-likelihood, so its posterior widths are approximate) and, for
+  Emotional Reactions, could not be verified against repeated subsamples.
+  Reporting both a weighted primary fit and a subsample sensitivity check on
+  the cheaper mechanisms would make the choice transparent.

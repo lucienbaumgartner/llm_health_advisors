@@ -1,0 +1,245 @@
+Loading data...
+all: 137278 rows / 6600 threads | topic models: 125405 rows / 6200 threads / 15 topics | cancer model: 137231 rows / 6598 threads
+
+=== ER (response ER_bin) ===
+--- ER: Model C (topic moderation, n=125405) ---
+Loading required namespace: rstan
+  converged: TRUE (max Rhat 1.0077, min ESS ratio 0.181, divergences 0)
+--- ER: Model D (cancer relevance, n=137231) ---
+  converged: TRUE (max Rhat 1.0083, min ESS ratio 0.235, divergences 0)
+
+=== IP (response IP_bin) ===
+--- IP: Model C (topic moderation, n=125405) ---
+Start sampling
+Running MCMC with 4 parallel chains, with 4 thread(s) per chain...
+
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 1 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 3 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 4 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 2 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 4 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 4 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 2 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 3 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 2 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 2 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 4 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 2 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 3 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 1 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 2 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 3 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 1 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 3 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 1 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 4 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 3 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 1 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 4 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 2 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 2 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 3 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 1 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 4 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 4 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 3 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 2 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 1 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 4 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 3 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 2 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 1 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 4 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 3 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 2 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 1 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 4 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 3 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 2 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 1 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 4 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 3 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 2 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 1 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 4 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 3 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 2 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 1 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 4 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 3 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 2 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 4 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 1 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 3 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 2 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 4 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 3 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 1 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 3 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 2 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 4 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 4 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 4 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 4 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 1 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 3 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 2 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 4 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 1 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 3 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 2 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 4 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 1 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 3 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 2 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 4 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 2 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 4 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 1 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 3 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 2 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 4 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 1 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 3 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 2 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 4 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 1 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 1 finished in 3902.0 seconds.
+Chain 4 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 3 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 2 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 2 finished in 3968.5 seconds.
+Chain 4 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 4 finished in 3996.7 seconds.
+Chain 3 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 3 finished in 4021.5 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 3972.2 seconds.
+Total execution time: 4022.1 seconds.
+
+Warning: 1 of 12000 (0.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+  converged: FALSE (max Rhat 1.0031, min ESS ratio 0.168, divergences 1)
+--- IP: Model D (cancer relevance, n=137231) ---
+  converged: TRUE (max Rhat 1.0094, min ESS ratio 0.265, divergences 0)
+
+=== EX (response EX_bin) ===
+--- EX: Model C (topic moderation, n=125405) ---
+  converged: TRUE (max Rhat 1.0092, min ESS ratio 0.152, divergences 0)
+--- EX: Model D (cancer relevance, n=137231) ---
+  converged: TRUE (max Rhat 1.0087, min ESS ratio 0.215, divergences 0)
+
+=== Convergence ===
+  mechanism       model converged max_rhat min_neff_ratio divergent_transitions
+1        ER C_topic_gap      TRUE 1.007704      0.1811287                     0
+2        ER    D_cancer      TRUE 1.008275      0.2345531                     0
+3        IP C_topic_gap     FALSE 1.003119      0.1684688                     1
+4        IP    D_cancer      TRUE 1.009362      0.2652799                     0
+5        EX C_topic_gap      TRUE 1.009187      0.1517614                     0
+6        EX    D_cancer      TRUE 1.008694      0.2151521                     0
+
+=== SD of topic effects ===
+  mechanism          parameter    median         lcl      ucl
+1        ER topic_intercept_sd 0.4094855 0.243598000 0.639547
+2        ER     topic_slope_sd 0.2242940 0.096249300 0.404296
+3        ER         post_id_sd 1.3819750 1.315800000 1.452220
+4        IP topic_intercept_sd 0.1446470 0.000003219 0.293674
+5        IP     topic_slope_sd 0.3312210 0.161239000 0.550025
+6        IP         post_id_sd 1.1337250 1.086770000 1.182270
+7        EX topic_intercept_sd 0.3272780 0.179287000 0.523106
+8        EX     topic_slope_sd 0.4706860 0.292287000 0.728941
+9        EX         post_id_sd 1.4148500 1.342320000 1.488070
+
+=== Cancer relevance ===
+  mechanism gap_not_cancer_or gap_not_cancer_lcl gap_not_cancer_ucl
+1        ER        0.10090051         0.09165331         0.11101338
+2        IP        0.78740123         0.71296370         0.85918912
+3        EX        0.06365717         0.05780763         0.06993532
+  gap_not_cancer_pd gap_cancer_or gap_cancer_lcl gap_cancer_ucl gap_cancer_pd
+1                 1    0.12182577     0.08978431     0.16257799       1.00000
+2                 1    1.14075362     0.83106750     1.53805232       0.79325
+3                 1    0.04427377     0.03176013     0.06074873       1.00000
+   shift_or shift_lcl shift_ucl shift_pd cancer_main_or cancer_main_lcl
+1 1.2081207 0.8965798 1.6508924  0.89275      1.0092192       0.7407323
+2 1.4539595 1.0555455 1.9989459  0.98900      0.7910536       0.5724293
+3 0.6938545 0.5098978 0.9890204  0.98325      1.0178207       0.7648910
+  cancer_main_ucl cancer_main_pd
+1        1.366365        0.52300
+2        1.118109        0.91575
+3        1.343069        0.54650
+
+Wrote topic_{convergence,gap_by_topic,sd_summary,cancer_moderation,lookup}.csv to ../../output/5_inference_final 

@@ -1,0 +1,103 @@
+Loading data...
+real = 8625, synthetic (pre-balancing) = 128653, posts = 6600; replicates = 50 on 12 cores
+replicate 3 done (333s, n_all = 86228, n_synth = 77603)
+replicate 1 done (344s, n_all = 86228, n_synth = 77603)
+replicate 4 done (361s, n_all = 86228, n_synth = 77603)
+replicate 5 done (361s, n_all = 86228, n_synth = 77603)
+replicate 2 done (362s, n_all = 86228, n_synth = 77603)
+replicate 10 done (368s, n_all = 86228, n_synth = 77603)
+replicate 12 done (372s, n_all = 86228, n_synth = 77603)
+replicate 7 done (378s, n_all = 86228, n_synth = 77603)
+replicate 8 done (380s, n_all = 86228, n_synth = 77603)
+replicate 6 done (388s, n_all = 86228, n_synth = 77603)
+replicate 9 done (391s, n_all = 86228, n_synth = 77603)
+replicate 11 done (402s, n_all = 86228, n_synth = 77603)
+replicate 15 done (265s, n_all = 86228, n_synth = 77603)
+replicate 14 done (422s, n_all = 86228, n_synth = 77603)
+replicate 13 done (445s, n_all = 86228, n_synth = 77603)
+replicate 16 done (424s, n_all = 86228, n_synth = 77603)
+replicate 17 done (440s, n_all = 86228, n_synth = 77603)
+replicate 19 done (446s, n_all = 86228, n_synth = 77603)
+replicate 23 done (431s, n_all = 86228, n_synth = 77603)
+replicate 21 done (443s, n_all = 86228, n_synth = 77603)
+replicate 18 done (471s, n_all = 86228, n_synth = 77603)
+replicate 20 done (464s, n_all = 86228, n_synth = 77603)
+replicate 24 done (481s, n_all = 86228, n_synth = 77603)
+replicate 22 done (555s, n_all = 86228, n_synth = 77603)
+replicate 25 done (475s, n_all = 86228, n_synth = 77603)
+replicate 26 done (450s, n_all = 86228, n_synth = 77603)
+replicate 27 done (440s, n_all = 86228, n_synth = 77603)
+replicate 28 done (444s, n_all = 86228, n_synth = 77603)
+replicate 33 done (417s, n_all = 86228, n_synth = 77603)
+replicate 29 done (455s, n_all = 86228, n_synth = 77603)
+replicate 32 done (461s, n_all = 86228, n_synth = 77603)
+replicate 31 done (470s, n_all = 86228, n_synth = 77603)
+replicate 35 done (426s, n_all = 86228, n_synth = 77603)
+replicate 34 done (470s, n_all = 86228, n_synth = 77603)
+replicate 30 done (502s, n_all = 86228, n_synth = 77603)
+replicate 36 done (417s, n_all = 86228, n_synth = 77603)
+replicate 37 done (388s, n_all = 86228, n_synth = 77603)
+replicate 38 done (363s, n_all = 86228, n_synth = 77603)
+replicate 40 done (397s, n_all = 86228, n_synth = 77603)
+replicate 39 done (410s, n_all = 86228, n_synth = 77603)
+replicate 41 done (392s, n_all = 86228, n_synth = 77603)
+replicate 42 done (415s, n_all = 86228, n_synth = 77603)
+replicate 43 done (405s, n_all = 86228, n_synth = 77603)
+replicate 44 done (404s, n_all = 86228, n_synth = 77603)
+replicate 45 done (401s, n_all = 86228, n_synth = 77603)
+replicate 47 done (405s, n_all = 86228, n_synth = 77603)
+replicate 46 done (417s, n_all = 86228, n_synth = 77603)
+replicate 48 done (377s, n_all = 86228, n_synth = 77603)
+replicate 49 done (336s, n_all = 86228, n_synth = 77603)
+replicate 50 done (332s, n_all = 86228, n_synth = 77603)
+
+50 / 50 replicates succeeded
+
+=== SD across subsamples / mean within-fit SE, by mechanism and stage ===
+  mechanism           stage n_contrasts median_ratio max_ratio
+1        EX       A_vs_real           9        0.346     0.524
+2        EX B_between_model           9        0.473     0.573
+3        EX  B_within_model           9        0.420     0.491
+4        IP       A_vs_real           9        0.275     0.457
+5        IP B_between_model           9        0.440     0.532
+6        IP  B_within_model           9        0.408     0.458
+  max_variance_inflation
+1                   1.27
+2                   1.33
+3                   1.24
+4                   1.21
+5                   1.28
+6                   1.21
+
+=== Contrasts whose nominal significance (|z| > 1.96) is not the same in every replicate ===
+   mechanism           stage   cond        contrast mean_estimate mean_SE
+1         EX B_between_model    sag   openai - grok        0.1057  0.1990
+2         EX B_between_model  sagii gemini - openai        0.5446  0.1716
+3         EX  B_within_model openai      dg - sagii       -0.4224  0.1727
+4         EX  B_within_model openai     sag - sagii       -0.4690  0.1906
+5         IP B_between_model     dg gemini - openai        0.1731  0.0845
+6         IP B_between_model  sagii gemini - openai        0.2511  0.0854
+7         IP  B_within_model gemini        dg - sag        0.1799  0.0894
+8         IP  B_within_model gemini     sag - sagii       -0.1696  0.0887
+9         IP  B_within_model   grok        dg - sag        0.0863  0.0556
+10        IP  B_within_model openai      dg - sagii        0.0883  0.0535
+11        IP  B_within_model openai     sag - sagii        0.0965  0.0498
+   sd_estimate prop_sig_05
+1       0.0891        0.02
+2       0.0917        0.98
+3       0.0849        0.86
+4       0.0801        0.88
+5       0.0407        0.48
+6       0.0445        0.94
+7       0.0353        0.62
+8       0.0406        0.46
+9       0.0227        0.20
+10      0.0234        0.22
+11      0.0198        0.48
+
+=== Fits flagged with a lme4 warning/convergence message (count of mechanism x replicate) ===
+  mechanism  n flagged_A flagged_B
+1        EX 50         0         1
+2        IP 50         0         0
+
+Wrote stability_subsample_estimates.csv and stability_subsample_summary.csv to ../../output/5_inference_final 

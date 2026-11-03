@@ -1,0 +1,266 @@
+---
+title: "Empathy in Real vs. Synthetic Clinician Comments — Cleaned/Balanced Data & Bayesian Models"
+output:
+  bookdown::html_document2:
+    toc: false
+  bookdown::pdf_document2:
+    toc: false
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(stringr)
+library(kableExtra)
+
+rm(list = ls())
+if (rstudioapi::isAvailable()) {
+  setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
+
+# kableExtra 1.4.0 has a known bug (github.com/haozhu233/kableExtra/issues/831):
+# any kable() piped into row_spec() gets its bookdown caption number
+# duplicated in HTML output only, which also pushes every later table's
+# number up by one. Forcing format="html" explicitly avoids it; PDF output
+# already auto-detects "latex" correctly and isn't affected.
+html_fmt <- function() if (knitr::is_html_output()) "html" else NULL
+
+out_dir <- "../../output/5_inference_final"
+
+outlier_methods <- read.csv(file.path(out_dir, "length_outlier_test_summary.csv"))
+by_group <- read.csv(file.path(out_dir, "qc_outlier_by_group.csv"))
+empathy_qc <- read.csv(file.path(out_dir, "qc_emptied_cell_empathy.csv"))
+cell_qc <- read.csv(file.path(out_dir, "qc_filter_and_balance.csv"))
+final_data <- read.csv(file.path(out_dir, "inference_results_filtered_balanced.csv"))
+
+mechanism_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+GROUP_LEVELS <- c("real", as.vector(outer(c("gemini", "openai", "grok"), c("dg", "sag", "sagii"), paste, sep = "_")))
+
+final_data <- final_data %>%
+  mutate(group = factor(ifelse(source == "real", "real", paste(model, method, sep = "_")), levels = GROUP_LEVELS))
+
+n_synth_total <- sum(by_group$n_synth)
+n_excluded_total <- sum(by_group$n_excluded)
+n_real <- sum(final_data$source == "real")
+n_synth_final <- sum(final_data$source == "synthetic")
+n_synth_before_balancing <- n_synth_total - n_excluded_total
+
+chosen_row <- outlier_methods %>% filter(method == "mad_3.5_log")
+
+# Chi-square test for whether the chosen method's exclusion rate is
+# independent of (model, method) group.
+contingency <- by_group %>% transmute(n_excluded, n_kept = n_synth - n_excluded) %>% as.matrix()
+chisq_result <- chisq.test(contingency)
+
+describe_outlier_range <- function() {
+  ordered <- outlier_methods %>% arrange(synthetic_excluded_pct)
+  sprintf("from %.3f%% (%s) to %.2f%% (%s)",
+          min(ordered$synthetic_excluded_pct), ordered$method[1],
+          max(ordered$synthetic_excluded_pct), ordered$method[nrow(ordered)])
+}
+
+describe_concentration <- function() {
+  worst <- by_group %>% arrange(desc(pct_excluded)) %>% slice(1)
+  best <- by_group %>% arrange(pct_excluded) %>% slice(1)
+  sprintf("from %.3f%% (%s/%s) to %.3f%% (%s/%s)",
+          best$pct_excluded, str_to_title(best$model), toupper(best$method),
+          worst$pct_excluded, str_to_title(worst$model), toupper(worst$method))
+}
+```
+
+## Data cleaning
+
+Two changes were made to the synthetic comments before any modeling, applied
+in this order (see [`3e_filter_and_balance.py`](3e_filter_and_balance.py)
+for the full implementation):
+
+1. **Length-outlier removal.** Several candidate definitions were compared
+   on synthetic comment length before picking one (Table
+   \@ref(tab:outlier-methods)); **MAD-based modified z-score on
+   log(length), threshold 3.5, computed separately within each (model,
+   method) group** was chosen.
+2. **Per-thread balancing.** For each (post_id, model, method) cell,
+   synthetic comments are randomly subsampled down to exactly that thread's
+   real comment count, so every group is compared against real using the
+   same per-thread sample size rather than synthetic being systematically
+   overrepresented. Real comments are never touched by either step.
+
+The two interact: outlier removal happens first, so a cell can end up with
+*fewer* synthetic comments than its thread's real count. Per an explicit
+decision, such a cell simply keeps whatever remains rather than being
+dropped or backfilled - no thread is removed and no comment is invented.
+
+```{r outlier-methods}
+outlier_methods %>%
+  select(method, synthetic_excluded_n, synthetic_excluded_pct, shortfall_cells_n, shortfall_cells_pct) %>%
+  kable(format = html_fmt(), digits = c(0, 0, 3, 0, 3),
+        col.names = c("Method", "Comments excluded", "% excluded", "Shortfall cells", "% of cells"),
+        caption = "Candidate length-outlier definitions tested on synthetic comments, before choosing one.") %>%
+  row_spec(which(outlier_methods$method == "mad_3.5_log"), background = "#d4edda")
+```
+
+Across the six candidates tested, the share of synthetic comments excluded
+ranges `r describe_outlier_range()`. The chosen method
+(highlighted) excludes `r chosen_row$synthetic_excluded_n` comments
+(`r sprintf("%.2f", chosen_row$synthetic_excluded_pct)`%), causing
+`r chosen_row$shortfall_cells_n` of `r chosen_row$cells_total`
+(post_id, model, method) cells (`r sprintf("%.2f", chosen_row$shortfall_cells_pct)`%)
+to fall short of their thread's real count under the "keep whatever
+remains" rule.
+
+### Is the exclusion rate the same across (model, method) groups?
+
+```{r by-group}
+by_group %>%
+  mutate(model = str_to_title(model), method = toupper(method)) %>%
+  select(model, method, n_synth, n_excluded, pct_excluded, n_emptied_cells, pct_shortfall_cells) %>%
+  kable(digits = c(0, 0, 0, 0, 3, 0, 3),
+        col.names = c("Model", "Method", "N synthetic", "N excluded", "% excluded", "Cells emptied to 0", "% cells short"),
+        caption = "MAD 3.5x exclusion and downstream shortfall, by (model, method) group.")
+```
+
+No - a chi-square test of independence between exclusion (yes/no) and
+(model, method) group rejects equal proportions decisively
+($\chi^2$ = `r sprintf("%.1f", chisq_result$statistic)`, df =
+`r chisq_result$parameter`, p `r format.pval(chisq_result$p.value, digits = 2, eps = 1e-300)`).
+The exclusion rate ranges `r describe_concentration()` of a group's
+comments - concentrated in specific (model, method) combinations rather
+than spread evenly.
+
+### Does the excluded/affected data carry empathy signal?
+
+For the `r sum(by_group$n_emptied_cells)` (post_id, model, method) cells
+emptied to zero synthetic comments, both the excluded comments themselves
+and the real comments on the same threads were checked for whether they
+carried any empathy signal (label 0 = none vs. label 1 or 2 = some), per
+mechanism:
+
+```{r empathy-qc}
+empathy_qc %>%
+  mutate(side = recode(side, excluded_synthetic = "Excluded synthetic comments",
+                        real_on_affected_threads = "Real comments on affected threads"),
+         mechanism = mechanism_names[mechanism]) %>%
+  select(side, mechanism, n_zero, n_nonzero, n_total, pct_nonzero) %>%
+  kable(digits = c(0, 0, 0, 0, 0, 1),
+        col.names = c("Side", "Mechanism", "N label = 0", "N label > 0", "N total", "% label > 0"),
+        caption = "Empathy label proportions among the comments lost to a fully emptied cell.")
+```
+
+Both sides are predominantly label-0 across all three mechanisms - the
+share carrying any empathy signal (label > 0) ranges
+`r sprintf("%.1f", min(empathy_qc$pct_nonzero))`% to
+`r sprintf("%.1f", max(empathy_qc$pct_nonzero))`% depending on mechanism
+and side. Emptying these cells mostly discards comments with no empathy
+signal to begin with, though not entirely - a minority did carry some.
+
+### Resulting dataset
+
+```{r balance-summary}
+balance_summary <- data.frame(
+  Step = c("Original synthetic", "After outlier removal", "After per-thread balancing"),
+  N = c(n_synth_total, n_synth_before_balancing, n_synth_final),
+  `Pct of original` = round(100 * c(n_synth_total, n_synth_before_balancing, n_synth_final) / n_synth_total, 1),
+  check.names = FALSE
+)
+balance_summary %>% kable(caption = "Synthetic comment count remaining after each cleaning step.")
+```
+
+The final dataset has `r n_real` real and `r n_synth_final` synthetic
+comments (`r sum(cell_qc$final_n == cell_qc$real_count)` of
+`r nrow(cell_qc)` cells exactly matched to their thread's real count;
+the remaining `r sum(cell_qc$final_n != cell_qc$real_count)` are the
+outlier-caused shortfall cells above).
+
+## Empathy label proportions in the final dataset
+
+Category proportions only (no means, since the labels are discrete
+none/weak/strong categories, not a continuous scale) - the share of
+comments at each empathy label, by group, per mechanism, in the
+cleaned/balanced dataset that the Bayesian models below will be fit to.
+
+```{r label-proportions, results='asis'}
+for (mech in c("ER", "IP", "EX")) {
+  label_col <- paste0(mech, "_label")
+  tab <- final_data %>%
+    filter(!is.na(.data[[label_col]])) %>%
+    count(group, label = .data[[label_col]]) %>%
+    group_by(group) %>%
+    mutate(pct = round(100 * n / sum(n), 1)) %>%
+    ungroup() %>%
+    select(group, label, pct) %>%
+    pivot_wider(names_from = label, values_from = pct, values_fill = 0, names_prefix = "label_")
+  cat(sprintf("\n\n**%s** (%% of comments at each label, by group):\n\n", mechanism_names[mech]))
+  print(kable(tab, digits = 1, col.names = c("Group", paste0("Label ", sub("label_", "", names(tab)[-1]), " (%)"))))
+}
+```
+
+## Bayesian mixed-effects models: Methods
+
+The modeling approach is unchanged from the earlier Bayesian companion
+report (`report_bayesian.Rmd`) - only the *data* changes, to the
+cleaned/balanced dataset described above. Recorded here now so the method
+is fixed before any results exist; the Results section below is filled in
+once the models are fit.
+
+**Motivation.** On the uncleaned full dataset, Emotional Reactions' Model B
+(the model x method interaction) failed to converge under maximum
+likelihood - a non-positive-definite Hessian, consistent with
+quasi-separation in sparse cells. No mature Firth-style bias-reduction
+implementation exists for an ordinal cumulative-link outcome with a random
+intercept, in R or Python (checked directly). A Bayesian fit with
+weakly-informative priors resolves the same separation problem the same
+way Firth's correction does, while keeping the interaction and the
+`post_id` random intercept intact.
+
+**Models**, identical formulas to the frequentist version, fit separately
+per mechanism:
+
+- **A** (`label ~ group + log(length) + (1|post_id)`, all comments):
+  each (model, method) group vs. real.
+- **B** (`label ~ model * method + log(length) + (1|post_id)`, synthetic
+  comments only): simple-effects contrasts between models within each
+  method, and between methods within each model.
+
+**Families:** Emotional Reactions uses `cumulative("logit")` (all 3
+empathy levels); Interpretations and Explorations use `bernoulli("logit")`
+on `label == 2` (both never predict label 1 in this data).
+
+**Priors:** `normal(0, 2.5)` on every fixed effect and (for Emotional
+Reactions) the ordinal thresholds - a standard weakly-informative default
+for logistic-type models (Gelman, Jakulin, Pittau & Su, 2008) - and
+`student_t(3, 0, 2.5)` on the `post_id` random-effect SD. brms's own
+default fixed-effect prior is an improper flat prior, which would not
+address the separation problem; the explicit prior above does.
+
+**Sampler:** `brms`/Stan via `cmdstanr`, 4 chains, 2000 iterations
+(1000 warmup), within-chain threading enabled for speed. A fixed seed
+(20260101) is used throughout; because threading makes exact bit-for-bit
+reproducibility from a seed alone unreliable (verified directly: identical
+seeds with threading produce different draws, because multithreaded
+`reduce_sum` sums the log-likelihood in a non-deterministic order),
+reproducibility instead comes from caching every fitted model's complete
+posterior to disk (`brm(..., file = ...)`), not from being able to
+regenerate identical draws by rerunning the sampler.
+
+**Convergence** is checked via max Rhat (< 1.01), minimum bulk-ESS ratio
+(> 0.1), and zero divergent transitions - reported per fit, not assumed.
+
+**Reporting:** there is no p-value in a Bayesian fit. Contrasts are
+reported as odds ratios (link-scale estimates, exponentiated) with a 95%
+highest-posterior-density credible interval and `pd`, the posterior
+probability of direction. `pd > 0.975` is a rough two-sided-p<0.05
+analogue (Makowski et al., 2019) but answers a different question, not a
+substitute; a contrast is only called credible when *both* `pd > 0.975`
+**and** the 95% CrI for the odds ratio excludes 1.
+
+## Results
+
+*Pending - the Bayesian models have not yet been fit on the cleaned/balanced
+dataset described above. This section will be filled in with the same
+convergence, vs.-real, and simple-effects tables as `report_bayesian.Rmd`,
+once `3c_bayesian_models.R` is rerun against
+`inference_results_filtered_balanced.csv`.*

@@ -1,0 +1,7 @@
+side,mechanism,n_zero,n_nonzero,n_total,pct_nonzero
+excluded_synthetic,ER,79,4,83,4.8
+excluded_synthetic,IP,77,6,83,7.2
+excluded_synthetic,EX,73,10,83,12.0
+real_on_affected_threads,ER,59,8,67,11.9
+real_on_affected_threads,IP,65,2,67,3.0
+real_on_affected_threads,EX,57,10,67,14.9

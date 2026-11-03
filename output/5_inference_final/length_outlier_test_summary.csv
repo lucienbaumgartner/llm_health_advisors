@@ -1,0 +1,7 @@
+method,synthetic_excluded_n,synthetic_excluded_pct,cells_total,shortfall_cells_n,shortfall_cells_pct,shortfall_comments_total,balanced_total_with_outlier_removal,balanced_total_without_outlier_removal,marginal_loss_from_outlier_removal
+iqr_1.5_raw,1262,0.981,59384,622,1.047,642,76961,77603,642
+iqr_1.5_log,1393,1.083,59384,453,0.763,616,76987,77603,616
+iqr_3.0_log,37,0.029,59384,16,0.027,17,77586,77603,17
+mad_3.5_log,332,0.258,59384,105,0.177,141,77462,77603,141
+percentile_1_99_log,2283,1.775,59384,975,1.642,1122,76481,77603,1122
+percentile_2.5_97.5_log,5732,4.455,59384,2467,4.154,2849,74754,77603,2849

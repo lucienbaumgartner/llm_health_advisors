@@ -1,0 +1,443 @@
+---
+title: "Does the Empathy Gap Between Real and AI-Written Clinician Comments Depend on the Medical Topic?"
+output:
+  bookdown::html_document2:
+    toc: true
+    toc_float: true
+    number_sections: true
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+rm(list = ls())
+if (rstudioapi::isAvailable()) {
+  setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
+
+out_dir <- "../../output/5_inference_final"
+topic_path <- "../../input/topics/topic_labels.csv"
+
+fmt <- function(x) format(x, big.mark = ",")
+
+# Dataset size, from the per-(thread, model, method) cell table written by
+# 3e_filter_and_balance.py: synthetic comments per cell and the thread's real
+# comment count.
+cells <- read.csv(file.path(out_dir, "qc_filter_and_balance.csv"))
+n_threads <- n_distinct(cells$post_id)
+n_synth <- sum(cells$original_n)
+n_real <- sum(distinct(cells, post_id, real_count)$real_count)
+n_synth_weight <- sum(pmin(cells$original_n, cells$real_count))
+n_models <- n_distinct(cells$model)
+n_methods <- n_distinct(cells$method)
+
+# Topic labels (collaborator's pipeline), one row per thread.
+topics <- read.csv(topic_path, stringsAsFactors = FALSE)
+RESIDUAL <- c("Nonmedical", "Medical; other")
+EXPLORATORY_BELOW <- 0.05
+topic_tbl <- topics %>%
+  count(discipline, name = "threads") %>%
+  mutate(share = threads / sum(threads),
+         role = case_when(discipline %in% RESIDUAL ~ "Left out (residual category)",
+                          share < EXPLORATORY_BELOW ~ "Included, exploratory (< 5% of threads)",
+                          TRUE ~ "Included")) %>%
+  arrange(desc(threads))
+n_topics_in <- sum(!topic_tbl$discipline %in% RESIDUAL)
+n_expl <- sum(topic_tbl$role == "Included, exploratory (< 5% of threads)")
+n_threads_in <- sum(topic_tbl$threads[!topic_tbl$discipline %in% RESIDUAL])
+n_cancer <- sum(tolower(topics$cancer_relevant) == "true", na.rm = TRUE)
+n_cancer_na <- sum(!tolower(topics$cancer_relevant) %in% c("true", "false"))
+topic_md5 <- unname(tools::md5sum(topic_path))
+```
+
+# In short
+
+Earlier analyses showed that comments written by AI models generally show
+less empathy than the real clinician comments they imitate, with some
+exceptions. This report asks a follow-up question: **is that gap the same for every kind of medical
+question, or is it bigger for some topics (say, mental health) than for
+others (say, skin conditions)?**
+
+To find out, every one of the `r fmt(n_threads)` Reddit r/AskDocs threads in
+the study was assigned a medical topic based on the original post, and we
+then estimated how the real-vs-AI empathy gap changes from topic to topic.
+We did this with a statistical model that is deliberately cautious about
+small topics: it estimates each topic's gap, but pulls estimates for topics
+with little data toward the overall average rather than letting a handful of
+threads produce a dramatic-looking result.
+
+We also asked a second, simpler question: **do threads where cancer is
+involved look different from the rest?**
+
+Results will be added below once the models have finished running.
+
+# What we did, in plain terms
+
+## The comparison
+
+Each thread is a patient's question posted on r/AskDocs. For each thread we
+have the comments that real, verified clinicians wrote, and comments that
+`r n_models` AI models wrote in response to the same post, using
+`r n_methods` different prompting strategies. In total that is
+`r fmt(n_real)` real comments and `r fmt(n_synth)` AI-written ones.
+
+Each comment was rated by three trained classifiers for three kinds of
+empathy: **emotional reactions** (acknowledging how the patient feels),
+**interpretations** (showing the patient's situation was understood), and
+**explorations** (asking about or probing the patient's experience). Each
+rating is "none", "weak", or "strong". Comments with some empathy are fairly
+rare, so the models below ask a simple yes/no question: *does this comment
+show this kind of empathy?*
+
+## Assigning a topic to every thread
+
+A language model read the title and text of each opening post and chose one of
+17 medical disciplines (for example Dermatology, Cardiovascular, Psychiatry
+and mental health). The label belongs to the **thread**, so every comment
+under a post, real or AI-written, carries that post's topic.
+
+Two of the 17 labels are catch-alls, "Medical; other" and "Nonmedical". They
+describe what a post is *not* rather than what it is, so we left them out of
+the topic analysis. Table \@ref(tab:topics) shows how many threads fall in
+each topic. `r n_expl` topics are small (under 5% of threads); they stay in
+the analysis, but are flagged as exploratory.
+
+```{r topics}
+topic_tbl %>%
+  mutate(share = sprintf("%.1f%%", 100 * share), threads = fmt(threads)) %>%
+  kable(col.names = c("Topic", "Threads", "Share of threads", "Role in the topic analysis"),
+        align = c("l", "r", "r", "l"),
+        caption = "Threads per topic and how each topic is used.")
+```
+
+## Making a fair comparison
+
+Two features of the data would distort a naive comparison.
+
+- **Comments from the same thread are not independent.** A thread about a
+  frightening symptom might draw more empathetic replies of both kinds. The
+  model accounts for this by giving every thread its own baseline.
+- **There are more AI comments than real ones in a thread.** The AI models
+  wrote one reply for every comment on a thread, but only some of those
+  comments came from verified clinicians. Without correction, threads with
+  many comments would count for more on the AI side than on the real side. We
+  fixed this by *weighting* rather than discarding data: a real comment counts
+  as 1, and when a model wrote more comments for a thread than there are real
+  ones, each of its comments counts for a fraction, so that for every thread
+  both sides carry the same total weight. For example, if a thread has 2
+  real comments and one model wrote 8, each of those 8 counts for 0.25.
+
+We looked at two other options before choosing this. Dropping AI comments
+that were unusually long or short removed comments that showed empathy
+unevenly across the models, and left some threads without enough AI comments
+to match the real ones. Randomly keeping only as many AI comments as real
+ones made the results depend noticeably on which comments happened to be
+kept. Weighting avoids both problems.
+
+## Letting the gap differ by topic
+
+For each type of empathy, the model estimates:
+
+1. how much less likely an AI comment is to show empathy than a real one, on
+   average (the **gap**), and
+2. how much each topic moves that gap up or down (the topic's **shift**).
+
+The topic shifts are *partially pooled*: a topic with many threads gets an
+estimate that is mostly its own, while a topic with few threads is pulled
+toward the average. This is the main protection against over-reading small
+topics, and it means we do not need a separate cut-off or a correction for
+looking at many topics.
+
+The question about cancer is handled by a separate, simpler model that
+compares the gap in the `r fmt(n_cancer)` cancer-related threads with the
+gap in all other threads.
+
+## How to read the numbers
+
+Everything is reported as an **odds ratio** with a 95% credible interval.
+
+- A *gap* below 1 means AI comments have lower odds of showing empathy than
+  real ones. A gap of 0.5 means the odds are halved.
+- A *shift* is relative to the average topic. Below 1 means the gap is
+  *larger* than average in that topic; above 1 means *smaller*.
+- `pd` is the probability, given the data and model, that the effect points
+  the way we report it. It is not a p-value. We call a result **credible**
+  only when `pd` is above 0.975 *and* the interval excludes 1.
+
+# What to keep in mind
+
+- **The topic labels are imperfect.** The labelling model agrees with a
+  reference set of 200 posts about 77% of the time, and the reference set was
+  itself mostly produced by language models. Roughly one label in four may be
+  off. Errors in a grouping variable like this blur real differences, so a
+  finding of "no topic differences" is weaker evidence than it sounds.
+- **Topic comes from the post, not the comment.** A reply that wanders to a
+  different subject still carries the original post's topic.
+- **The gap is an average over the AI models and strategies.** These differ
+  a lot from one another, and for some empathy types they do not even point
+  the same way (for Interpretations, Grok's comments score above the real
+  ones while Gemini's and OpenAI's score below), so the average can look
+  small where individual models differ strongly. The topic shift is assumed
+  to be the same for all of them; we have not tested whether topics affect
+  some models more than others.
+- **Empathy ratings come from classifiers, not people.** All comparisons are
+  about what the classifiers detect.
+- **Weighting is an approximation.** It targets the same quantity as
+  repeated random sampling would, but the reported uncertainty is only
+  approximate.
+- **Small topics are exploratory.** Even with pooling, topics with few
+  threads give wide intervals.
+
+# Methods {#methods}
+
+## Data
+
+The analysis uses all `r fmt(n_real + n_synth)` rated comments from
+`r fmt(n_threads)` threads (`r fmt(n_real)` real, `r fmt(n_synth)` synthetic),
+with no outlier exclusion and no subsampling. Synthetic comments come from
+Gemini, OpenAI and Grok, each under three prompting strategies: DG
+(discourse generation), SAG (single advice generation) and SAGII (SAG with
+incremental information). That gives nine synthetic groups plus the real
+group.
+
+Empathy labels (0 = none, 1 = weak, 2 = strong) for emotional reactions
+(ER), interpretations (IP) and explorations (EX) come from three fine-tuned
+RoBERTa bi-encoder classifiers following the EPITOME framework. The binary
+outcome is `label >= 1` for ER. For IP and EX the classifiers never output
+label 1 in this data, so `label >= 1` and `label == 2` coincide. The
+three-level ER outcome used in the main Bayesian models is not used here: split by topic its
+strong-empathy cell is nearly empty for some models (for Grok, a handful of
+comments out of about 14,000), so the binary collapse is used instead.
+
+## Topic labels
+
+Labels were produced by the collaborators' pipeline (`classify_topics.py`):
+an LLM (gemini-2.5-pro, temperature 0) assigns each opening post to one of 17
+disciplines from the taxonomy in Chan et al. (JMIR Formative Research 2025;
+9:e55309). There is one label per thread, joined on `submission_id`; all
+`r fmt(n_threads)` threads are labelled. The `discipline` column is used
+for every thread (not the reference-sample labels), so that measurement is
+uniform across the corpus. The file used has md5
+`r topic_md5` (`input/topics/SOURCE.txt` records its origin).
+
+Validation against a 200-post reference sample: production-model agreement
+0.770; agreement between the two LLM annotators who built the reference
+0.795 (Cohen's $\kappa$ = 0.779), with a human adjudicating their
+disagreements. The reference is therefore mainly inter-model consensus.
+
+The topic models use the `r n_topics_in` substantive disciplines
+(`r fmt(n_threads_in)` threads). "Medical; other" and "Nonmedical" are
+excluded from them but kept in the other analyses. Topics with under
+`r 100 * EXPLORATORY_BELOW`% of threads (`r n_expl` of the `r n_topics_in`) are
+flagged exploratory in the outputs but remain in the model, where partial
+pooling governs their estimates.
+
+## Response weights
+
+Let $n_c$ be the number of synthetic comments in a (thread, model, method)
+cell and $r$ the thread's number of real comments. A real comment has weight
+1 and a synthetic comment has weight $w = \min(1, r / n_c)$. The synthetic
+weights sum to `r fmt(n_synth_weight)`, which is exactly what random
+per-thread subsampling to $\min(n_c, r)$ would retain, and the expected
+subsampled log-likelihood equals the weighted one. Weights are computed
+on all threads before any topic filtering, so excluding threads does not
+change the weights of the rest. In `brms` the weights multiply each
+observation's log-likelihood, giving a pseudo-likelihood: point estimates
+target the subsampling average, but posterior widths are approximate.
+
+## Models
+
+Fitted separately for ER, IP and EX with a Bernoulli likelihood and logit
+link, $y_i$ the binary outcome, $s_i$ an indicator for a synthetic comment,
+$g(i)$ the comment's group (real or one of nine model-by-method cells),
+$t(i)$ its thread's topic and $p(i)$ its thread:
+
+**Model C (topic moderation).**
+$$\operatorname{logit} P(y_i = 1) = \alpha + \beta_{g(i)} + \gamma\,\log(\text{length}_i) + u_{t(i)} + v_{t(i)}\,s_i + a_{p(i)}$$
+with $(u_t, v_t) \sim \mathcal N(0, \Sigma)$ over topics and
+$a_p \sim \mathcal N(0, \sigma_p^2)$ over threads. The $\beta_g$ are the group
+coefficients as in the main analysis. A topic's gap on the log-odds scale is
+the mean of the nine synthetic $\beta_g$ plus $v_t$; its *shift* is $v_t$;
+both are exponentiated to odds ratios. The posterior of the SD of $v_t$ is
+the direct measure of how much the gap varies by topic. A random slope on the
+single indicator $s$ (rather than on the nine groups) keeps the covariance
+structure small enough to estimate from 15 topics.
+
+**Model D (cancer relevance).**
+$$\operatorname{logit} P(y_i = 1) = \alpha + \beta_{g(i)} + \delta\,c_{p(i)} + \theta\,s_i c_{p(i)} + \gamma\,\log(\text{length}_i) + a_{p(i)}$$
+where $c$ indicates a cancer-relevant thread. The gap is the mean of the
+synthetic $\beta_g$ for non-cancer threads and that plus $\theta$ for cancer
+threads; $\theta$ is the moderation. The `r n_cancer_na` threads with no cancer
+flag are dropped from this model only.
+
+## Priors and sampling
+
+Fixed effects: Normal(0, 2.5), the standard weakly-informative default for
+logistic models (Gelman et al., 2008); this also keeps estimates finite in
+sparse cells. Intercept and the thread SD: Student-$t$(3, 0, 2.5). Topic SDs
+(intercept and slope): Normal(0, 1) truncated at zero, tighter because 15
+topics carry little information about a variance. The topic correlation uses
+`brms`' default LKJ(1) prior.
+
+Models are fitted with `brms` (Stan via `cmdstanr`): 4 chains of 2,000
+iterations (1,000 warmup), 4 threads per chain, `adapt_delta` = 0.95, seed
+20260101. A fit is accepted as converged when max $\hat R < 1.01$, the
+minimum effective-sample-size ratio exceeds 0.1, and there are no divergent
+transitions; this is reported per fit. The Interpretations topic model
+(Model C) was rerun with 4,000 iterations because its max $\hat R$ was
+1.0106 at 2,000; this brought it to 1.003 but left one divergent transition
+in 8,000 draws, and its estimates and the set of credible topics were
+unchanged. Multithreaded summation makes draws
+non-reproducible from the seed alone, so the fitted models are saved to disk
+(`models_bayesian/`) together with software versions
+(`run_metadata_topic.txt`) and reproducibility rests on those.
+
+## Reporting
+
+For each quantity: posterior median odds ratio, 95% highest-density interval,
+and $pd = \max\{P(\theta > 0), P(\theta < 0)\}$ on the log-odds scale.
+"Credible" requires $pd > 0.975$ and an interval excluding 1. No frequentist
+multiplicity correction is applied; topic-level estimates are partially
+pooled instead. Topics under 5% of threads are labelled exploratory. Code:
+`3h_topic_moderation_models.R`.
+
+## Known limitations of the design
+
+- Misclassification of the topic moderator attenuates moderation estimates
+  toward zero; no correction for it is applied.
+- The topic shift is common to all nine synthetic groups. Whether it differs
+  across models or methods is a separate model, not fitted here.
+- The cancer flag is a separate construct from the "Neoplasms" topic (which
+  also covers benign neoplasms and requires a clinician or test to have
+  raised the concern).
+- Weighted posterior intervals are approximate; a subsampling sensitivity
+  check is planned separately.
+
+# Results {#results}
+
+```{r results-setup}
+mech_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+CREDIBLE_PD <- 0.975
+conv <- read.csv(file.path(out_dir, "topic_convergence.csv"))
+sdt <- read.csv(file.path(out_dir, "topic_sd_summary.csv"))
+canc <- read.csv(file.path(out_dir, "topic_cancer_moderation.csv"))
+all_topic <- read.csv(file.path(out_dir, "topic_gap_by_topic.csv"))
+avg <- all_topic %>% filter(topic == "(average over topics)")
+bt <- all_topic %>% filter(topic != "(average over topics)") %>%
+  mutate(credible = shift_pd > CREDIBLE_PD & (shift_lcl > 1 | shift_ucl < 1))
+
+f1 <- function(x) ifelse(x < 0.1, sprintf("%.3f", x), sprintf("%.2f", x))
+or3 <- function(m, l, u) sprintf("%s (%s-%s)", f1(m), f1(l), f1(u))
+n_est <- nrow(bt)
+n_cred <- sum(bt$credible)
+conv_ok <- all(conv$converged)
+```
+
+## Model checks
+
+`r if (conv_ok) sprintf("All %d fits met the convergence criteria (largest max Rhat %.4f, smallest effective-sample-size ratio %.3f, no divergent transitions).", nrow(conv), max(conv$max_rhat), min(conv$min_neff_ratio)) else sprintf("%d of %d fits met every convergence criterion; the exception is: %s.", sum(conv$converged), nrow(conv), toString(vapply(which(!conv$converged), function(k) { r <- conv[k, ]; sprintf("%s %s (%s)", mech_names[r$mechanism], c(C_topic_gap = "topic model", D_cancer = "cancer model")[r$model], toString(c(if (r$max_rhat >= 1.01) sprintf("max Rhat %.4f", r$max_rhat), if (r$min_neff_ratio <= 0.1) sprintf("ESS ratio %.3f", r$min_neff_ratio), if (isTRUE(r$divergent_transitions > 0)) sprintf("%d divergent transition%s", r$divergent_transitions, ifelse(r$divergent_transitions > 1, "s", ""))))) }, character(1))))`
+
+## Does the gap vary by topic?
+
+Table \@ref(tab:sd) gives the average gap for each empathy type and how much
+it moves from topic to topic. The spread is the
+standard deviation of the topic shifts on the log-odds scale; a spread of
+$s$ means a typical topic's gap is a factor of $e^{s}$ above or below the
+average.
+
+```{r sd}
+sd_slope <- sdt %>% filter(parameter == "topic_slope_sd")
+tab <- avg %>%
+  transmute(mechanism, avg_gap = or3(gap_or, gap_lcl, gap_ucl)) %>%
+  left_join(sd_slope %>% transmute(mechanism, spread = sprintf("%.2f (%.2f-%.2f)", median, lcl, ucl),
+                                   factor = sprintf("x%.2f", exp(median))), by = "mechanism") %>%
+  mutate(mechanism = mech_names[mechanism])
+kable(tab, col.names = c("Empathy type", "Average gap, odds ratio (95% CrI)",
+                         "Spread across topics, SD (95% CrI)", "Typical factor"),
+      align = c("l", "r", "r", "r"),
+      caption = "Average real-vs-AI gap and how much it varies across topics.")
+```
+
+`r sprintf("The interval for the spread lies clearly above zero (lower end above 0.05) for %d of %d empathy types, so the gap does differ across topics, by an amount that depends on the empathy type. ", sum(sd_slope$lcl > 0.05), nrow(sd_slope))`Gaps below 1
+mean AI comments have lower odds of showing empathy than real ones.
+`r near1 <- avg %>% filter(gap_lcl < 1, gap_ucl > 1); if (nrow(near1) > 0) sprintf("For %s the average gap's interval includes 1: on average AI comments are roughly on par with real ones there, and individual topics fall on either side.", toString(mech_names[near1$mechanism])) else ""`
+
+## Which topics differ?
+
+Figure \@ref(fig:forest) shows every topic's gap; filled points are topics
+whose shift from the average is credible.
+
+```{r forest, fig.width=9, fig.height=6.5, fig.cap="Real-vs-AI gap by topic (odds ratio, log scale; below 1 = AI comments less likely to show empathy). Filled points: credible shift from the average. Starred topics have under 5% of threads (exploratory). Dashed line: no gap; dotted line: average over topics."}
+plot_df <- bt %>%
+  mutate(mechanism = factor(mech_names[mechanism], levels = unname(mech_names)),
+         label = paste0(discipline, ifelse(exploratory, " *", "")),
+         label = factor(label, levels = unique(label[order(n_threads)])))
+avg_df <- avg %>% mutate(mechanism = factor(mech_names[mechanism], levels = unname(mech_names)))
+ggplot(plot_df, aes(x = gap_or, y = label)) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
+  geom_vline(data = avg_df, aes(xintercept = gap_or), linetype = "dotted", colour = "firebrick") +
+  geom_errorbarh(aes(xmin = gap_lcl, xmax = gap_ucl), height = 0, colour = "grey55") +
+  geom_point(aes(shape = credible, fill = credible), size = 2.6, colour = "black") +
+  scale_shape_manual(values = c(`TRUE` = 21, `FALSE` = 21), guide = "none") +
+  scale_fill_manual(values = c(`TRUE` = "black", `FALSE` = "white"), guide = "none") +
+  scale_x_log10() +
+  facet_wrap(~mechanism, scales = "free_x") +
+  labs(x = "Gap: odds ratio, AI vs. real (95% credible interval)", y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(panel.grid.minor = element_blank(), strip.text = element_text(face = "bold"))
+```
+
+`r n_cred` of the `r n_est` topic-level shifts are credible
+(Table \@ref(tab:credible)). Shifts above 1 mean the gap is smaller than
+average in that topic; below 1, larger.
+
+```{r credible}
+cr <- bt %>% filter(credible) %>%
+  arrange(match(mechanism, names(mech_names)), desc(n_threads)) %>%
+  transmute(mechanism = mech_names[mechanism],
+            topic = paste0(discipline, ifelse(exploratory, " *", "")),
+            threads = n_threads,
+            gap = or3(gap_or, gap_lcl, gap_ucl),
+            shift = or3(shift_or, shift_lcl, shift_ucl),
+            pd = sprintf("%.3f", shift_pd))
+if (nrow(cr) > 0) {
+  kable(cr, col.names = c("Empathy type", "Topic", "Threads", "Gap, OR (95% CrI)", "Shift, OR (95% CrI)", "pd"),
+        align = c("l", "l", "r", "r", "r", "r"),
+        caption = "Topics whose gap credibly differs from the average (starred topics are exploratory).")
+} else {
+  cat("No topic-level shift is credible.")
+}
+```
+
+These should be read as leads rather than conclusions. With `r n_est`
+shifts examined, around `r sprintf("%.0f", 0.05 * n_est)` would clear a
+threshold like this by chance alone even if topic made no difference
+(partial pooling reduces this, but does not remove it). The topic labels are
+also noisy, which blurs real differences. Topics under 5% of threads give
+wide intervals and are the least trustworthy.
+
+## Cancer-related threads
+
+```{r cancer, results='asis'}
+for (i in seq_len(nrow(canc))) {
+  r <- canc[i, ]
+  cred <- r$shift_pd > CREDIBLE_PD & (r$shift_lcl > 1 | r$shift_ucl < 1)
+  dir <- ifelse(r$shift_or > 1, "smaller", "larger")
+  cat(sprintf("- **%s:** gap %s in other threads and %s in cancer-related threads. %s\n",
+              mech_names[r$mechanism],
+              f1(r$gap_not_cancer_or),
+              or3(r$gap_cancer_or, r$gap_cancer_lcl, r$gap_cancer_ucl),
+              if (cred) sprintf("The gap is credibly %s in cancer-related threads (shift %s, pd %.3f).",
+                                dir, or3(r$shift_or, r$shift_lcl, r$shift_ucl), r$shift_pd)
+              else sprintf("No credible difference (shift %s, pd %.3f).",
+                           or3(r$shift_or, r$shift_lcl, r$shift_ucl), r$shift_pd)))
+}
+```
+
+Here too the same caveats apply: a borderline interval (one end close to 1)
+is weak evidence, and the cancer flag itself comes from a language model.

@@ -1,0 +1,20 @@
+rows: 137278 (all), 128653 (synthetic); sum of synthetic weights = 77603 (subsampled n = 77603)
+IP fitted (199s)
+EX fitted (236s)
+
+n contrasts: 54  unmatched: 0 
+  mechanism           stage median_abs_diff_in_sd max_abs_diff_in_sd
+1        EX       A_vs_real                  1.10              12.00
+2        EX B_between_model                  4.14               9.94
+3        EX  B_within_model                  1.03               3.05
+4        IP       A_vs_real                  4.48               6.93
+5        IP B_between_model                  1.33               2.41
+6        IP  B_within_model                  1.28               3.99
+  median_se_ratio
+1            1.11
+2            1.11
+3            1.10
+4            1.04
+5            1.14
+6            1.13
+Wrote stability_weighted_comparison.csv

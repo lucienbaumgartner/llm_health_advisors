@@ -1,0 +1,7 @@
+"mechanism","model_stage","model_type","converged","max_rhat","min_neff_ratio","divergent_transitions","message"
+"ER","A_group_omnibus","cumulative",TRUE,1.00993135227555,0.214743550053285,0,NA
+"ER","B_model_x_method","cumulative",TRUE,1.00982615990946,0.197905290508252,0,NA
+"IP","A_group_omnibus","bernoulli",FALSE,1.01050003799047,0.218556974507078,0,"max Rhat = 1.011, min ESS ratio = 0.219, 0 divergent transition(s)"
+"IP","B_model_x_method","bernoulli",TRUE,1.00845923027633,0.223157720488336,0,NA
+"EX","A_group_omnibus","bernoulli",FALSE,1.01144214641078,0.21273229462463,0,"max Rhat = 1.011, min ESS ratio = 0.213, 0 divergent transition(s)"
+"EX","B_model_x_method","bernoulli",TRUE,1.00959016238053,0.23785531495123,0,NA

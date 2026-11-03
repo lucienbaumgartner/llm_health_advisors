@@ -1,0 +1,15 @@
+Covariate files from the coauthor's repo https://github.com/cmstewart/llm_health_advisors (one row per thread, key submission_id).
+Downloaded: 2026-10-16T06:53Z
+
+poster_demographics.csv        <- src/Covariates/Poster-Demographics/poster_demographics.csv
+  last commit: a607fac4b45197cd6401e75f963f4e6d77dc0c22 2026-10-15T16:38:25Z
+  md5: b35a22b101e2130ee3689a87964cd5e5
+severity.csv                   <- src/Covariates/Severity/severity.csv
+  last commit: 3e69357bad110df452ccc4225fca5b79b8011570 2026-10-15T19:16:14Z
+  md5: a74ce049a3d897d1be98089c6ad627a8
+first_responder_roles.csv      <- src/output/corpora/export/first_responder_roles.csv
+  last commit: b69dc1bc8145aa3b1905128c9112dc9383736e63 2026-10-15T15:58:54Z
+  md5: 064fd03cf185e12337446641417a95bd
+
+Not used (per the coauthor's READMEs): weight, height, BMI (missingness tracks topic; BMI drops ~3/4 of threads),
+race (0.7% coverage), smoking/drinking (11%/5%), hours_to_first_response (rejected as a severity measure).

@@ -1,0 +1,627 @@
+---
+title: "Empathy in Real vs. Synthetic Clinician Comments"
+output:
+  bookdown::html_document2:
+    toc: false
+  bookdown::pdf_document2:
+    toc: false
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(stringr)
+library(kableExtra)
+
+rm(list = ls())
+if (rstudioapi::isAvailable()) {
+  setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
+
+# kableExtra 1.4.0 has a known bug (github.com/haozhu233/kableExtra/issues/831):
+# any kable() piped into row_spec() (or other style-injecting kableExtra
+# calls) gets its bookdown caption number duplicated in HTML output only
+# (e.g. "Table 5: Table 6: ..."), which also pushes every later table's
+# number up by one. Forcing format="html" explicitly (instead of relying on
+# kable()'s auto-detection) avoids it; PDF output already auto-detects
+# "latex" correctly and isn't affected, so this only overrides the format
+# for HTML rendering.
+html_fmt <- function() if (knitr::is_html_output()) "html" else NULL
+
+out_dir <- "../../output/5_inference_final"
+
+qc <- read.csv(file.path(out_dir, "qc_comment_counts.csv"))
+qc$synthetic_matches_n_comments <- as.logical(qc$synthetic_matches_n_comments)
+qc$synthetic_matches_real_count <- as.logical(qc$synthetic_matches_real_count)
+
+results <- read.csv(file.path(out_dir, "inference_results.csv"))
+summary_stats <- read.csv(file.path(out_dir, "empathy_summary_stats.csv"))
+
+comparison <- read.csv(file.path(out_dir, "empathy_group_comparison.csv"))
+comparison$significant_bh_0.05 <- as.logical(comparison$significant_bh_0.05)
+
+length_corr <- read.csv(file.path(out_dir, "empathy_length_correlation.csv"))
+length_corr$significant_bh_0.05 <- as.logical(length_corr$significant_bh_0.05)
+
+length_summary <- read.csv(file.path(out_dir, "comment_length_by_group.csv"))
+
+# Mixed-effects models (see 3b_mixed_effects_models.R): replace the
+# Kruskal-Wallis omnibus test and the by-method/by-model pooled comparisons
+# with models that account for comments clustering by post and control for
+# comment length directly. The Mann-Whitney table above is unchanged.
+mm_convergence <- read.csv(file.path(out_dir, "mixed_model_convergence.csv"))
+mm_convergence$converged <- as.logical(mm_convergence$converged)
+mm_anova <- read.csv(file.path(out_dir, "mixed_model_anova.csv"))
+mm_length_effect <- read.csv(file.path(out_dir, "mixed_model_length_effect.csv"))
+mm_vs_real <- read.csv(file.path(out_dir, "mixed_model_contrasts_vs_real.csv"))
+mm_vs_real_nolength_ip <- read.csv(file.path(out_dir, "mixed_model_contrasts_vs_real_nolength_IP.csv"))
+mm_between_model <- read.csv(file.path(out_dir, "mixed_model_contrasts_between_model.csv"))
+mm_within_model <- read.csv(file.path(out_dir, "mixed_model_contrasts_within_model.csv"))
+
+# Everything below is derived from the data itself (group labels, model/method
+# names, post counts, ...) rather than hardcoded, so the report stays accurate
+# if the underlying data changes.
+mechanism_names <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+mechanisms_used <- unique(comparison$mechanism)
+models_used <- sort(unique(comparison$model))
+methods_used <- sort(unique(comparison$method))
+synth_groups <- as.vector(outer(models_used, methods_used, paste, sep = "_"))
+group_levels <- c("real", synth_groups)
+# Shared display order for the "model" facet/column, used by both Table 1 and
+# Figure 1 so they list models in the same order and stay directly comparable.
+model_display_levels <- c("Real", str_to_title(models_used))
+
+n_posts <- length(unique(qc$post_id))
+
+# A handful of synthetic comments came back with an empty/missing body (see
+# 3_analyze_empathy_differences.py); dropped here too so counts/plots match
+# the CSVs computed there.
+results <- results %>%
+  filter(!is.na(response_post) & response_post != "") %>%
+  mutate(group = ifelse(source == "real", "real", paste(model, method, sep = "_")),
+         group = factor(group, levels = group_levels),
+         length = lengths(strsplit(as.character(response_post), "\\s+")))
+
+summary_stats <- summary_stats %>%
+  mutate(group = factor(group, levels = group_levels),
+         mechanism_label = mechanism_names[mechanism])
+
+comparison <- comparison %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         group = paste(model, method, sep = "_"),
+         direction = ifelse(mean_synthetic < mean_real, "lower", "higher"),
+         fold_diff = mean_real / mean_synthetic)
+
+length_corr <- length_corr %>%
+  mutate(mechanism_label = mechanism_names[mechanism])
+
+sig_counts <- comparison %>%
+  group_by(mechanism, mechanism_label) %>%
+  summarise(n_sig = sum(significant_bh_0.05), .groups = "drop") %>%
+  arrange(desc(n_sig))
+
+describe_mechanism <- function(mech) {
+  rows <- comparison %>% filter(mechanism == mech, significant_bh_0.05)
+  if (nrow(rows) == 0) return("no (model, method) group differed significantly from real comments after correction")
+  paste(sprintf("%s/%s scored %s than real (p_adj = %.3g, r = %.2f)",
+                rows$model, rows$method, rows$direction, rows$p_adj_bh, rows$rank_biserial_r),
+        collapse = "; ")
+}
+
+ex_rows <- comparison %>% filter(mechanism == "EX")
+ex_fold <- mean(ex_rows$fold_diff)
+
+mm_convergence <- mm_convergence %>% mutate(mechanism_label = mechanism_names[mechanism])
+mm_anova <- mm_anova %>% mutate(mechanism_label = mechanism_names[mechanism])
+
+omnibus <- mm_anova %>% filter(model_stage == "A_group_omnibus", term == "group")
+factorial_tests <- mm_anova %>%
+  filter(model_stage == "B_model_x_method", term %in% c("model", "method", "model:method"))
+
+describe_factorial <- function(mech) {
+  rows <- factorial_tests %>% filter(mechanism == mech)
+  paste(sprintf("%s ($\\chi^2$ = %.1f, df = %d, p %s)",
+                rows$term, rows$chisq, rows$df,
+                ifelse(rows$p_value < 0.001, "< 0.001", sprintf("= %.3g", rows$p_value))),
+        collapse = "; ")
+}
+
+# All three contrast tables report odds ratios (see 3b_mixed_effects_models.R
+# for how ER's cumulative-link contrasts, which have no native "response"
+# scale, were put on the same footing). significant_bh_0.05 columns added
+# here rather than in the R script, consistent with how comparison/Table 1
+# does it.
+mm_vs_real <- mm_vs_real %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         significant_bh_0.05 = p_adj_bh < 0.05,
+         direction = ifelse(odds_ratio < 1, "lower", "higher"))
+
+mm_between_model <- mm_between_model %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         significant_bh_0.05 = p_adj_bh < 0.05)
+
+mm_within_model <- mm_within_model %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         significant_bh_0.05 = p_adj_bh < 0.05)
+
+describe_vs_real <- function(mech) {
+  rows <- mm_vs_real %>% filter(mechanism == mech, significant_bh_0.05)
+  if (nrow(rows) == 0) return("no (model, method) group differed significantly from real after correction")
+  paste(sprintf("%s scored %s than real (OR = %.2f, p_adj = %.3g)",
+                sub(" / real", "", rows$contrast), rows$direction, rows$odds_ratio, rows$p_adj_bh),
+        collapse = "; ")
+}
+
+# Headline summary sentence: which (mechanism, model, method) groups actually
+# score *higher* than real after length-adjustment - computed from
+# mm_vs_real so this doesn't silently keep repeating pilot 2's specific
+# finding (Grok/IP, all three methods) if the new dataset's models land
+# differently.
+describe_summary_exceptions <- function() {
+  higher <- mm_vs_real %>%
+    filter(significant_bh_0.05, direction == "higher") %>%
+    mutate(contrast_clean = sub(" / real", "", contrast),
+           model = sub("_.*", "", contrast_clean),
+           method = sub(".*_", "", contrast_clean))
+  if (nrow(higher) == 0) {
+    return(sprintf("real comments show significantly higher empathy ratings than every synthetic (model, method) group across all %d mechanisms, with no exceptions.",
+                    length(mechanisms_used)))
+  }
+  by_mech_model <- higher %>%
+    group_by(mechanism_label, model) %>%
+    summarise(methods = list(sort(method)), .groups = "drop") %>%
+    rowwise() %>%
+    mutate(desc = if (length(methods) == length(methods_used)) {
+      sprintf("%s scores significantly *higher* than real across all %d prompting strategies (%s)",
+              str_to_title(model), length(methods_used), toupper(toString(methods)))
+    } else {
+      sprintf("%s scores significantly *higher* than real for %s",
+              str_to_title(model), toupper(toString(methods)))
+    }) %>%
+    ungroup()
+  exc_by_mech <- by_mech_model %>%
+    group_by(mechanism_label) %>%
+    summarise(text = paste(desc, collapse = " and "), .groups = "drop")
+  exceptions_text <- paste(sprintf("for %s, %s", exc_by_mech$mechanism_label, exc_by_mech$text), collapse = "; ")
+  n_mech_exceptions <- nrow(exc_by_mech)
+  sprintf("real comments generally show significantly higher empathy ratings across all %d mechanisms (%s), with %s: %s.",
+          length(mechanisms_used), toString(mechanism_names[mechanisms_used]),
+          ifelse(n_mech_exceptions == 1, "one exception", sprintf("%d exceptions", n_mech_exceptions)),
+          exceptions_text)
+}
+
+describe_omnibus_significance <- function() {
+  testable <- omnibus %>% filter(!is.na(p_value))
+  na_rows <- omnibus %>% filter(is.na(p_value))
+  sig <- testable$mechanism_label[testable$p_value < 0.05]
+  n <- nrow(testable)
+  base <- if (length(sig) == n && n > 0) {
+    sprintf("significant for all %d mechanisms", n)
+  } else if (length(sig) == 0) {
+    "not significant for any mechanism"
+  } else {
+    sprintf("significant for %s but not for %s", toString(sig), toString(setdiff(testable$mechanism_label, sig)))
+  }
+  if (nrow(na_rows) > 0) {
+    base <- sprintf("%s (not estimable for %s)", base, toString(na_rows$mechanism_label))
+  }
+  base
+}
+
+describe_interaction_significance <- function() {
+  rows <- factorial_tests %>% filter(term == "model:method")
+  testable <- rows %>% filter(!is.na(p_value))
+  na_rows <- rows %>% filter(is.na(p_value))
+  sig <- testable$mechanism_label[testable$p_value < 0.05]
+  n <- nrow(testable)
+  base <- if (length(sig) == n && n > 0) {
+    sprintf("significant for all %d mechanism%s it could be tested for", n, ifelse(n > 1, "s", ""))
+  } else if (length(sig) == 0) {
+    "not significant for any mechanism it could be tested for"
+  } else {
+    sprintf("significant for %s but not %s", toString(sig), toString(setdiff(testable$mechanism_label, sig)))
+  }
+  if (nrow(na_rows) > 0) {
+    base <- sprintf("%s---not estimable for %s, whose Model B fit failed to converge",
+                     base, toString(na_rows$mechanism_label))
+  }
+  base
+}
+
+describe_missing_simple_effects <- function() {
+  present <- unique(mm_between_model$mechanism_label)
+  missing <- setdiff(unname(mechanism_names[mechanisms_used]), present)
+  if (length(missing) == 0) return("")
+  sprintf(" %s %s omitted from both tables below---its Model B fit failed to converge, so there are no valid contrasts to report.",
+          toString(missing), ifelse(length(missing) > 1, "are", "is"))
+}
+
+describe_dropped_main_effects <- function() {
+  main_effects <- factorial_tests %>% filter(term %in% c("model", "method"))
+  testable <- main_effects %>% filter(!is.na(p_value))
+  na_effects <- main_effects %>% filter(is.na(p_value))
+  dropped <- testable %>% filter(p_value >= 0.05)
+  parts <- c()
+  if (nrow(dropped) > 0) {
+    descs <- sprintf("**%s's %s effect** (p %s)",
+                      dropped$mechanism_label, dropped$term,
+                      ifelse(dropped$p_value < 0.001, "< 0.001", sprintf("= %.2g", dropped$p_value)))
+    parts <- c(parts, sprintf("The main effect(s) that drop out once the other factor is accounted for: %s---the dropped factor doesn't matter on its own for that mechanism.",
+                               toString(descs)))
+  } else if (nrow(testable) > 0) {
+    parts <- c(parts, "Both main effects (model and method) are significant for every mechanism they could be tested for, on top of the interaction.")
+  }
+  if (nrow(na_effects) > 0) {
+    parts <- c(parts, sprintf("%s's model and method main effects aren't estimable here---its Model B fit failed to converge, so there's no valid test for any term in it beyond what's noted above.",
+                               toString(unique(na_effects$mechanism_label))))
+  }
+  paste(parts, collapse = " ")
+}
+
+describe_length_significance <- function() {
+  n <- nrow(mm_length_effect)
+  sig_001 <- mm_length_effect %>% filter(p_value < 0.001)
+  if (nrow(sig_001) == n) return(sprintf("a significant predictor everywhere (Model A: all %d $p < 0.001$)", n))
+  sig_05 <- mm_length_effect %>% filter(p_value < 0.05)
+  if (nrow(sig_05) == n) return(sprintf("a significant predictor everywhere (Model A: all %d $p < 0.05$)", n))
+  nonsig <- setdiff(mm_length_effect$mechanism_label, sig_05$mechanism_label)
+  sprintf("a significant predictor for %s but not for %s (Model A)", toString(sig_05$mechanism_label), toString(nonsig))
+}
+
+describe_length_direction <- function() {
+  longer <- mm_length_effect$mechanism_label[mm_length_effect$direction == "longer"]
+  shorter <- mm_length_effect$mechanism_label[mm_length_effect$direction == "shorter"]
+  ex_label <- unname(mechanism_names["EX"])
+  explanation <- if (ex_label %in% shorter) {
+    "---plausibly because exploratory, question-asking replies tend to be short follow-ups rather than long ones"
+  } else ""
+  if (length(shorter) == 0) {
+    return(sprintf("in the same direction: %s all score higher with more words.", toString(longer)))
+  }
+  if (length(longer) == 0) {
+    return(sprintf("in the same direction: %s all score lower with more words%s.", toString(shorter), explanation))
+  }
+  sprintf("not in the same direction: %s score higher with more words, while %s scores lower with more words%s.",
+          toString(longer), toString(shorter), explanation)
+}
+
+# Table-level version of describe_summary_exceptions's logic: which
+# mechanisms have zero exceptions vs. which have (model, method) groups
+# scoring significantly *higher* than real.
+describe_vs_real_summary <- function() {
+  all_mechs <- unique(mm_vs_real$mechanism_label)
+  higher <- mm_vs_real %>% filter(significant_bh_0.05, direction == "higher")
+  clean_mechs <- setdiff(all_mechs, unique(higher$mechanism_label))
+  parts <- c()
+  if (length(clean_mechs) > 0) {
+    parts <- c(parts, sprintf("real scores significantly higher than every synthetic group for %s",
+                               toString(clean_mechs)))
+  }
+  if (nrow(higher) > 0) {
+    exc <- higher %>%
+      group_by(mechanism_label) %>%
+      summarise(text = paste(sub(" / real", "", contrast), collapse = ", "), .groups = "drop")
+    parts <- c(parts, sprintf("%s %s the exception%s---%s score%s significantly *higher* than real",
+                               toString(exc$mechanism_label),
+                               ifelse(nrow(exc) > 1, "are", "is"),
+                               ifelse(nrow(exc) > 1, "s", ""),
+                               toString(exc$text),
+                               ifelse(nrow(higher) > 1, "", "s")))
+  }
+  paste0(paste(parts, collapse = "; "), ".")
+}
+
+# Whether the raw Mann-Whitney direction for IP's grok/openai groups flips
+# once log(length) is dropped from Model A - a data-driven version of the
+# "this is a length confound" claim (see mm_vs_real_nolength_ip above),
+# rather than naming specific pilot-2 groups (grok_dg, openai_sag/sagii) by hand.
+describe_length_confound_ip <- function() {
+  ip_vs_real <- mm_vs_real %>% filter(mechanism == "IP") %>% select(contrast, direction)
+  nolength_dir <- mm_vs_real_nolength_ip %>%
+    mutate(direction_nolength = ifelse(odds_ratio < 1, "lower", "higher")) %>%
+    select(contrast, direction_nolength)
+  flips <- ip_vs_real %>% inner_join(nolength_dir, by = "contrast") %>%
+    filter(direction != direction_nolength)
+  if (nrow(flips) == 0) {
+    return(paste("Refitting without `log(length)` doesn't change any group's direction here, so",
+                  "this pattern isn't a length artifact---it holds regardless of the length covariate."))
+  }
+  flipped_desc <- toString(sub(" / real", "", flips$contrast))
+  sprintf(paste("This isn't quite what the raw Mann-Whitney table shows: refitting without",
+                "`log(length)` flips the direction for %s (%d group%s), reproducing the raw",
+                "pattern for those groups almost exactly---so this looks like a length confound:",
+                "comment length differs systematically across models and strongly predicts this",
+                "label, so part of the length-adjusted picture for these groups is attributable to",
+                "comment length rather than the model/method itself."),
+          flipped_desc, nrow(flips), ifelse(nrow(flips) > 1, "s", ""))
+}
+
+# Robustness check: refit IP's Model A without log_length, to see whether
+# comment length explains why grok/openai's direction differs from the raw
+# Mann-Whitney picture (openai writes much longer comments than grok, and
+# length is a strong positive predictor for IP - see mm_length_effect).
+n_flipped <- mm_vs_real_nolength_ip %>%
+  mutate(direction_nolength = ifelse(odds_ratio < 1, "lower", "higher")) %>%
+  inner_join(mm_vs_real %>% filter(mechanism == "IP") %>% select(contrast, direction),
+             by = "contrast") %>%
+  filter(direction != direction_nolength, grepl("grok|openai", contrast)) %>%
+  nrow()
+
+mm_length_effect <- mm_length_effect %>%
+  mutate(mechanism_label = mechanism_names[mechanism],
+         direction = ifelse(log_length_coef > 0, "longer", "shorter"))
+
+real_len_summary <- length_summary %>% filter(group == "real")
+synth_len_summary <- length_summary %>% filter(group != "real")
+
+sig_length <- length_corr %>% filter(significant_bh_0.05)
+
+# Sparsest ER (model, method) cell for label 2 - computed from the data so
+# this stays accurate regardless of dataset size (the exact cell/count this
+# refers to isn't guaranteed to stay the same across dataset versions).
+er_label2_rates <- results %>%
+  filter(group != "real") %>%
+  group_by(group) %>%
+  summarise(n = n(), n_label2 = sum(ER_label == 2), rate = n_label2 / n, .groups = "drop") %>%
+  arrange(rate)
+sparsest_er <- er_label2_rates %>% slice(1)
+
+er_converged <- all(mm_convergence$converged[mm_convergence$mechanism == "ER"])
+
+describe_er_convergence <- function() {
+  sparsity_note <- sprintf("how sparse label 2 is for the thinnest group (%s: %d/%d at label 2)",
+                            sparsest_er$group, sparsest_er$n_label2, sparsest_er$n)
+  if (er_converged) {
+    return(sprintf("**%s's models converged cleanly**, despite %s. IP and EX converged cleanly too.",
+                    mechanism_names["ER"], sparsity_note))
+  }
+  row_a <- mm_convergence %>% filter(mechanism == "ER", model_stage == "A_group_omnibus")
+  row_b <- mm_convergence %>% filter(mechanism == "ER", model_stage == "B_model_x_method")
+  severe_a <- !row_a$converged && grepl("not reliable", row_a$message)
+  severe_b <- !row_b$converged && grepl("not reliable", row_b$message)
+  if (row_a$converged && !row_b$converged) {
+    return(sprintf(paste("**%s's Model A (omnibus test and vs.-real contrasts) converged cleanly**, but",
+                          "**Model B (the model x method interaction) failed to converge** (%s) - its",
+                          "Hessian isn't usable, so no valid significance test or simple-effects contrasts",
+                          "exist for it, and none are reported below; this is plausibly related to %s.",
+                          "IP and EX converged cleanly throughout."),
+                    mechanism_names["ER"], row_b$message, sparsity_note))
+  }
+  if (!row_a$converged && !severe_a && !row_b$converged && severe_b) {
+    return(sprintf(paste("**%s's Model A (omnibus test, vs.-real contrasts) had a small residual gradient**",
+                          "(%s) but its estimates are usable and reported below as directionally informative.",
+                          "**Model B (the model x method interaction) failed to converge outright** (%s) - its",
+                          "Hessian isn't usable, so no valid significance test or simple-effects contrasts",
+                          "exist for it, and none are reported below; this is plausibly related to %s.",
+                          "IP and EX converged cleanly throughout."),
+                    mechanism_names["ER"], row_a$message, row_b$message, sparsity_note))
+  }
+  if (severe_a || severe_b) {
+    failed <- c(if (severe_a) "Model A" else NULL, if (severe_b) "Model B" else NULL)
+    return(sprintf(paste("**%s's %s failed to converge outright** - its Hessian isn't usable, so no valid",
+                          "significance test or contrasts exist for it, and none are reported below;",
+                          "this is plausibly related to %s. IP and EX converged cleanly throughout."),
+                    mechanism_names["ER"], toString(failed), sparsity_note))
+  }
+  sprintf(paste("**%s's models did not fully converge** (%s for model A, %s for model B).",
+                "Both gradients are small (no diverging coefficients, no crash), plausibly related to %s",
+                "rather than a broken model. Accordingly, ER's results below are worth treating as",
+                "directionally informative rather than fully settled; IP and EX converged cleanly."),
+          mechanism_names["ER"], row_a$message, row_b$message, sparsity_note)
+}
+```
+
+## Summary
+
+Across `r length(models_used)` synthetic models (`r str_to_title(toString(models_used))`) and
+`r length(methods_used)` prompting methods (`r toupper(toString(methods_used))`),
+`r describe_summary_exceptions()`
+
+## Data
+
+`r n_posts` Reddit posts were used, each paired with its real clinician
+comment(s) and synthetic comments from `r length(models_used)` models x
+`r length(methods_used)` prompting methods. `r nrow(results)` comments were
+classified in total: `r sum(results$source == "real")` real and
+`r sum(results$source == "synthetic")` synthetic
+(`r sprintf("%.0f", sum(results$source == "synthetic") / length(synth_groups))` per
+model/method group on average). Predicted empathy comes from the same three
+fine-tuned RoBERTa bi-encoder classifiers used in pilot 1
+(`r toString(mechanism_names[mechanisms_used])`; see `../2_training`), each
+producing an ordinal label: 0 = none, 1 = weak, 2 = strong.
+
+## Mean predicted empathy by group
+
+Empathy labels are ordinal (0 = none, 1 = weak, 2 = strong). The means shown below implicitly treat the labels as equally spaced, and are shown only as a quick, monotonic summary (Fig. \@ref(fig:means)). The actual label distribution (the ordinal-honest view) is plotted underneath it as proportions per group (Fig. \@ref(fig:sb)).
+
+```{r means-table, eval=FALSE}
+tab_df <- summary_stats %>%
+  mutate(model = str_to_title(gsub("_.*", "", group)),
+         prompt = gsub(".*_", "", group),
+         prompt = toupper(ifelse(prompt == "real", "", prompt))) %>%
+  select(mechanism_label, model, prompt, n, mean)
+tab_df %>% arrange(mechanism_label, factor(model, levels = model_display_levels), prompt) %>%
+  kable(digits = 3, col.names = c("Mechanism", "Model", "Prompt", "n", "Mean"),
+        caption = "Population means per metric.")
+```
+
+```{r means, fig.width=4, fig.height=5, fig.cap="Average predicted empathy per population.", fig.pos="h!"}
+plot_df <- results %>%
+  pivot_longer(cols = c(ER_label, IP_label, EX_label), names_to = "mechanism", values_to = "label") %>%
+  mutate(mechanism = sub("_label", "", mechanism),
+         mechanism_label = mechanism_names[mechanism],
+         model = factor(str_to_title(ifelse(model == "", "real", model)), levels = model_display_levels),
+         method = toupper(method))
+
+ggplot(plot_df, aes(x = method, y = label, fill = method)) +
+  stat_summary(fun = mean, geom = "bar") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+  facet_grid(mechanism_label ~ model, scales = "free_x", space = "free_x") +
+  labs(x = NULL, y = "Mean predicted empathy label (0-2)", fill = NULL) +
+  theme_bw() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r sb, fig.width=4, fig.height=5, fig.cap="Stacked predicted label proportions per population.", fig.pos="h!"}
+prop_df <- summary_stats %>%
+  mutate(model = factor(str_to_title(gsub("_.*", "", group)), levels = model_display_levels),
+         method = gsub(".*_", "", group),
+         method = toupper(ifelse(method == "real", "", method))) %>%
+  select(mechanism_label, model, method, prop_label_0, prop_label_1, prop_label_2) %>%
+  pivot_longer(cols = starts_with("prop_label_"), names_to = "label", values_to = "proportion") %>%
+  mutate(label = factor(sub("prop_label_", "", label), levels = c("0", "1", "2")))
+
+ggplot(prop_df, aes(x = method, y = proportion, fill = label)) +
+  geom_bar(position = "stack", stat = "identity") +
+  facet_grid(mechanism_label ~ model, scales = "free_x", space = "free_x") +
+  labs(x = NULL, y = "Share of comments", fill = "Predicted label") +
+  scale_fill_brewer(palette = "Blues") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "top",
+        panel.grid = element_blank())
+```
+
+```{r prop-table}
+summary_stats %>%
+  mutate(model = str_to_title(gsub("_.*", "", group)),
+         method = gsub(".*_", "", group),
+         method = toupper(ifelse(method == "real", "", method))) %>%
+  arrange(mechanism_label, factor(model, levels = model_display_levels), method) %>%
+  mutate(
+    model = ifelse(duplicated(paste0(mechanism_label, model)), "", model),
+    mechanism_label = ifelse(duplicated(mechanism_label), "", mechanism_label)) %>%
+  select(mechanism_label, model, method, n, prop_label_0, prop_label_1, prop_label_2) %>%
+  kable(digits = c(0, 0, 0, 0, 3, 3, 3),
+        col.names = c("Mechanism", "Model", "Method", "n", "P(label=0)", "P(label=1)", "P(label=2)"),
+        caption = "Predicted label proportions by group (same data as Fig. 2, as a table)---useful for spotting cells too sparse to trust, e.g. where P(label=1) is 0.")
+```
+
+## Real vs. synthetic (Mann-Whitney U, Benjamini-Hochberg adjusted)
+
+Table \@ref(tab:mwu) shows that all real-vs-synthetic contrasts are significant, such that real ones score significantly higher. Notable exceptions, where the synthetic ones score higher are marked in red.
+
+```{r mwu}
+comparison %>%
+  select(mechanism_label, model, method, mean_real, mean_synthetic, p_value, p_adj_bh, rank_biserial_r) %>%
+  arrange(mechanism_label, model, method) %>%
+  mutate(
+    model = ifelse(duplicated(paste0(mechanism_label, model)), "", model),
+    mechanism_label = ifelse(duplicated(mechanism_label), "", mechanism_label),
+    model = str_to_title(model),
+    method = toupper(method),
+    # negative r = synthetic scored higher than real on this mechanism
+    rank_biserial_r = cell_spec(
+      sprintf("%.3f", rank_biserial_r),
+      format = if (knitr::is_latex_output()) "latex" else "html",
+      background = ifelse(rank_biserial_r < 0, "#f8d7da", "white"))) %>%
+  kable(digits = c(0, 0, 0, 3, 3, 4, 4, NA),
+        col.names = c("Mechanism", "Model", "Method", "Mean (real)", "Mean (synthetic)",
+                       "p", "p (BH-adj.)", "Rank-biserial r"),
+        caption = "Mann-Whitney U test.",
+        escape = FALSE)
+```
+
+## Mixed-effects models
+
+The Mann-Whitney tests above treat every comment as independent, but they
+aren't: several synthetic comments (and sometimes several real ones) come
+from the *same* Reddit thread, so they share whatever makes that particular
+topic more or less emotionally charged or explorable. To account for that,
+we run two mixed-effects models per mechanism:
+
+- **A - omnibus** (`label ~ group + log(length) + (1|post_id)`, all
+  `r nrow(results)` comments): tests whether the 10-level group factor
+  (real + 9 model/method combinations) matters at all.
+- **B - model × method** (`label ~ model * method + log(length) + (1|post_id)`,
+  synthetic comments only - "real" has no model/method to cross): tests the
+  model main effect, the method main effect, and whether they interact.
+
+**`r mechanism_names["ER"]`** uses all 3 empathy levels, so it's fit as a
+cumulative link mixed model (`ordinal::clmm`). **`r mechanism_names["IP"]`**
+and **`r mechanism_names["EX"]`** never predict label 1 anywhere in this
+data (0 occurrences out of `r nrow(results)` comments, checked directly), so
+a 3-level ordinal model would be degenerate for them---they're fit instead
+as binomial mixed models (`lme4::glmer`) on P(label = 2).
+
+```{r mm-convergence}
+mm_convergence %>%
+  select(mechanism_label, model_stage, model_type, converged, message) %>%
+  kable(col.names = c("Mechanism", "Model", "Type", "Converged", "Note"),
+        caption = "Convergence status for each fitted model.")
+```
+
+`r describe_er_convergence()`
+
+```{r mm-omnibus}
+omnibus %>%
+  select(mechanism_label, chisq, df, p_value) %>%
+  kable(digits = c(0, 1, 0, 4), col.names = c("Mechanism", "Chi-sq", "df", "p"),
+        caption = "Model A: omnibus test for group (real + 9 model/method combinations), replacing Kruskal-Wallis.")
+```
+
+The group effect is `r describe_omnibus_significance()` (Table
+\@ref(tab:mm-omnibus)). Comment length (log-transformed) is included as a covariate in both models
+and is `r describe_length_significance()`, but `r describe_length_direction()`
+
+```{r mm-vs-real}
+vs_real_df <- mm_vs_real %>%
+  mutate(contrast = sub(" / real", "", contrast)) %>%
+  select(mechanism_label, contrast, odds_ratio, OR_LCL, OR_UCL, p_adj_bh)
+
+vs_real_df %>%
+  kable(format = html_fmt(), digits = c(0, 0, 3, 3, 3, 4),
+        col.names = c("Mechanism", "Group", "Odds ratio", "OR 95% LCL", "OR 95% UCL", "p (BH-adj.)"),
+        caption = "Model A: each (model, method) group vs. real (OR below 1 = lower odds of higher empathy than real; rows with OR above 1 shaded).") %>%
+  row_spec(which(vs_real_df$odds_ratio > 1), background = "#f8d7da")
+```
+
+
+Table \@ref(tab:mm-vs-real): `r describe_vs_real_summary()`
+
+`r describe_length_confound_ip()`
+
+```{r mm-factorial}
+factorial_tests %>%
+  select(mechanism_label, term, chisq, df, p_value) %>%
+  kable(digits = c(0, 0, 1, 0, 4), col.names = c("Mechanism", "Term", "Chi-sq", "df", "p"),
+        caption = "Model B: model, method, and model x method tests (synthetic comments only), replacing the pooled by-method/by-model comparisons.")
+```
+
+The model x method interaction is `r describe_interaction_significance()`, i.e. for those mechanisms the
+effect of a prompting method genuinely depends on which model generated it. `r describe_dropped_main_effects()`
+
+Since the interaction is significant for at least one mechanism, pooled main-effect means
+(averaged over the other factor) would be misleading there - e.g. a model's
+"average" effect can look muted if it does well with one method and poorly
+with another. So instead, two sets of simple-effects contrasts throughout: models compared
+within each method, and methods compared within each model.`r describe_missing_simple_effects()`
+
+```{r mm-between-model}
+mm_between_model %>%
+  select(mechanism_label, method, contrast, odds_ratio, OR_LCL, OR_UCL, p_adj_bh) %>%
+  kable(digits = c(0, 0, 0, 3, 3, 3, 4),
+        col.names = c("Mechanism", "Method", "Contrast", "Odds ratio", "OR 95% LCL", "OR 95% UCL", "p (BH-adj.)"),
+        caption = "Model B: pairwise model contrasts within each method.")
+```
+
+```{r mm-within-model}
+mm_within_model %>%
+  select(mechanism_label, model, contrast, odds_ratio, OR_LCL, OR_UCL, p_adj_bh) %>%
+  kable(digits = c(0, 0, 0, 3, 3, 3, 4),
+        col.names = c("Mechanism", "Model", "Contrast", "Odds ratio", "OR 95% LCL", "OR 95% UCL", "p (BH-adj.)"),
+        caption = "Model B: pairwise method contrasts within each model.")
+```
+
+```{r mm-headline-contrasts}
+top_between <- mm_between_model %>% filter(significant_bh_0.05) %>%
+  arrange(desc(abs(log(odds_ratio)))) %>% slice(1)
+top_within <- mm_within_model %>% filter(significant_bh_0.05) %>%
+  arrange(desc(abs(log(odds_ratio)))) %>% slice(1)
+```

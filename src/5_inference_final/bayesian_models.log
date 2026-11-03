@@ -1,0 +1,511 @@
+Loading data...
+n = 137278 (all), 128653 (synthetic only), 6600 posts; sum of weights = 86228 (77603 synthetic)
+
+=== ER ===
+--- ER: Model A (group, n=137278) ---
+Loading required namespace: rstan
+  converged: TRUE
+--- ER: Model B (model*method, n=128653) ---
+  converged: TRUE
+Warning messages:
+1: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+2: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+3: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+4: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+5: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+6: brms' emmeans support for ordinal models is experimental and currently ignores the threshold parameters. 
+
+=== IP ===
+--- IP: Model A (group, n=137278) ---
+Start sampling
+Running MCMC with 4 parallel chains, with 4 thread(s) per chain...
+
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 2 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 3 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 4 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 1 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 4 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 2 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 3 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 4 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 1 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 2 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 3 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 4 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 2 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 3 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 2 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 2 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 1 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 3 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 2 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 4 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 1 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 3 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 4 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 1 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 3 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 4 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 2 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 1 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 3 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 4 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 4 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 1 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 2 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 2 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 3 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 4 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 1 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 2 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 3 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 4 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 1 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 2 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 3 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 4 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 1 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 2 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 3 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 4 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 1 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 2 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 3 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 4 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 1 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 2 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 3 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 4 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 1 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 2 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 3 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 4 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 2 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 4 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 1 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 3 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 4 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 2 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 3 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 1 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 3 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 4 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 2 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 4 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 4 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 4 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 2 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 1 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 4 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 3 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 2 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 1 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 4 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 3 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 2 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 1 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 4 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 3 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 2 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 4 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 2 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 1 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 4 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 3 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 2 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 1 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 4 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 3 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 1 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 4 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 4 finished in 1332.3 seconds.
+Chain 2 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 2 finished in 1334.4 seconds.
+Chain 1 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 3 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 3 finished in 1336.4 seconds.
+Chain 1 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 1 finished in 1348.1 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 1337.8 seconds.
+Total execution time: 1348.5 seconds.
+
+  converged: TRUE
+--- IP: Model B (model*method, n=128653) ---
+  converged: TRUE
+
+=== EX ===
+--- EX: Model A (group, n=137278) ---
+Start sampling
+Running MCMC with 4 parallel chains, with 4 thread(s) per chain...
+
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 4 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 3 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 4 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 3 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 4 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 1 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 3 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 4 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 2 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 3 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 4 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 2 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 1 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 3 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 4 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 2 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 3 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 4 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 2 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 3 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 4 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 1 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 3 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 4 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 1 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 3 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 4 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 4 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 1 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 2 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 3 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 3 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 4 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 2 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 1 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 3 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 4 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 2 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 2 Iteration: 1001 / 4000 [ 25%]  (Sampling) 
+Chain 1 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 3 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 4 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 2 Iteration: 1100 / 4000 [ 27%]  (Sampling) 
+Chain 1 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 3 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 4 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 2 Iteration: 1200 / 4000 [ 30%]  (Sampling) 
+Chain 1 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 3 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 4 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 2 Iteration: 1300 / 4000 [ 32%]  (Sampling) 
+Chain 1 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 3 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 4 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 2 Iteration: 1400 / 4000 [ 35%]  (Sampling) 
+Chain 1 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 3 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 4 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 2 Iteration: 1500 / 4000 [ 37%]  (Sampling) 
+Chain 1 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 3 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 4 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 2 Iteration: 1600 / 4000 [ 40%]  (Sampling) 
+Chain 1 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 3 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 4 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 2 Iteration: 1700 / 4000 [ 42%]  (Sampling) 
+Chain 1 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 3 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 4 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 1800 / 4000 [ 45%]  (Sampling) 
+Chain 1 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 3 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 4 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 2 Iteration: 1900 / 4000 [ 47%]  (Sampling) 
+Chain 1 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 3 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 4 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 2000 / 4000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 3 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 4 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 1 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 3 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 4 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 3 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 4 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 3 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 4 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 3 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 4 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 2 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 3 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 4 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 3 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 4 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 2 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 1 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 3 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 4 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 3 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 4 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 2 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 1 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 3 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 4 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 3 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 4 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 2 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 1 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 3 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 4 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 3 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 4 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 2 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 3 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 4 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 3 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 4 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 2 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 1 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 3 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 4 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 3 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 4 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 2 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 1 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 3 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 4 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 4 finished in 1119.2 seconds.
+Chain 2 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 1 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 3 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 3 finished in 1128.2 seconds.
+Chain 2 Iteration: 3900 / 4000 [ 97%]  (Sampling) 
+Chain 1 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 1 finished in 1141.4 seconds.
+Chain 2 Iteration: 4000 / 4000 [100%]  (Sampling) 
+Chain 2 finished in 1152.1 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 1135.2 seconds.
+Total execution time: 1152.5 seconds.
+
+  converged: TRUE
+--- EX: Model B (model*method, n=128653) ---
+  converged: TRUE
+
+=== IP: Model A without log_length (robustness check) ===
+             contrast odds_ratio    OR_LCL   OR_UCL      pd mechanism
+1    openai_dg - real  0.9894674 0.8901458 1.089234 0.57550        IP
+2      grok_dg - real  0.9523104 0.8529196 1.048445 0.81725        IP
+3   openai_sag - real  1.3737916 1.2436169 1.508064 1.00000        IP
+4     grok_sag - real  1.0347791 0.9315102 1.140505 0.73575        IP
+5 openai_sagii - real  1.3031579 1.1787057 1.445696 1.00000        IP
+6   grok_sagii - real  1.2034760 1.0863621 1.331014 0.99950        IP
+
+=== Convergence ===
+  mechanism      model_stage model_type converged max_rhat min_neff_ratio
+1        ER  A_group_omnibus cumulative      TRUE 1.009931      0.2147436
+2        ER B_model_x_method cumulative      TRUE 1.009826      0.1979053
+3        IP  A_group_omnibus  bernoulli      TRUE 1.002628      0.2280289
+4        IP B_model_x_method  bernoulli      TRUE 1.008459      0.2231577
+5        EX  A_group_omnibus  bernoulli      TRUE 1.003110      0.2044095
+6        EX B_model_x_method  bernoulli      TRUE 1.009590      0.2378553
+  divergent_transitions message
+1                     0    <NA>
+2                     0    <NA>
+3                     0    <NA>
+4                     0    <NA>
+5                     0    <NA>
+6                     0    <NA>
+
+=== Contrasts vs. real (Model A) ===
+              contrast odds_ratio     OR_LCL     OR_UCL pd mechanism
+1     gemini_dg - real 0.30963069 0.27211242 0.34787920  1        ER
+2     openai_dg - real 0.06362588 0.05302669 0.07471533  1        ER
+3       grok_dg - real 0.02667883 0.01994354 0.03498870  1        ER
+4    gemini_sag - real 0.39010845 0.34772268 0.43673093  1        ER
+5    openai_sag - real 0.10367441 0.08925748 0.11935775  1        ER
+6      grok_sag - real 0.05141167 0.04113401 0.06280127  1        ER
+7  gemini_sagii - real 0.39017380 0.35052964 0.43936007  1        ER
+8  openai_sagii - real 0.11345092 0.09737167 0.13116883  1        ER
+9    grok_sagii - real 0.02495752 0.01854472 0.03319155  1        ER
+10    gemini_dg - real 0.45674090 0.39119700 0.52598373  1        IP
+11    openai_dg - real 0.63481605 0.56960223 0.70774884  1        IP
+12      grok_dg - real 1.80679851 1.59501956 2.04207000  1        IP
+13   gemini_sag - real 0.37583540 0.32215580 0.44248133  1        IP
+14   openai_sag - real 0.68706079 0.62163511 0.77042343  1        IP
+15     grok_sag - real 1.74741753 1.55525264 1.96335354  1        IP
+16 gemini_sagii - real 0.46219934 0.40004149 0.53467403  1        IP
+17 openai_sagii - real 0.63392952 0.57157647 0.70753442  1        IP
+18   grok_sagii - real 2.13444252 1.89877131 2.39542100  1        IP
+19    gemini_dg - real 0.17074911 0.15153177 0.19360602  1        EX
+20    openai_dg - real 0.03705267 0.02968926 0.04592847  1        EX
+21      grok_dg - real 0.04275582 0.03546993 0.05176454  1        EX
+22   gemini_sag - real 0.18451030 0.16439717 0.20920304  1        EX
+23   openai_sag - real 0.02104073 0.01577908 0.02795330  1        EX
+24     grok_sag - real 0.07332857 0.06254056 0.08537175  1        EX
+25 gemini_sagii - real 0.16411958 0.14411841 0.18519425  1        EX
+26 openai_sagii - real 0.03075908 0.02431407 0.03926507  1        EX
+27   grok_sagii - real 0.03670784 0.02982018 0.04469114  1        EX
+
+=== Between-model, within-method contrasts (Model B) ===
+          contrast method odds_ratio     OR_LCL     OR_UCL      pd mechanism
+1  gemini - openai     dg  6.5983195  5.3276487  8.2851934 1.00000        ER
+2    gemini - grok     dg 12.0841539  8.9620590 16.1422491 1.00000        ER
+3    openai - grok     dg  1.8358361  1.3003845  2.5787634 1.00000        ER
+4  gemini - openai    sag  5.5873857  4.3995004  6.9542362 1.00000        ER
+5    gemini - grok    sag  8.3120976  6.7599467 10.4023215 1.00000        ER
+6    openai - grok    sag  1.4886252  1.1129387  1.9644514 0.99675        ER
+7  gemini - openai  sagii  5.0258445  4.0737787  6.2908928 1.00000        ER
+8    gemini - grok  sagii 16.9951923 12.5346023 22.6371418 1.00000        ER
+9    openai - grok  sagii  3.3706850  2.3901736  4.7686202 1.00000        ER
+10 gemini - openai     dg  1.1734980  0.9986397  1.3701127 0.97800        IP
+11   gemini - grok     dg  0.2282965  0.1987316  0.2627900 1.00000        IP
+12   openai - grok     dg  0.1940567  0.1683728  0.2234759 1.00000        IP
+13 gemini - openai    sag  0.9852272  0.8308650  1.1790683 0.56200        IP
+14   gemini - grok    sag  0.2082048  0.1785490  0.2401746 1.00000        IP
+15   openai - grok    sag  0.2111854  0.1815097  0.2418683 1.00000        IP
+16 gemini - openai  sagii  1.2764247  1.0710326  1.5051446 0.99675        IP
+17   gemini - grok  sagii  0.1939984  0.1686984  0.2215315 1.00000        IP
+18   openai - grok  sagii  0.1513825  0.1312309  0.1768624 1.00000        IP
+19 gemini - openai     dg  2.1573109  1.6616033  2.7321258 1.00000        EX
+20   gemini - grok     dg  5.9418171  4.7470340  7.2642859 1.00000        EX
+21   openai - grok     dg  2.7588709  2.0364131  3.7109392 1.00000        EX
+22 gemini - openai    sag  2.2665118  1.6186217  3.1342785 1.00000        EX
+23   gemini - grok    sag  2.8547706  2.3825325  3.3969841 1.00000        EX
+24   openai - grok    sag  1.2638111  0.8799368  1.8014626 0.89250        EX
+25 gemini - openai  sagii  1.4134825  1.0597531  1.9850260 0.98625        EX
+26   gemini - grok  sagii  6.0199999  4.8540869  7.5574739 1.00000        EX
+27   openai - grok  sagii  4.2795221  2.8907573  5.9345286 1.00000        EX
+
+=== Within-model, between-method contrasts (Model B) ===
+      contrast  model odds_ratio    OR_LCL    OR_UCL      pd mechanism
+1     dg - sag gemini  0.7803373 0.6830440 0.8895016 0.99975        ER
+2   dg - sagii gemini  0.8005710 0.6995570 0.9180797 0.99975        ER
+3  sag - sagii gemini  1.0242396 0.9045742 1.1691617 0.64800        ER
+4     dg - sag openai  0.6646882 0.5383233 0.8112541 1.00000        ER
+5   dg - sagii openai  0.6094688 0.4962775 0.7447414 1.00000        ER
+6  sag - sagii openai  0.9215345 0.7862041 1.0968166 0.82850        ER
+7     dg - sag   grok  0.5386108 0.3781747 0.7452699 1.00000        ER
+8   dg - sagii   grok  1.1243921 0.7602650 1.6368538 0.71925        ER
+9  sag - sagii   grok  2.0884110 1.4868900 2.9785750 1.00000        ER
+10    dg - sag gemini  1.1893388 1.0106030 1.4258669 0.97000        IP
+11  dg - sagii gemini  1.0078911 0.8653762 1.1922807 0.53075        IP
+12 sag - sagii gemini  0.8486587 0.7086092 1.0095048 0.96200        IP
+13    dg - sag openai  0.9969023 0.9023886 1.1019470 0.52400        IP
+14  dg - sagii openai  1.0966916 0.9891199 1.2191550 0.95975        IP
+15 sag - sagii openai  1.1003609 1.0008852 1.2093003 0.97500        IP
+16    dg - sag   grok  1.0822595 0.9673054 1.2007636 0.92925        IP
+17  dg - sagii   grok  0.8567683 0.7691318 0.9467905 0.99825        IP
+18 sag - sagii   grok  0.7907125 0.7180961 0.8792315 1.00000        IP
+19    dg - sag gemini  0.9603593 0.8353487 1.1200743 0.69700        EX
+20  dg - sagii gemini  0.9972086 0.8545836 1.1606370 0.51550        EX
+21 sag - sagii gemini  1.0375281 0.8938864 1.2145957 0.68275        EX
+22    dg - sag openai  1.0093461 0.7094774 1.4470645 0.52025        EX
+23  dg - sagii openai  0.6552285 0.4778383 0.9100847 0.99425        EX
+24 sag - sagii openai  0.6479791 0.4481408 0.9182092 0.99125        EX
+25    dg - sag   grok  0.4608533 0.3677035 0.5826807 1.00000        EX
+26  dg - sagii   grok  1.0115393 0.7737825 1.2953529 0.53525        EX
+27 sag - sagii   grok  2.1971001 1.7263753 2.8003520 1.00000        EX
+
+=== log(length) coefficient (Model A) ===
+  mechanism log_length_coef     CI_LCL     CI_UCL pd
+1        ER       0.5548149  0.4891222  0.6203644  1
+2        IP       1.3285587  1.2549793  1.4020755  1
+3        EX      -0.2236727 -0.2798802 -0.1689670  1
+
+Wrote bayesian_{convergence,length_effect,contrasts_vs_real,contrasts_between_model,contrasts_within_model}.csv to ../../output/5_inference_final 

@@ -1,0 +1,12 @@
+"topic","topic_label","n_threads","share","exploratory"
+"cardiopulmonary_conditions","Cardiopulmonary conditions",672,0.101818181818182,FALSE
+"dermatology","Dermatology",715,0.108333333333333,FALSE
+"endocrinology_nutrition_and_metabolism","Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE
+"gastroenterology","Gastroenterology",711,0.107727272727273,FALSE
+"genitourinary_and_reproductive_health","Genitourinary and reproductive health",695,0.10530303030303,FALSE
+"hematologic_immunologic_and_infectious_conditions","Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE
+"musculoskeletal_and_connective_tissue_conditions","Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE
+"neoplasms","Neoplasms",173,0.0262121212121212,TRUE
+"neurologic_and_visual_conditions","Neurologic and visual conditions",594,0.09,FALSE
+"oral_and_otolaryngologic_conditions","Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE
+"psychiatry_and_mental_health","Psychiatry and mental health",596,0.0903030303030303,FALSE
