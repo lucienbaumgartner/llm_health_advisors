@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 *.pth
 *.rds
+
+# large generated data (regenerable; over/near GitHub file-size limits)
+output/**/inference_results*.csv
+output/**/posts.json
+.DS_Store
+.Rhistory
