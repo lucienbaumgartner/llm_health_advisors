@@ -1,0 +1,496 @@
+"mechanism","term","topic","model","strategy","or","lcl","ucl","pd","topic_label","n_threads","share","exploratory","credible"
+"ER","tm","cardiopulmonary_conditions","gemini",NA,1.01969789290629,0.889025820018208,1.26905305960801,0.65325,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tm","cardiopulmonary_conditions","grok",NA,0.953640560017672,0.70285265762451,1.12809796758445,0.758,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tm","cardiopulmonary_conditions","openai",NA,0.999785004114928,0.836521547308986,1.20238610098968,0.5035,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tm","dermatology","gemini",NA,0.97820497012639,0.746593065985934,1.1388921594998,0.65825,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tm","dermatology","grok",NA,0.995995798280811,0.796180786664581,1.22136489526154,0.543,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tm","dermatology","openai",NA,1.01087945550825,0.852505174541061,1.28338998138969,0.5925,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tm","endocrinology_nutrition_and_metabolism","gemini",NA,0.998332122456264,0.828862500073327,1.21264994237719,0.52,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tm","endocrinology_nutrition_and_metabolism","grok",NA,0.995543524687189,0.793972065772989,1.23136708081432,0.544,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tm","endocrinology_nutrition_and_metabolism","openai",NA,0.998914075043706,0.824404476475986,1.21461359815309,0.515,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tm","gastroenterology","gemini",NA,1.00067559561198,0.820799839587486,1.20215526501926,0.51,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tm","gastroenterology","grok",NA,0.998387616289588,0.796755040005218,1.20731755263225,0.51875,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tm","gastroenterology","openai",NA,0.967272329612358,0.757006075361708,1.12365076961077,0.72275,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tm","genitourinary_and_reproductive_health","gemini",NA,1.00445316098299,0.855329931230096,1.21541672314503,0.549,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tm","genitourinary_and_reproductive_health","grok",NA,0.993569445086802,0.798656769982024,1.17791626457598,0.5615,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tm","genitourinary_and_reproductive_health","openai",NA,1.0053719273353,0.842687575494559,1.21619362262407,0.555,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tm","hematologic_immunologic_and_infectious_conditions","gemini",NA,0.954324708634557,0.747819231000452,1.08787537844182,0.77925,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tm","hematologic_immunologic_and_infectious_conditions","grok",NA,1.01578920272809,0.849773020384238,1.28157911350956,0.618,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tm","hematologic_immunologic_and_infectious_conditions","openai",NA,1.01467960239827,0.883679357413994,1.27677708456516,0.62125,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tm","musculoskeletal_and_connective_tissue_conditions","gemini",NA,0.992294614863977,0.816480703533747,1.17202497423263,0.56825,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tm","musculoskeletal_and_connective_tissue_conditions","grok",NA,1.02640360850102,0.869034025245955,1.35151069482082,0.66675,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tm","musculoskeletal_and_connective_tissue_conditions","openai",NA,0.981402753151126,0.781085234510954,1.14520538904694,0.6525,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tm","neoplasms","gemini",NA,1.05951441064757,0.925996059263482,1.42370695246008,0.7925,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tm","neoplasms","grok",NA,0.98662110377976,0.769753457861418,1.18497182744919,0.603,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tm","neoplasms","openai",NA,0.987551679406511,0.765345433510311,1.15735704950055,0.61,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tm","neurologic_and_visual_conditions","gemini",NA,1.00027987015635,0.845834977888855,1.20896787532292,0.50275,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tm","neurologic_and_visual_conditions","grok",NA,1.00246057225127,0.811816459068734,1.23853347717274,0.5245,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tm","neurologic_and_visual_conditions","openai",NA,1.01021779881825,0.868685612463263,1.26407041216513,0.59675,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tm","oral_and_otolaryngologic_conditions","gemini",NA,1.01531539681123,0.861565668629391,1.26796214313807,0.62875,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tm","oral_and_otolaryngologic_conditions","grok",NA,0.997451737347672,0.804596797269079,1.24167341742378,0.5275,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tm","oral_and_otolaryngologic_conditions","openai",NA,0.988433956934507,0.790542389590433,1.17591198030987,0.59275,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tm","psychiatry_and_mental_health","gemini",NA,0.974452357893261,0.803977496196694,1.14968385973074,0.68675,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tm","psychiatry_and_mental_health","grok",NA,1.03069177189227,0.892771151736709,1.34798515524506,0.697,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tm","psychiatry_and_mental_health","openai",NA,1.0190947161305,0.884660786092872,1.2544095703383,0.6465,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tt","cardiopulmonary_conditions",NA,"dg",0.984962903441471,0.831033642990277,1.0713591756543,0.69775,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tt","cardiopulmonary_conditions",NA,"sag",1.00289533340481,0.898216633316668,1.1317962812211,0.5615,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tt","cardiopulmonary_conditions",NA,"sagii",1.00491401435999,0.909732207729144,1.14441890313351,0.58825,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tt","dermatology",NA,"dg",0.99926962785168,0.887033082765493,1.13055764257159,0.52,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tt","dermatology",NA,"sag",0.996315559270174,0.874832359607538,1.12067479565543,0.5755,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tt","dermatology",NA,"sagii",1.00074122407089,0.896533158505671,1.14923671968368,0.52,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tt","endocrinology_nutrition_and_metabolism",NA,"dg",0.998639091876485,0.885593710126013,1.1197327043572,0.534,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tt","endocrinology_nutrition_and_metabolism",NA,"sag",1.00193250488535,0.895752618099305,1.13086180348525,0.54425,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tt","endocrinology_nutrition_and_metabolism",NA,"sagii",0.997659977132114,0.88540509875358,1.1171647472109,0.549,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tt","gastroenterology",NA,"dg",0.999379052867515,0.877654737637508,1.11562077626751,0.51675,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tt","gastroenterology",NA,"sag",0.995295660232849,0.865642736497276,1.09081104769002,0.577,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tt","gastroenterology",NA,"sagii",0.998478463711835,0.884878439416512,1.12052911740128,0.5335,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tt","genitourinary_and_reproductive_health",NA,"dg",0.995386714044585,0.879312435673637,1.10003203268164,0.58525,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tt","genitourinary_and_reproductive_health",NA,"sag",1.00070027307678,0.890373714908105,1.11927930443161,0.5195,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tt","genitourinary_and_reproductive_health",NA,"sagii",1.00527991990683,0.909800713143583,1.14717913163152,0.59825,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tt","hematologic_immunologic_and_infectious_conditions",NA,"dg",0.998000082505335,0.889504244594049,1.10669378668425,0.54025,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tt","hematologic_immunologic_and_infectious_conditions",NA,"sag",0.996977566775624,0.8802819720942,1.10333873888456,0.5675,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tt","hematologic_immunologic_and_infectious_conditions",NA,"sagii",1.0048571026664,0.912007741916779,1.12932148881001,0.5935,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tt","musculoskeletal_and_connective_tissue_conditions",NA,"dg",1.00753948989891,0.912950606563629,1.17857961814945,0.62075,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sag",0.996622825525561,0.872369679963623,1.10866989056024,0.56525,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sagii",0.996929493676405,0.865432410867906,1.10545940533121,0.568,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tt","neoplasms",NA,"dg",1.00799773235618,0.919619299013729,1.17509618051081,0.62425,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tt","neoplasms",NA,"sag",0.998997962375328,0.877710031627722,1.12390586728797,0.519,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tt","neoplasms",NA,"sagii",0.998763649911301,0.873847852751999,1.12104692145705,0.5305,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tt","neurologic_and_visual_conditions",NA,"dg",0.996380979497518,0.862954769541908,1.09826646961914,0.5665,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tt","neurologic_and_visual_conditions",NA,"sag",1.00544073734466,0.914102014973294,1.16091791704879,0.601,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tt","neurologic_and_visual_conditions",NA,"sagii",1.00149544205995,0.894035317102484,1.12930906634196,0.53725,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tt","oral_and_otolaryngologic_conditions",NA,"dg",1.00094044093752,0.89331412164309,1.13267149797418,0.52625,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tt","oral_and_otolaryngologic_conditions",NA,"sag",0.99962967058887,0.880737195538893,1.114341892817,0.51025,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tt","oral_and_otolaryngologic_conditions",NA,"sagii",0.999693308539444,0.888321102000558,1.13137306855762,0.5075,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tt","psychiatry_and_mental_health",NA,"dg",1.01142087585153,0.925533176964069,1.18238430822329,0.65525,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tt","psychiatry_and_mental_health",NA,"sag",1.00554755098749,0.916121574373285,1.14828554552023,0.6035,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tt","psychiatry_and_mental_health",NA,"sagii",0.988772553546116,0.855738876667397,1.07841503173267,0.67425,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","gemini","dg",0.995010897124098,0.875523750234968,1.08463811847606,0.6065,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","gemini","sag",1.00264520740371,0.919093427188374,1.13233627682595,0.5575,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","gemini","sagii",1.00629376301505,0.9289214472376,1.14537832811726,0.62075,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","grok","dg",0.999009502866447,0.895575276638305,1.11812592213948,0.5275,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","grok","sag",0.997661199266335,0.872828667118323,1.09262908869943,0.56275,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","grok","sagii",0.998530036456341,0.88142531996622,1.09482989043576,0.53475,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","openai","dg",0.998216252771437,0.882434247528793,1.102902785565,0.5465,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","openai","sag",1.00185045498265,0.906954223837567,1.11894468994695,0.54925,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","cardiopulmonary_conditions","openai","sagii",0.999998179361657,0.898770105214634,1.10221148226468,0.5,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"ER","tmm","dermatology","gemini","dg",0.999129906251281,0.904619378493033,1.10770465950471,0.52425,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","gemini","sag",0.99898091462056,0.901633644964672,1.11928937799069,0.5245,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","gemini","sagii",0.999062370349646,0.891145112512168,1.10464288307791,0.5265,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","grok","dg",1.00004148246037,0.899071243637751,1.12204060916811,0.5005,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","grok","sag",0.998750241599305,0.885351090689819,1.10042822554685,0.53375,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","grok","sagii",0.999777061354514,0.893950387781566,1.12262983514621,0.50825,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","openai","dg",0.999950260387056,0.901560615597159,1.11314907151962,0.50225,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","openai","sag",0.999578932673739,0.896586055522469,1.1122088578504,0.512,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","dermatology","openai","sagii",1.00192788097751,0.90370617416657,1.12437350939157,0.547,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","gemini","dg",1.00037545246464,0.899444435635844,1.10834177283646,0.5135,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","gemini","sag",1.00007449297446,0.901655284431824,1.11271502802571,0.5045,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","gemini","sagii",0.998274854776655,0.886531164097031,1.09161854660306,0.54175,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","grok","dg",0.999292095682574,0.892507823089832,1.11215213664506,0.52075,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","grok","sag",1.0001040930173,0.911231224487938,1.11233231988564,0.505,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","grok","sagii",0.999639838873596,0.899555973661078,1.1103941029362,0.509,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","openai","dg",0.99972302236539,0.892777401156644,1.10342789225641,0.50875,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","openai","sag",1.00015873109645,0.898058561099968,1.11856319485629,0.506,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","endocrinology_nutrition_and_metabolism","openai","sagii",0.999619163036813,0.898244478463899,1.11096943607994,0.51125,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"ER","tmm","gastroenterology","gemini","dg",0.999189940775267,0.891278794304929,1.09433327877935,0.52525,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","gemini","sag",1.00021840034588,0.912105970440094,1.11985364201978,0.509,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","gemini","sagii",1.00069741658193,0.901710287081738,1.10772349064399,0.5195,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","grok","dg",1.0012214453575,0.916244617762902,1.12639695149079,0.53,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","grok","sag",0.998696415405528,0.879165602757769,1.10200682059585,0.53675,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","grok","sagii",1.00013778599162,0.905423671069171,1.12546130443929,0.505,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","openai","dg",0.999909347909149,0.902588980755708,1.13035303015626,0.50425,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","openai","sag",0.996660329148112,0.889954447633577,1.09840145486293,0.57675,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","gastroenterology","openai","sagii",0.998429209984074,0.89195553169916,1.09698224926509,0.54325,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","gemini","dg",0.99976832534072,0.909608947366075,1.10960600293173,0.50625,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","gemini","sag",1.00038433383733,0.904629329360926,1.11143836411883,0.51125,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","gemini","sagii",1.00093101712763,0.920839430950008,1.11995219347648,0.5255,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","grok","dg",0.999210579256637,0.882853503361746,1.09617867513835,0.51975,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","grok","sag",0.999676203933265,0.899591956619678,1.12102562176789,0.51225,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","grok","sagii",1.00000762293405,0.909443686434749,1.11792355966193,0.5005,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","openai","dg",0.997856505572278,0.890976702001198,1.09320625850945,0.55225,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","openai","sag",0.999938288804214,0.901427194499456,1.10676240382613,0.50325,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","genitourinary_and_reproductive_health","openai","sagii",1.00370849953057,0.909311462935623,1.12159412586173,0.589,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","gemini","dg",0.998586375110296,0.892742583516948,1.09456201833706,0.53775,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sag",0.994111565192103,0.879878895262621,1.07635679431041,0.614,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sagii",1.00059019509663,0.903644724236048,1.10218657256666,0.5185,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","grok","dg",1.00105309411462,0.912692916981992,1.10873973896355,0.52775,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","grok","sag",1.00225427707043,0.911030320153456,1.13058703745242,0.559,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","grok","sagii",0.999351936583866,0.894365277008354,1.1056727795864,0.52,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","openai","dg",0.999010198676808,0.888106154303594,1.09186538946098,0.526,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","openai","sag",1.0015227732435,0.924637047086126,1.13985720980001,0.53825,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","hematologic_immunologic_and_infectious_conditions","openai","sagii",1.00340461257215,0.919033779960522,1.12880550680049,0.578,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","dg",1.00303104936884,0.922687289339239,1.14514125934081,0.56875,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sag",0.99690048345024,0.885365256420595,1.085596385459,0.56975,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sagii",0.99889961087262,0.903638398745118,1.11096721414329,0.53325,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","grok","dg",0.999982088010422,0.9012072730955,1.12588793511508,0.501,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sag",1.00174722462129,0.908031871705157,1.12628769628546,0.54425,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sagii",1.00102729230364,0.897642856229282,1.11859675225549,0.5265,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","openai","dg",1.00026554475077,0.89351782048361,1.11175294568706,0.51025,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sag",0.998761672361232,0.880836724465268,1.10232148845983,0.53275,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sagii",0.99770800563945,0.880289014378146,1.08441850149404,0.55675,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"ER","tmm","neoplasms","gemini","dg",1.00549773739571,0.931230545728,1.14558795153126,0.6185,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","gemini","sag",1.00145627433914,0.914450902865784,1.1279163584316,0.54125,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","gemini","sagii",1.00027335435449,0.90344955805432,1.11805212826385,0.50875,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","grok","dg",0.999592535036405,0.894720410512662,1.10317413302462,0.5115,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","grok","sag",0.999510052563463,0.897394243592546,1.11102831902044,0.51525,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","grok","sagii",0.99935701930074,0.904065920808721,1.12802464359961,0.51925,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","openai","dg",1.00092570920452,0.900826143033672,1.13069897110976,0.52275,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","openai","sag",0.999048488973979,0.894189104402355,1.10504405173652,0.52475,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neoplasms","openai","sagii",0.997646384107528,0.874782495584179,1.0927481917611,0.56,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","gemini","dg",0.997781933552939,0.882268365483658,1.08479171410795,0.55575,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","gemini","sag",1.00113339680926,0.918928832295477,1.1285447828432,0.52925,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","gemini","sagii",1.00168005471321,0.914695276793932,1.12075436639064,0.5355,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","grok","dg",0.999552865494441,0.90088920307076,1.11137501393757,0.5135,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","grok","sag",1.00050135963875,0.903238175590448,1.11611733798974,0.51525,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","grok","sagii",0.999769636537738,0.908388889201116,1.12388226551257,0.51025,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","openai","dg",1.0008979709347,0.900739667874815,1.10921216271146,0.52675,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","openai","sag",1.00143678118248,0.906128092937101,1.11384723483879,0.538,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","neurologic_and_visual_conditions","openai","sagii",1.00005149577586,0.895232336984489,1.10335065500728,0.5015,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","gemini","dg",1.00184476448823,0.903209272431282,1.1184692394941,0.54175,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","gemini","sag",1.00040997001474,0.901960095428118,1.12014372167676,0.51325,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","gemini","sagii",0.999316236872622,0.896107406379515,1.11016649547566,0.5225,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","grok","dg",1.00032142164487,0.894819729990358,1.10761272383336,0.51075,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","grok","sag",0.998322843002312,0.889800498831092,1.11855200928026,0.5375,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","grok","sagii",1.00145748109468,0.911362815777417,1.13956658326797,0.54025,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","openai","dg",0.998973692014657,0.897841257223011,1.10687751310171,0.531,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","openai","sag",0.999531093471045,0.887808688570195,1.11079835995999,0.51575,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","oral_and_otolaryngologic_conditions","openai","sagii",0.999212086566933,0.894968282395045,1.09855139689483,0.5205,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","gemini","dg",1.0012703612261,0.92003340483037,1.12702114828846,0.537,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","gemini","sag",1.00053986717586,0.913286908198171,1.10689633017937,0.51725,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","gemini","sagii",0.990505752685723,0.861724211297897,1.06573339930051,0.65625,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","grok","dg",1.001160628008,0.91578569417936,1.14025508939218,0.53075,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","grok","sag",1.00148265304481,0.909970497797071,1.1278768820499,0.54425,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","grok","sagii",1.0006193712312,0.905003832938518,1.11443104373442,0.5165,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","openai","dg",1.00292371072973,0.913753808443145,1.12169058710433,0.5715,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","openai","sag",1.00042998341638,0.908045401480842,1.10706459120907,0.51475,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"ER","tmm","psychiatry_and_mental_health","openai","sagii",0.999331062338626,0.883552116748074,1.09447806864977,0.52075,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tm","cardiopulmonary_conditions","gemini",NA,1.0215157462624,0.931053256310582,1.17846883687214,0.708,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tm","cardiopulmonary_conditions","grok",NA,1.01003848592153,0.919107305603906,1.1407340971143,0.6195,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tm","cardiopulmonary_conditions","openai",NA,0.979329181866284,0.860284612256782,1.07347033065556,0.71025,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tm","dermatology","gemini",NA,0.981735799603406,0.84978151815693,1.0935332854058,0.6795,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tm","dermatology","grok",NA,0.984135685173057,0.867826907092335,1.0843087638945,0.65975,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tm","dermatology","openai",NA,1.04027442652091,0.953071740087617,1.19621212279683,0.81475,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tm","endocrinology_nutrition_and_metabolism","gemini",NA,1.00415115226223,0.895968520495461,1.14018439576816,0.551,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tm","endocrinology_nutrition_and_metabolism","grok",NA,0.982545525426751,0.85801045006964,1.09097795454837,0.67975,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tm","endocrinology_nutrition_and_metabolism","openai",NA,1.00316728026621,0.903514608764297,1.12756675855127,0.54725,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tm","gastroenterology","gemini",NA,1.00444989149327,0.902033157154808,1.13729086500623,0.55425,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tm","gastroenterology","grok",NA,1.01583379685293,0.92344678885616,1.14491339890306,0.6735,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tm","gastroenterology","openai",NA,0.981575397078994,0.869237403002131,1.08722371877179,0.68975,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tm","genitourinary_and_reproductive_health","gemini",NA,0.989070960684062,0.861664754378605,1.0924750388587,0.61725,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tm","genitourinary_and_reproductive_health","grok",NA,0.982076962972152,0.8602656862035,1.07586694819508,0.688,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tm","genitourinary_and_reproductive_health","openai",NA,1.02715747073935,0.943391988805721,1.18501567221793,0.75375,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tm","hematologic_immunologic_and_infectious_conditions","gemini",NA,0.997315469813044,0.879922010384801,1.11577697410978,0.53925,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tm","hematologic_immunologic_and_infectious_conditions","grok",NA,0.991191350496672,0.868971457048619,1.10036220183405,0.599,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tm","hematologic_immunologic_and_infectious_conditions","openai",NA,0.99966563491247,0.891536411100317,1.11332273632028,0.50475,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tm","musculoskeletal_and_connective_tissue_conditions","gemini",NA,0.98939730902219,0.859646517836793,1.09665649391412,0.62675,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tm","musculoskeletal_and_connective_tissue_conditions","grok",NA,1.0245900690891,0.924748287613874,1.18039248785603,0.72775,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tm","musculoskeletal_and_connective_tissue_conditions","openai",NA,1.00332511095737,0.898423246901983,1.12705270532241,0.542,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tm","neoplasms","gemini",NA,1.00610935142516,0.891750405517284,1.14897817050962,0.567,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tm","neoplasms","grok",NA,0.996146742920869,0.873091428090668,1.10452137904362,0.548,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tm","neoplasms","openai",NA,0.997046574966081,0.884308761157616,1.13122486839296,0.536,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tm","neurologic_and_visual_conditions","gemini",NA,0.989668144127763,0.869202634201392,1.09702887200141,0.62425,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tm","neurologic_and_visual_conditions","grok",NA,1.00964381475897,0.917555234294015,1.14130004156909,0.613,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tm","neurologic_and_visual_conditions","openai",NA,1.00686728238395,0.914705704379525,1.12630121181891,0.57925,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tm","oral_and_otolaryngologic_conditions","gemini",NA,1.00050511652841,0.87774952946784,1.14003162129525,0.508,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tm","oral_and_otolaryngologic_conditions","grok",NA,0.993136586550243,0.865269724867626,1.09971757847687,0.58525,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tm","oral_and_otolaryngologic_conditions","openai",NA,1.00020089217613,0.897819709291414,1.13729996336954,0.505,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tm","psychiatry_and_mental_health","gemini",NA,1.01498491468095,0.917022289538333,1.15741954846868,0.64825,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tm","psychiatry_and_mental_health","grok",NA,1.00901419030097,0.910429784778619,1.13957797899078,0.605,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tm","psychiatry_and_mental_health","openai",NA,0.958101985496936,0.823900919193275,1.05269400775901,0.81275,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tt","cardiopulmonary_conditions",NA,"dg",0.999039026031508,0.929950611647846,1.05577078282076,0.54625,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tt","cardiopulmonary_conditions",NA,"sag",0.998903641440682,0.936360993539788,1.04963774512628,0.549,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tt","cardiopulmonary_conditions",NA,"sagii",1.00438448384603,0.962588181378651,1.08309371819033,0.639,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tt","dermatology",NA,"dg",1.00000200926852,0.935843048304825,1.05972675861202,0.5005,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tt","dermatology",NA,"sag",0.99927017095487,0.934742676379203,1.06153715085601,0.53625,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tt","dermatology",NA,"sagii",1.00102849353711,0.94721318023989,1.06995971689132,0.546,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tt","endocrinology_nutrition_and_metabolism",NA,"dg",0.999278623317358,0.932662201465571,1.05842017983876,0.537,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tt","endocrinology_nutrition_and_metabolism",NA,"sag",0.999973124311158,0.936079378509955,1.06138992586348,0.50225,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tt","endocrinology_nutrition_and_metabolism",NA,"sagii",1.00033581537336,0.939165090498679,1.06072071829402,0.526,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tt","gastroenterology",NA,"dg",1.00195567985221,0.946093289593589,1.06687178383914,0.5805,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tt","gastroenterology",NA,"sag",0.998655294927198,0.932040229992624,1.05247064978968,0.556,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tt","gastroenterology",NA,"sagii",1.00008760433704,0.942056996874503,1.06608685509545,0.506,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tt","genitourinary_and_reproductive_health",NA,"dg",0.998631597118224,0.924570013330215,1.04799299320143,0.55975,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tt","genitourinary_and_reproductive_health",NA,"sag",1.00128093970334,0.943101280195269,1.07231268083318,0.5565,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tt","genitourinary_and_reproductive_health",NA,"sagii",0.999735467494895,0.940100118826421,1.06193275329458,0.516,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tt","hematologic_immunologic_and_infectious_conditions",NA,"dg",0.999327448764038,0.93939220807497,1.06057795489353,0.536,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tt","hematologic_immunologic_and_infectious_conditions",NA,"sag",1.00461612161481,0.958552734762463,1.09096268096392,0.646,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tt","hematologic_immunologic_and_infectious_conditions",NA,"sagii",0.994310452132668,0.913931916416469,1.04214792934845,0.6685,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tt","musculoskeletal_and_connective_tissue_conditions",NA,"dg",1.00129396144664,0.942445204322458,1.06891081486663,0.5505,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sag",1.00106507679187,0.944294774931649,1.07367098101055,0.55125,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sagii",0.999541669065727,0.938044490372486,1.06406640533383,0.52525,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tt","neoplasms",NA,"dg",1.00019786107192,0.938576981700896,1.06550493055242,0.51075,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tt","neoplasms",NA,"sag",1.0000875491322,0.931437022427084,1.0626207899355,0.5085,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tt","neoplasms",NA,"sagii",0.999966132023533,0.93817910941554,1.06567947455481,0.5045,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tt","neurologic_and_visual_conditions",NA,"dg",0.999960561227729,0.933248377254593,1.05948940640253,0.50425,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tt","neurologic_and_visual_conditions",NA,"sag",0.999885683034682,0.936462687865588,1.06299596128819,0.50725,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tt","neurologic_and_visual_conditions",NA,"sagii",1.00107068777735,0.947223694364544,1.07417475821945,0.5515,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tt","oral_and_otolaryngologic_conditions",NA,"dg",1.00249634068259,0.953542483129764,1.07635313470353,0.5865,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tt","oral_and_otolaryngologic_conditions",NA,"sag",0.999979898952029,0.939821608424567,1.06515816513666,0.50275,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tt","oral_and_otolaryngologic_conditions",NA,"sagii",0.997404593905432,0.923220664427636,1.05530117487152,0.59525,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tt","psychiatry_and_mental_health",NA,"dg",1.00000486895685,0.939902060597552,1.07262198040919,0.501,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tt","psychiatry_and_mental_health",NA,"sag",0.99776967088833,0.924678656689454,1.05511197633302,0.59025,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tt","psychiatry_and_mental_health",NA,"sagii",1.00138686581015,0.948233499088821,1.07607622466798,0.555,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","gemini","dg",1.00066531772572,0.951305906420976,1.07304532056217,0.5345,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","gemini","sag",1.00075872218417,0.948259481042647,1.06995436710611,0.53875,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","gemini","sagii",1.00012583391642,0.94622187240865,1.06020692358283,0.50825,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","grok","dg",1.00142425829383,0.951576972085186,1.06775050105308,0.5605,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","grok","sag",0.999071536289409,0.938079480084531,1.05219546469678,0.543,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","grok","sagii",1.00062233957296,0.948272092977614,1.06658312739141,0.5375,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","openai","dg",0.996977018438113,0.921738793309848,1.04206591553369,0.61075,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","openai","sag",0.99879031226281,0.939525705192483,1.04610955787484,0.56275,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","cardiopulmonary_conditions","openai","sagii",1.00263851978248,0.958086224848906,1.07104049370583,0.60375,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"IP","tmm","dermatology","gemini","dg",0.999397510069991,0.935305560881619,1.05259326976286,0.531,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","gemini","sag",0.99862378285655,0.930018965529777,1.04962850835476,0.5655,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","gemini","sagii",1.00036116770536,0.94247960420021,1.06443314580286,0.52275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","grok","dg",0.998978422166288,0.934737348361133,1.04939446729395,0.55025,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","grok","sag",0.99963298886507,0.942577061629746,1.05421846401193,0.52275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","grok","sagii",0.999911446971051,0.942270491177986,1.05146034220499,0.5075,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","openai","dg",1.00249232068033,0.95542367321959,1.0743356816511,0.60275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","openai","sag",1.00063229581478,0.944053538435929,1.06433852190229,0.53575,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","dermatology","openai","sagii",1.00028284999452,0.939512833778491,1.06037996347243,0.521,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","gemini","dg",1.00020809514879,0.946621451628418,1.06120122751044,0.51475,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","gemini","sag",1.00009994724439,0.94356851396024,1.06211000466232,0.50875,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","gemini","sagii",1.00007461273339,0.942416931390424,1.06454608815112,0.5055,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","grok","dg",0.999111714759124,0.93531622342579,1.05366324798183,0.54925,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","grok","sag",0.9994602477187,0.937906232804438,1.05605123278278,0.529,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","grok","sagii",0.999973800193221,0.944645929004466,1.06530484751485,0.50275,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","openai","dg",1.00028879319273,0.94186125776855,1.05585535344747,0.5165,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","openai","sag",1.00040268205466,0.947041466056673,1.06230608826714,0.5275,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","endocrinology_nutrition_and_metabolism","openai","sagii",0.999896997305142,0.937793315691755,1.05471290296186,0.50975,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"IP","tmm","gastroenterology","gemini","dg",0.999624542501814,0.944104990755836,1.0586363313078,0.5225,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","gemini","sag",1.00000575229654,0.945306089217582,1.06171338064972,0.50125,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","gemini","sagii",1.00097810052864,0.948244877959083,1.07054353913993,0.5485,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","grok","dg",1.00102340332016,0.954906642332311,1.06691947407375,0.55,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","grok","sag",1.00058694968759,0.945366023523536,1.06105203310646,0.53375,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","grok","sagii",0.999915210344846,0.936595862328282,1.05583180813562,0.50825,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","openai","dg",1.0006323553524,0.947989076000246,1.06526766902444,0.5375,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","openai","sag",0.997566735199848,0.926673673187911,1.04404678325148,0.594,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","gastroenterology","openai","sagii",0.999549439532866,0.940176834126059,1.05077637951171,0.52625,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","gemini","dg",0.999610212486899,0.939977255770166,1.05905033904658,0.521,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","gemini","sag",1.00008422484671,0.9351548952922,1.05483135387176,0.50775,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","gemini","sagii",0.999360723424397,0.938545539898662,1.05346317632845,0.5355,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","grok","dg",0.999301089351907,0.941580436613998,1.05398403189535,0.53825,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","grok","sag",1.00012329460015,0.941149479743671,1.05652709104218,0.50975,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","grok","sagii",0.999139968539236,0.938181267229973,1.05306620087201,0.54325,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","openai","dg",1.00014630970222,0.942650962568257,1.05918092800402,0.51225,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","openai","sag",1.00125281411677,0.951516453714266,1.06800380151218,0.56175,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","genitourinary_and_reproductive_health","openai","sagii",1.00117429394384,0.951691739188336,1.07059985121108,0.5585,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","gemini","dg",0.999736894118425,0.938995304799406,1.05840377445311,0.51825,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sag",1.00115812010376,0.948714565107588,1.07329451061545,0.55375,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sagii",0.999435856188993,0.936534423654924,1.05337195036752,0.5315,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","grok","dg",0.999875075803677,0.933474344038902,1.06109935708246,0.50875,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","grok","sag",1.0004769502046,0.944779038993241,1.05839509557775,0.52275,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","grok","sagii",0.998898402204823,0.932078164801953,1.04959418606371,0.55375,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","openai","dg",1.00027496729658,0.945914211084185,1.06319603595454,0.5195,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","openai","sag",1.00109204084285,0.948173288173345,1.06560924859141,0.558,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","hematologic_immunologic_and_infectious_conditions","openai","sagii",0.998263050246291,0.935795976583359,1.05035940911993,0.5785,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","dg",0.999908933546801,0.941622055389065,1.06099473784366,0.508,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sag",0.999586251617479,0.943722800024814,1.06587525785643,0.52425,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sagii",0.999683756015674,0.935625677213334,1.05366619824306,0.52425,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","grok","dg",1.0008259414019,0.945127159711105,1.06629668163478,0.545,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sag",1.00113317655994,0.947360293869859,1.06906474910697,0.555,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sagii",1.00022270579525,0.947755520267167,1.06704431095503,0.51725,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","openai","dg",1.00020811215233,0.937520082531568,1.05613413605847,0.51625,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sag",1.00021630789118,0.941963643651841,1.06202153458376,0.5145,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sagii",0.999520772866022,0.939118509065419,1.06055048628022,0.52875,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"IP","tmm","neoplasms","gemini","dg",1.00004605316041,0.942670569912194,1.0639001047514,0.5045,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","gemini","sag",1.00031564680597,0.951069821594341,1.07097227059931,0.526,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","gemini","sagii",0.999980320743639,0.944767229329064,1.06514463771386,0.5035,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","grok","dg",0.999829620516233,0.941839124289061,1.05859737420762,0.51075,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","grok","sag",0.999613364262868,0.942756922491286,1.05642429595728,0.5215,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","grok","sagii",1.00011455206059,0.941999062150706,1.06354843751057,0.50975,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","openai","dg",1.00006496416008,0.946417855251748,1.06296311522046,0.5065,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","openai","sag",1.00028232384588,0.944472602379697,1.06228218664905,0.5155,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neoplasms","openai","sagii",0.999437827078445,0.934581634090255,1.04929205139192,0.5315,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","gemini","dg",1.00022248924706,0.941292168820358,1.06357321847786,0.51375,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","gemini","sag",0.999689013366371,0.940354544340795,1.04966251686937,0.5215,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","gemini","sagii",0.999267673781833,0.939766066608786,1.05902725200084,0.54,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","grok","dg",0.999853076294345,0.941185338221948,1.05914269226268,0.51225,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","grok","sag",1.00012266652292,0.941351095554514,1.05490466719846,0.508,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","grok","sagii",1.00086304120592,0.954832926384995,1.06709296928501,0.54625,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","openai","dg",0.999787902495857,0.9363258806609,1.04704593092029,0.5155,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","openai","sag",0.999972474728827,0.946728425896385,1.05530993390762,0.503,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","neurologic_and_visual_conditions","openai","sagii",1.00079830497593,0.952238547951769,1.06950518757921,0.541,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","gemini","dg",1.00093550230957,0.953669694181802,1.0656240606629,0.54225,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","gemini","sag",0.999928419262023,0.942968029398768,1.06314532271315,0.50725,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","gemini","sagii",0.999663576103215,0.941606612913985,1.06294185617075,0.521,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","grok","dg",1.00022910774117,0.945738003680889,1.06649791080398,0.51775,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","grok","sag",0.999467692725814,0.940135279228361,1.05825296266085,0.5325,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","grok","sagii",0.999618481796586,0.934011993340579,1.05236961745693,0.52,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","openai","dg",1.00056648239058,0.945753041034694,1.06942487075555,0.532,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","openai","sag",1.00053937891252,0.949096594488855,1.06472047508225,0.535,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","oral_and_otolaryngologic_conditions","openai","sagii",0.9992727046076,0.938093832810375,1.05871012083162,0.544,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","gemini","dg",1.0001000882585,0.949944706277391,1.06575226294862,0.50825,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","gemini","sag",0.999916685420852,0.938058842562983,1.05894422751888,0.50775,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","gemini","sagii",1.00086185518392,0.952232644091073,1.07557091034761,0.5455,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","grok","dg",1.00024463491824,0.945927075604934,1.061499573106,0.51425,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","grok","sag",0.999998022503955,0.944382503991192,1.05751202179358,0.50025,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","grok","sagii",1.00046669686911,0.948406757175749,1.05505447429725,0.532,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","openai","dg",0.999361868192762,0.937498332317956,1.05486236636944,0.53675,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","openai","sag",0.998031929196079,0.933467249660846,1.05115630384009,0.582,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"IP","tmm","psychiatry_and_mental_health","openai","sagii",0.999190671183381,0.93683978364801,1.05217599926074,0.53925,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tm","cardiopulmonary_conditions","gemini",NA,1.08855790789804,0.708539832884407,1.62851246501964,0.64975,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tm","cardiopulmonary_conditions","grok",NA,0.685787133794877,0.413971147340377,1.11183855395976,0.94725,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tm","cardiopulmonary_conditions","openai",NA,1.12701607670471,0.688256975421169,1.81342804221767,0.6925,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tm","dermatology","gemini",NA,1.59909604865555,0.952311777911762,2.69703224509973,0.96225,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tm","dermatology","grok",NA,1.29445078377447,0.789687485311515,2.31535957627169,0.8355,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tm","dermatology","openai",NA,0.890853755699812,0.523644112512033,1.51921233517026,0.67075,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tm","endocrinology_nutrition_and_metabolism","gemini",NA,1.01896993562236,0.64450158328251,1.58603469696425,0.5335,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tm","endocrinology_nutrition_and_metabolism","grok",NA,1.08836911390255,0.641829234852458,1.74366810393618,0.63525,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tm","endocrinology_nutrition_and_metabolism","openai",NA,1.00931930681924,0.602141386471839,1.68190991188428,0.51675,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tm","gastroenterology","gemini",NA,1.22264066604867,0.795411251973864,1.88162732343475,0.839,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tm","gastroenterology","grok",NA,0.817858451114751,0.490838561778958,1.3299136296338,0.8085,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tm","gastroenterology","openai",NA,0.759476423166672,0.434624864681314,1.23972923884042,0.87,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tm","genitourinary_and_reproductive_health","gemini",NA,0.745811792114089,0.476757167752524,1.18122023308082,0.90175,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tm","genitourinary_and_reproductive_health","grok",NA,0.792637727251639,0.470246149044937,1.31049771477657,0.82475,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tm","genitourinary_and_reproductive_health","openai",NA,1.01302930117875,0.590496836903529,1.65489406877826,0.5225,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tm","hematologic_immunologic_and_infectious_conditions","gemini",NA,0.934609999073286,0.584156705974749,1.45374356738747,0.6195,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tm","hematologic_immunologic_and_infectious_conditions","grok",NA,0.835352489579229,0.479250429914464,1.32072258539451,0.75525,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tm","hematologic_immunologic_and_infectious_conditions","openai",NA,0.691488333025593,0.380129612078753,1.16212589972463,0.91725,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tm","musculoskeletal_and_connective_tissue_conditions","gemini",NA,1.16194578416949,0.775448273056686,1.77535073395125,0.7575,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tm","musculoskeletal_and_connective_tissue_conditions","grok",NA,0.950472262014237,0.575479887098492,1.59029574169162,0.576,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tm","musculoskeletal_and_connective_tissue_conditions","openai",NA,0.968753582748875,0.579718290192482,1.65660445761505,0.55025,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tm","neoplasms","gemini",NA,0.511864672706033,0.274117070293605,0.897606053626635,0.99375,"Neoplasms",173,0.0262121212121212,TRUE,TRUE
+"EX","tm","neoplasms","grok",NA,0.975574793397584,0.522774016038669,1.71341250692704,0.52925,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tm","neoplasms","openai",NA,1.52362368359792,0.85395908173561,2.84305733630058,0.93175,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tm","neurologic_and_visual_conditions","gemini",NA,1.11841667267517,0.730641035024417,1.76697668752632,0.70075,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tm","neurologic_and_visual_conditions","grok",NA,1.36750717212691,0.877493264021811,2.23778827308266,0.9125,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tm","neurologic_and_visual_conditions","openai",NA,1.02273851680402,0.630697455327747,1.67325193595369,0.5385,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tm","oral_and_otolaryngologic_conditions","gemini",NA,1.13950333907764,0.722862684124818,1.76538359314775,0.72775,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tm","oral_and_otolaryngologic_conditions","grok",NA,1.21681769001208,0.738913067700622,2.06639181128735,0.78575,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tm","oral_and_otolaryngologic_conditions","openai",NA,0.67302957855405,0.36763304449796,1.2017694351082,0.91725,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tm","psychiatry_and_mental_health","gemini",NA,0.791806290329729,0.5128899393533,1.15455616800785,0.88225,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tm","psychiatry_and_mental_health","grok",NA,0.961201562066443,0.61561593009803,1.51329137919204,0.57025,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tm","psychiatry_and_mental_health","openai",NA,1.43406848635293,0.903130696642677,2.31923641491407,0.93775,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tt","cardiopulmonary_conditions",NA,"dg",0.998790851609724,0.902933835609441,1.07904608909251,0.54075,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tt","cardiopulmonary_conditions",NA,"sag",1.00041596298862,0.91237234427215,1.0941135587176,0.5205,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tt","cardiopulmonary_conditions",NA,"sagii",1.00012034174049,0.903280628782342,1.09727518263051,0.50525,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tt","dermatology",NA,"dg",0.999090361472188,0.910672719851296,1.0979176057817,0.5325,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tt","dermatology",NA,"sag",1.00223395657096,0.922618828482299,1.11572788100298,0.57,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tt","dermatology",NA,"sagii",1.00059715422564,0.918673497453401,1.10159298455731,0.52725,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tt","endocrinology_nutrition_and_metabolism",NA,"dg",1.00095173961699,0.928195407440254,1.11563639506771,0.538,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tt","endocrinology_nutrition_and_metabolism",NA,"sag",0.999534918184092,0.907304103551666,1.09624894244347,0.52075,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tt","endocrinology_nutrition_and_metabolism",NA,"sagii",0.999844106152709,0.909859943097922,1.08832400193773,0.51,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tt","gastroenterology",NA,"dg",0.998720399387931,0.904844113857628,1.08859785870635,0.54475,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tt","gastroenterology",NA,"sag",0.999096420973606,0.911693974039645,1.08237662271316,0.53525,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tt","gastroenterology",NA,"sagii",1.00154344488687,0.919741708488598,1.10552241831317,0.55625,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tt","genitourinary_and_reproductive_health",NA,"dg",0.999444009120243,0.907262005617941,1.08803237018561,0.524,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tt","genitourinary_and_reproductive_health",NA,"sag",0.998182473704988,0.890631960729262,1.08243604682092,0.5635,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tt","genitourinary_and_reproductive_health",NA,"sagii",1.00111866523971,0.922779470403812,1.11208985786923,0.5425,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tt","hematologic_immunologic_and_infectious_conditions",NA,"dg",1.00160685961761,0.907602746471142,1.09331624059106,0.56125,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tt","hematologic_immunologic_and_infectious_conditions",NA,"sag",0.997639560229599,0.893371295576422,1.07525828732593,0.572,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tt","hematologic_immunologic_and_infectious_conditions",NA,"sagii",0.998519197471624,0.906492973552857,1.07887334764197,0.55875,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tt","musculoskeletal_and_connective_tissue_conditions",NA,"dg",0.999063428357257,0.900168779915988,1.0809001865201,0.541,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sag",1.00020186537207,0.914309631114815,1.09788477853606,0.51125,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tt","musculoskeletal_and_connective_tissue_conditions",NA,"sagii",1.00077033555615,0.929000130216358,1.11091611082683,0.5305,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tt","neoplasms",NA,"dg",1.00024257541666,0.901242420864528,1.09933791155029,0.51425,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tt","neoplasms",NA,"sag",1.00041954648502,0.913059162844293,1.10707898314231,0.51875,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tt","neoplasms",NA,"sagii",0.998443956892411,0.899663027191502,1.09739753563443,0.552,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tt","neurologic_and_visual_conditions",NA,"dg",1.00058306991922,0.919757344230546,1.10434665758228,0.526,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tt","neurologic_and_visual_conditions",NA,"sag",1.00099889506369,0.917343486982519,1.10250746578168,0.54575,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tt","neurologic_and_visual_conditions",NA,"sagii",0.999823706041607,0.909381391675848,1.0933367951296,0.51075,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tt","oral_and_otolaryngologic_conditions",NA,"dg",1.00002967654034,0.914722626591586,1.1000297226168,0.50275,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tt","oral_and_otolaryngologic_conditions",NA,"sag",1.00044936043216,0.916591756968125,1.10396373656378,0.518,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tt","oral_and_otolaryngologic_conditions",NA,"sagii",0.999326423954264,0.897307200572573,1.08615550297032,0.52625,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tt","psychiatry_and_mental_health",NA,"dg",0.999990908771325,0.917721051505985,1.09746689335036,0.50075,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tt","psychiatry_and_mental_health",NA,"sag",1.00008680561739,0.907508088441187,1.09929152046928,0.5065,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tt","psychiatry_and_mental_health",NA,"sagii",1.00002961878863,0.915417530775943,1.1008975481947,0.5025,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","gemini","dg",0.99973374945097,0.892388235054115,1.09576998631516,0.509,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","gemini","sag",1.0013051359496,0.916984967490658,1.11651028044653,0.543,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","gemini","sagii",0.999592772939457,0.902806530913812,1.10133645342541,0.514,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","grok","dg",0.999065985463374,0.88931746831488,1.10001102227047,0.53275,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","grok","sag",0.998363999709851,0.882308950761925,1.09099759232829,0.548,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","grok","sagii",1.00073974197424,0.901749963207238,1.12027814698872,0.5245,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","openai","dg",0.99992756432359,0.904351650782655,1.11226224515687,0.50275,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","openai","sag",1.00064061960915,0.898313645951655,1.10491023900438,0.52125,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","cardiopulmonary_conditions","openai","sagii",0.999862345475254,0.907106423525523,1.1029809841446,0.5085,"Cardiopulmonary conditions",672,0.101818181818182,FALSE,FALSE
+"EX","tmm","dermatology","gemini","dg",0.999504337881075,0.911628243273739,1.0995472454166,0.5215,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","gemini","sag",1.00043520417387,0.90582033349983,1.10655324549789,0.51975,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","gemini","sagii",1.00214302800912,0.924896721625546,1.12008323554893,0.56275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","grok","dg",0.999746733077483,0.895951497255293,1.10872199926964,0.5105,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","grok","sag",1.00165577929124,0.920845324341225,1.12609962194482,0.55275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","grok","sagii",0.999760151268307,0.902038569369987,1.10346276112873,0.5115,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","openai","dg",1.00001008193082,0.891287707137436,1.10080078355308,0.5,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","openai","sag",1.00104808385642,0.907811246767349,1.12075324563684,0.53275,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","dermatology","openai","sagii",0.999040435676568,0.892602433933366,1.10226604308342,0.53225,"Dermatology",715,0.108333333333333,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","gemini","dg",1.00209670000781,0.921771976503701,1.13637685063378,0.5575,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","gemini","sag",0.997829044939105,0.880582199432536,1.08260556957914,0.5615,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","gemini","sagii",1.00008093502506,0.907828858476369,1.11190526627435,0.50425,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","grok","dg",0.99969908278467,0.894930694516536,1.09580592816015,0.51125,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","grok","sag",1.00077173163174,0.919556858983189,1.1317860951004,0.52375,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","grok","sagii",0.999838640019922,0.905145839180004,1.11333164293779,0.50775,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","openai","dg",1.00021374383996,0.895228756062303,1.10519744249597,0.51025,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","openai","sag",1.00053094039898,0.903894164601124,1.1059370669618,0.52025,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","endocrinology_nutrition_and_metabolism","openai","sagii",0.999549896826839,0.895559156428408,1.09003706472742,0.518,"Endocrinology, nutrition, and metabolism",439,0.0665151515151515,FALSE,FALSE
+"EX","tmm","gastroenterology","gemini","dg",0.998514774041377,0.894274950676933,1.09085064484974,0.54325,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","gemini","sag",0.999710900297375,0.911247262298622,1.10472529251082,0.51275,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","gemini","sagii",1.00326276125574,0.928258619699853,1.1339124525631,0.57375,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","grok","dg",1.00022249674873,0.900929743997062,1.12136310126816,0.50875,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","grok","sag",0.999685691405299,0.894461873674397,1.1059105247907,0.5135,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","grok","sagii",0.998760558742589,0.898691016925311,1.0984847168488,0.5385,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","openai","dg",1.00005550584039,0.900338927893869,1.10575349664544,0.50225,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","openai","sag",0.998545488828217,0.89318817323151,1.10096426460761,0.542,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","gastroenterology","openai","sagii",1.00028899675152,0.900376742922951,1.1028898816779,0.5105,"Gastroenterology",711,0.107727272727273,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","gemini","dg",0.998270053086151,0.897392448805854,1.10085846702544,0.549,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","gemini","sag",0.998852608757282,0.903967382993762,1.10304484859244,0.53925,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","gemini","sagii",1.00083793737353,0.915795767877401,1.11526829579706,0.5295,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","grok","dg",0.999853611215884,0.900030164597534,1.10890938912152,0.506,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","grok","sag",0.99892804994937,0.896057225769828,1.10771019804185,0.5375,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","grok","sagii",0.999745307939531,0.910420316358093,1.12170292576865,0.5135,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","openai","dg",1.0001253503557,0.89885818900098,1.10589725394403,0.5065,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","openai","sag",0.999314964743862,0.896367315212325,1.10192373241404,0.524,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","genitourinary_and_reproductive_health","openai","sagii",1.00029721615997,0.907958414898104,1.11270056282437,0.51525,"Genitourinary and reproductive health",695,0.10530303030303,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","gemini","dg",1.00297629539838,0.919531111751601,1.12539715497322,0.57925,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sag",0.998882175232083,0.901700368323133,1.09396531637404,0.53475,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","gemini","sagii",0.998435714771566,0.896086796146187,1.10153856720799,0.544,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","grok","dg",1.00030955840332,0.8990478680893,1.11480555547956,0.5095,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","grok","sag",0.999821102504066,0.902923903391876,1.10992339563356,0.5055,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","grok","sagii",0.999252883230821,0.897790081729865,1.10303823034321,0.527,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","openai","dg",0.999617355227192,0.901569631248394,1.10319023948454,0.51625,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","openai","sag",0.999203831110777,0.890093291356937,1.08688564476848,0.5245,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","hematologic_immunologic_and_infectious_conditions","openai","sagii",1.00026985140334,0.903754975617602,1.10264506729957,0.5115,"Hematologic, immunologic, and infectious conditions",898,0.136060606060606,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","dg",0.999479569470972,0.904215103992929,1.10644038282294,0.5195,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sag",1.00004407507128,0.904148194550913,1.10896261804968,0.50225,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","gemini","sagii",1.00093038253757,0.914780164454345,1.12353841015188,0.5265,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","grok","dg",0.999153292159551,0.889471333545857,1.09583770699286,0.52725,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sag",0.999683437116607,0.898691915616778,1.10063644626418,0.511,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","grok","sagii",1.00018627234654,0.912549179167218,1.12652424153806,0.507,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","openai","dg",0.999800421918356,0.905234909912788,1.11514004731747,0.50925,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sag",1.00049734013261,0.908330663339477,1.12290828187129,0.516,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","musculoskeletal_and_connective_tissue_conditions","openai","sagii",0.99992624492004,0.900880194223773,1.11460825235808,0.5045,"Musculoskeletal and connective tissue conditions",362,0.0548484848484848,FALSE,FALSE
+"EX","tmm","neoplasms","gemini","dg",0.998645478193898,0.892370387467891,1.10862997916259,0.54425,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","gemini","sag",0.999712374372184,0.89875752252124,1.10588508914114,0.51175,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","gemini","sagii",0.999061454209873,0.903582374901153,1.1013604628218,0.52875,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","grok","dg",1.00057167734524,0.913763402908505,1.12522048148912,0.524,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","grok","sag",0.999878008441575,0.905494749617146,1.10960933175473,0.505,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","grok","sagii",0.999641933121252,0.892620286160566,1.10574796789178,0.51525,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","openai","dg",1.00165285446064,0.914807791232474,1.11605706928076,0.545,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","openai","sag",1.00060625619905,0.904798510863494,1.11630374514975,0.52075,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neoplasms","openai","sagii",0.999495231438537,0.900260601814376,1.10293796872503,0.51825,"Neoplasms",173,0.0262121212121212,TRUE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","gemini","dg",0.999365984073091,0.898583180473597,1.09369820265969,0.5225,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","gemini","sag",1.00268706871496,0.914004668292502,1.10800378014225,0.5635,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","gemini","sagii",0.999784640693146,0.909252996088285,1.10024435935281,0.51025,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","grok","dg",1.00095108099096,0.917928112730833,1.11812480401412,0.52975,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","grok","sag",1.00005208200622,0.912564053840066,1.11559957967413,0.50225,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","grok","sagii",1.00007349150037,0.902042177531481,1.10675133625743,0.5035,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","openai","dg",1.00102865870683,0.912928513426278,1.12802689965116,0.53475,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","openai","sag",0.999663772537127,0.908719330327195,1.11208429743384,0.51425,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","neurologic_and_visual_conditions","openai","sagii",0.999781116458499,0.899875372721706,1.11270723904777,0.508,"Neurologic and visual conditions",594,0.09,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","gemini","dg",1.00056376935824,0.91181961412567,1.12319465999483,0.517,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","gemini","sag",1.00064409083748,0.915614732949984,1.11472752182189,0.524,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","gemini","sagii",0.999638877220533,0.901460547922687,1.10229668650536,0.51125,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","grok","dg",1.00052056994953,0.903459496054117,1.10697492260881,0.52,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","grok","sag",1.00022221668647,0.896430959551052,1.10620805473785,0.50775,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","grok","sagii",1.00013943772054,0.898607442547006,1.10406265614611,0.5055,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","openai","dg",0.999343450123254,0.882144856558317,1.09656394001187,0.52075,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","openai","sag",1.00000938847907,0.916843395941282,1.11531513804916,0.50025,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","oral_and_otolaryngologic_conditions","openai","sagii",0.999546934165336,0.88346111556669,1.09831237811705,0.51675,"Oral and otolaryngologic conditions",345,0.0522727272727273,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","gemini","dg",1.00208575216117,0.915568861800945,1.11670233673113,0.561,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","gemini","sag",0.999872362146404,0.898595760726185,1.10190687310991,0.50575,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","gemini","sagii",0.996520308208568,0.869980918789403,1.07338413444883,0.57925,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","grok","dg",0.999728583840032,0.894097007667664,1.10846591406679,0.51225,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","grok","sag",1.00023892453792,0.910564174132543,1.10835618137316,0.50875,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","grok","sagii",1.00053068726469,0.904620283112864,1.1133093765276,0.51675,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","openai","dg",0.99927613361777,0.888686277011804,1.09387791203711,0.52275,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","openai","sag",1.00024584521498,0.907611096454819,1.11168624251144,0.5125,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE
+"EX","tmm","psychiatry_and_mental_health","openai","sagii",1.00220766831905,0.911088081306762,1.13079621540272,0.5615,"Psychiatry and mental health",596,0.0903030303030303,FALSE,FALSE

@@ -1,0 +1,5 @@
+"mechanism","model","converged","max_rhat","min_neff_ratio","divergent_transitions"
+"IP","L0_nolength",FALSE,1.01006456946051,0.234962443068841,0
+"IP","L1_length",FALSE,1.01045417135304,0.226687922873652,0
+"IP","H_severity_by_group",TRUE,1.00540592511696,0.102395562973075,0
+"IP","I_topic_by_group",FALSE,1.00926392898017,0.141351659539961,1

@@ -1,0 +1,82 @@
+"spec","mechanism","quantity","level","who","contrast","or","lcl","ucl","pd"
+"no length adjustment","ER","gap vs real","group","gemini_dg","",0.261657207553059,0.227378329281832,0.297652077420522,1
+"no length adjustment","ER","gap vs real","group","openai_dg","",0.0699150042291112,0.0581313600991511,0.0846170073557858,1
+"no length adjustment","ER","gap vs real","group","grok_dg","",0.0176033685564311,0.0126517466277492,0.0243072650516578,1
+"no length adjustment","ER","gap vs real","group","gemini_sag","",0.289969364858707,0.252463145332246,0.3280005479566,1
+"no length adjustment","ER","gap vs real","group","openai_sag","",0.135185144414682,0.115521340483099,0.157643361969797,1
+"no length adjustment","ER","gap vs real","group","grok_sag","",0.0320198261771343,0.0246447840817829,0.0407063979947432,1
+"no length adjustment","ER","gap vs real","group","gemini_sagii","",0.328002187963439,0.289115215721787,0.371679260342683,1
+"no length adjustment","ER","gap vs real","group","openai_sagii","",0.145376260136795,0.125167805243677,0.169349610447752,1
+"no length adjustment","ER","gap vs real","group","grok_sagii","",0.0159285051202532,0.011171940016567,0.0218400464778721,1
+"no length adjustment","ER","gap vs real","model","gemini","",0.291919655589273,0.264040353504443,0.321078490623194,1
+"no length adjustment","ER","gap vs real","model","openai","",0.111208699571769,0.0992146097331005,0.12517197757339,1
+"no length adjustment","ER","gap vs real","model","grok","",0.0207258202694693,0.016964766123467,0.0248876562008733,1
+"no length adjustment","ER","gap vs real","strategy","dg","",0.0684306127261765,0.0591700368211199,0.0797567953072015,1
+"no length adjustment","ER","gap vs real","strategy","sag","",0.107895188492159,0.0951253293994476,0.121730787379856,1
+"no length adjustment","ER","gap vs real","strategy","sagii","",0.0911489771074474,0.0789084730891123,0.105112577834762,1
+"no length adjustment","ER","gap vs real","strategy_within_model","gemini","dg - sag",0.900900914706525,0.778037932161994,1.04531680275081,0.91175
+"no length adjustment","ER","gap vs real","strategy_within_model","gemini","dg - sagii",0.797606428948714,0.687839330205235,0.92509393062833,0.99825
+"no length adjustment","ER","gap vs real","strategy_within_model","gemini","sag - sagii",0.885236887765367,0.771252085279678,1.03085648959801,0.949
+"no length adjustment","ER","gap vs real","strategy_within_model","openai","dg - sag",0.517578020994387,0.419387485506419,0.644158799628741,1
+"no length adjustment","ER","gap vs real","strategy_within_model","openai","dg - sagii",0.481578995468052,0.387360304384659,0.589630033872821,1
+"no length adjustment","ER","gap vs real","strategy_within_model","openai","sag - sagii",0.930898528117652,0.767505218649944,1.10691846832736,0.771
+"no length adjustment","ER","gap vs real","strategy_within_model","grok","dg - sag",0.547980815970497,0.36422262177953,0.811216748325895,0.99825
+"no length adjustment","ER","gap vs real","strategy_within_model","grok","dg - sagii",1.10639833888724,0.700710821418039,1.70134650617139,0.681
+"no length adjustment","ER","gap vs real","strategy_within_model","grok","sag - sagii",2.02276421653203,1.34876586464351,3.00230401829298,1
+"no length adjustment","ER","gap vs real","strategy_across_models","all","dg - sag",0.635008644582306,0.534263205816798,0.734802639632537,1
+"no length adjustment","ER","gap vs real","strategy_across_models","all","dg - sagii",0.752676819912914,0.626750548580142,0.888281424544138,0.999
+"no length adjustment","ER","gap vs real","strategy_across_models","all","sag - sagii",1.18626731430474,1.01502847538493,1.37782109311711,0.985
+"length adjusted","ER","gap vs real","group","gemini_dg","",0.296837627034965,0.25603528806456,0.335377002273992,1
+"length adjusted","ER","gap vs real","group","openai_dg","",0.0530237686959234,0.0438403786188847,0.0643898028015513,1
+"length adjusted","ER","gap vs real","group","grok_dg","",0.0223701007430767,0.0161777247237448,0.030374252095346,1
+"length adjusted","ER","gap vs real","group","gemini_sag","",0.326588274762868,0.288872460911875,0.375494670858436,1
+"length adjusted","ER","gap vs real","group","openai_sag","",0.0863807870506005,0.0727228237079117,0.101158164689015,1
+"length adjusted","ER","gap vs real","group","grok_sag","",0.0370152607007862,0.0291468043494902,0.0475344769834076,1
+"length adjusted","ER","gap vs real","group","gemini_sagii","",0.353594324135668,0.313085175269419,0.405341239487421,1
+"length adjusted","ER","gap vs real","group","openai_sagii","",0.0920829939901423,0.0792308132212885,0.108207997635607,1
+"length adjusted","ER","gap vs real","group","grok_sagii","",0.0187551855900509,0.0136739871394796,0.0259622946317231,1
+"length adjusted","ER","gap vs real","model","gemini","",0.324445837738207,0.294711018814574,0.362049501028093,1
+"length adjusted","ER","gap vs real","model","openai","",0.0750555579762051,0.0659749601902186,0.0851007015164705,1
+"length adjusted","ER","gap vs real","model","grok","",0.0248796104928279,0.0206232403520213,0.0298797784521009,1
+"length adjusted","ER","gap vs real","strategy","dg","",0.0705890673410634,0.0606924077698259,0.0812500913607166,1
+"length adjusted","ER","gap vs real","strategy","sag","",0.10145769825486,0.0893581047738372,0.115701308742071,1
+"length adjusted","ER","gap vs real","strategy","sagii","",0.0847498191483466,0.072922357481306,0.0974788351429057,1
+"length adjusted","ER","gap vs real","strategy_within_model","gemini","dg - sag",0.907324608856115,0.785645190537253,1.04825827379785,0.90075
+"length adjusted","ER","gap vs real","strategy_within_model","gemini","dg - sagii",0.838466626451451,0.732671379696933,0.970028331673914,0.99175
+"length adjusted","ER","gap vs real","strategy_within_model","gemini","sag - sagii",0.92411292648266,0.808781892202634,1.07592418583923,0.854
+"length adjusted","ER","gap vs real","strategy_within_model","openai","dg - sag",0.614427093885523,0.499164289471264,0.767413123549523,1
+"length adjusted","ER","gap vs real","strategy_within_model","openai","dg - sagii",0.57733938296845,0.466414758969861,0.71076032617158,1
+"length adjusted","ER","gap vs real","strategy_within_model","openai","sag - sagii",0.936814489315327,0.794057025329282,1.11863590382697,0.74525
+"length adjusted","ER","gap vs real","strategy_within_model","grok","dg - sag",0.605845667160839,0.412528493682117,0.883185518693981,0.9965
+"length adjusted","ER","gap vs real","strategy_within_model","grok","dg - sagii",1.19416834799232,0.754386834071772,1.82035220209282,0.78625
+"length adjusted","ER","gap vs real","strategy_within_model","grok","sag - sagii",1.97320672787869,1.37444498175862,2.91704173998538,0.9995
+"length adjusted","ER","gap vs real","strategy_across_models","all","dg - sag",0.695290872076109,0.590938496791868,0.807870639155633,1
+"length adjusted","ER","gap vs real","strategy_across_models","all","dg - sagii",0.832025935087441,0.702729434928046,0.992911906540219,0.98
+"length adjusted","ER","gap vs real","strategy_across_models","all","sag - sagii",1.19685585806816,1.02511691209523,1.37576508248808,0.99375
+"severity by group","ER","extra change in gap per severity level","group","gemini_dg","",1.11406055700921,0.963220809609435,1.30063551147813,0.9245
+"severity by group","ER","extra change in gap per severity level","group","openai_dg","",1.53136500837396,1.24665130438927,1.93047290229806,1
+"severity by group","ER","extra change in gap per severity level","group","grok_dg","",0.70149710943285,0.477133954726307,1.03444184390325,0.9625
+"severity by group","ER","extra change in gap per severity level","group","gemini_sag","",1.28913184056131,1.11854529798834,1.48864304952972,0.99975
+"severity by group","ER","extra change in gap per severity level","group","openai_sag","",1.56261156237568,1.31749472812207,1.85993027413824,1
+"severity by group","ER","extra change in gap per severity level","group","grok_sag","",0.854395139141018,0.631977807605544,1.13444665112214,0.848
+"severity by group","ER","extra change in gap per severity level","group","gemini_sagii","",1.26520732243026,1.10197805859318,1.46980391391706,0.9995
+"severity by group","ER","extra change in gap per severity level","group","openai_sagii","",1.208117665519,1.01231349443102,1.42812300762358,0.9845
+"severity by group","ER","extra change in gap per severity level","group","grok_sagii","",0.928019438273407,0.621852719282858,1.36504582567981,0.6435
+"severity by group","ER","extra change in gap per severity level","model","gemini","",1.21980254831097,1.08544686932868,1.34857030777135,0.99975
+"severity by group","ER","extra change in gap per severity level","model","openai","",1.42381273781652,1.23859478609724,1.61064867245652,1
+"severity by group","ER","extra change in gap per severity level","model","grok","",0.820866053445136,0.658657899438565,1.03256775571313,0.96125
+"severity by group","ER","extra change in gap per severity level","strategy","dg","",1.05981637996101,0.886600079798009,1.25044550606197,0.74475
+"severity by group","ER","extra change in gap per severity level","strategy","sag","",1.19747502204357,1.04097738663784,1.37962446225321,0.994
+"severity by group","ER","extra change in gap per severity level","strategy","sagii","",1.12295170744573,0.946626815831843,1.31497151000554,0.907
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","gemini","dg - sag",0.865990145339533,0.726865373119881,1.02339650265022,0.9505
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","gemini","dg - sagii",0.880309498941847,0.738375083698309,1.0296037299389,0.9315
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","gemini","sag - sagii",1.02010187524509,0.856915470018465,1.18623093599824,0.59025
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","openai","dg - sag",0.978754924766375,0.764690578137312,1.2602032279739,0.574
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","openai","dg - sagii",1.26698618807877,0.982057910863876,1.60988218612664,0.96875
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","openai","sag - sagii",1.29518559307668,1.04720216182772,1.59227928131788,0.99275
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","grok","dg - sag",0.817913535736387,0.509635150731686,1.29906464285106,0.81125
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","grok","dg - sagii",0.74888200094911,0.449362215690859,1.31977187540498,0.843
+"severity by group","ER","extra change in gap per severity level","strategy_within_model","grok","sag - sagii",0.92642188383065,0.561493545484341,1.44542992028228,0.63125
+"severity by group","ER","extra change in gap per severity level","strategy_across_models","all","dg - sag",0.883929665580052,0.743611832357612,1.07108577111464,0.91025
+"severity by group","ER","extra change in gap per severity level","strategy_across_models","all","dg - sagii",0.9425063081673,0.764386037048814,1.15368399950206,0.70625
+"severity by group","ER","extra change in gap per severity level","strategy_across_models","all","sag - sagii",1.06787328162359,0.888983444130754,1.26318684094449,0.76275

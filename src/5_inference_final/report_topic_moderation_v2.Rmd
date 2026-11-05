@@ -1,5 +1,5 @@
 ---
-title: "When Do AI-Written Clinician Comments Fall Short of Real Ones? Topic, Model, Severity and Cancer as Moderators"
+title: "When Do AI-Written Clinician Comments Fall Short of Real Ones? Topic, Model, Prompting Strategy, Severity and Cancer as Moderators"
 output:
   bookdown::html_document2:
     toc: true
@@ -47,6 +47,11 @@ raw <- raw %>%
   left_join(rc, by = "post_id") %>% mutate(real_count = coalesce(real_count, 0L)) %>%
   group_by(post_id, model, method) %>% mutate(cell_n = n()) %>% ungroup() %>%
   mutate(w = ifelse(source == "real", 1, pmin(1, real_count / cell_n))) %>% filter(w > 0)
+raw <- raw %>% mutate(n_words = lengths(strsplit(as.character(response_post), "\\s+")))
+words_med <- raw %>% mutate(who = ifelse(source == "real", "real", model)) %>%
+  group_by(who) %>% summarise(med = median(n_words), avg = mean(n_words), .groups = "drop")
+wmed <- function(w) words_med$med[words_med$who == w]
+wavg <- function(w) words_med$avg[words_med$who == w]
 raw_rates <- raw %>%
   mutate(who = ifelse(source == "real", "Real clinicians", paste("AI:", llm_names[model]))) %>%
   group_by(who) %>%
@@ -86,6 +91,36 @@ avg_llm <- tl %>% filter(is.na(topic)) %>% mutate(who_n = llm_names[who])
 btl <- tl %>% filter(!is.na(topic)) %>% mutate(credible = is_cred(shift_pd, shift_lcl, shift_ucl), who_n = llm_names[who])
 dl <- dl %>% mutate(credible = is_cred(shift_ratio_pd, shift_ratio_lcl, shift_ratio_ucl))
 
+# --- strategy analyses (3j_strategy_models.R) and subsampling check -------
+v3conv <- read.csv(file.path(out_dir, "v3_convergence.csv"))
+v3sens_conv <- read.csv(file.path(out_dir, "v3_IP_sensitivity_convergence.csv"))
+v3sens <- read.csv(file.path(out_dir, "v3_IP_sensitivity_no_topic_intercept.csv"))
+ge <- read.csv(file.path(out_dir, "v3_group_effects.csv"), stringsAsFactors = FALSE) %>%
+  mutate(credible = is_cred(pd, lcl, ucl))
+len_eff <- read.csv(file.path(out_dir, "v3_length_effect.csv"))
+v3sd <- read.csv(file.path(out_dir, "v3_topic_by_group_sd.csv"))
+v3dev <- read.csv(file.path(out_dir, "v3_topic_by_group_deviations.csv"))
+sub_cmp <- read.csv(file.path(out_dir, "v3sub1_comparison_group_effects.csv"), stringsAsFactors = FALSE)
+sub_top <- read.csv(file.path(out_dir, "v3sub1_topic_shift_comparison.csv"))
+sub_conv <- bind_rows(lapply(c("ER", "IP", "EX"), function(m)
+  read.csv(file.path(out_dir, sprintf("v3sub1_%s_convergence.csv", m)))))
+strat_names <- c(dg = "DG", sag = "SAG", sagii = "SAGII")
+model_order <- c("gemini", "openai", "grok")
+star <- function(txt, cred) paste0(txt, ifelse(cred, " *", ""))
+gx <- function(spec, level, who, mech, contrast = "") {
+  r <- ge[ge$spec == spec & ge$level == level & ge$who == who & ge$mechanism == mech & ge$contrast == contrast, ]
+  stopifnot(nrow(r) == 1); r
+}
+gx_txt <- function(...) { r <- gx(...); or3(r$or, r$lcl, r$ucl) }
+n_within <- sum(ge$spec == "length adjusted" & ge$level == "strategy_within_model")
+n_within_cred <- sum(ge$credible[ge$spec == "length adjusted" & ge$level == "strategy_within_model"])
+n_across <- sum(ge$spec == "length adjusted" & ge$level == "strategy_across_models")
+n_across_cred <- sum(ge$credible[ge$spec == "length adjusted" & ge$level == "strategy_across_models"])
+per_doubling <- function(m) len_eff$or[len_eff$mechanism == m]^log(2)
+sub_len <- sub_cmp %>% filter(spec == "length adjusted", level == "group")
+sub_max_pct <- 100 * (exp(max(abs(sub_len$lratio))) - 1)
+sub_flip_n <- sum(sub_cmp$cred_w != sub_cmp$cred_s)
+
 gap_of <- function(df, m, w = NULL) { r <- df[df$mechanism == m & (if (is.null(w)) TRUE else df$who == w), ]; stopifnot(nrow(r) == 1); r }
 sev_cred <- sevm %>% mutate(credible = is_cred(sev_pd, sev_lcl, sev_ucl))
 ```
@@ -94,9 +129,10 @@ sev_cred <- sevm %>% mutate(credible = is_cred(sev_pd, sev_lcl, sev_ucl))
 
 Earlier analyses showed that AI-written replies to patient questions show
 less empathy than real clinician replies. This report asks **when** the gap is
-larger or smaller. We tested four things that might change it: the medical
-topic of the question, *which* AI model wrote the reply, how severe the
-patient's problem is, and whether cancer is involved.
+larger or smaller. We tested five things that might change it: the medical
+topic of the question, *which* AI model wrote the reply, which *prompting
+strategy* the model was given, how severe the patient's problem is, and
+whether cancer is involved.
 
 - **The gap depends strongly on the kind of empathy.** On average, AI replies
   are much less likely than real ones to react emotionally (odds ratio
@@ -115,16 +151,41 @@ patient's problem is, and whether cancer is involved.
   is topic-specific rather than one topic standing out everywhere.
   Dermatology is the clearest case: AI explores relatively *more* there, and
   reacts emotionally relatively *less*.
-- **Topic effects are mostly shared across models.** Only
-  `r sum(dl$credible)` of the model-versus-model comparisons within a topic are
-  credible, both for explorations.
+- **Topic effects are mostly shared across models and prompting
+  strategies.** Only `r sum(dl$credible)` of the model-versus-model comparisons
+  within a topic are credible, both for explorations. Allowing the topic
+  effect to differ by model or by strategy adds almost nothing, except for
+  explorations, where it differs by model (Section \@ref(res-strat)).
 - **Severity matters for interpretations.** The more severe the problem, the
   more AI replies catch up with real ones on interpretations, for all three
-  models. For emotional reactions this holds for Gemini and OpenAI only; for
-  explorations we find no effect.
+  models and under every prompting strategy. For emotional reactions this
+  holds for Gemini and OpenAI only; for explorations we find no effect.
 - **Cancer-related questions shift the gap in opposite directions for
   interpretations (AI relatively better) and explorations (AI relatively
   worse).**
+- **Prompting strategy matters much less than the model, but not nothing.**
+  Averaged over the three models, the strategies differ clearly only for
+  emotional reactions (DG falls furthest behind real replies; ratios to SAG and SAGII
+  `r gx_txt("length adjusted", "strategy_across_models", "all", "ER", "dg - sag")` and
+  `r gx_txt("length adjusted", "strategy_across_models", "all", "ER", "dg - sagii")`);
+  for interpretations there is only a borderline difference, and for explorations none.
+  Within single models, `r n_within_cred` of `r n_within` strategy comparisons are
+  credible, and the pattern is model-specific (for example, OpenAI's DG replies
+  trail real ones most in emotional reactions), so there is no single "best"
+  strategy (Section \@ref(res-strat)).
+- **Reply length changes the interpretation story.** Longer replies are far
+  more likely to be classified as showing interpretation (the odds roughly
+  `r f1(per_doubling("IP"))` times for each doubling of length). OpenAI's replies are
+  more than twice as long as real ones (median `r wmed("openai")` vs.
+  `r wmed("real")` words). Without length adjustment OpenAI therefore appears to show
+  *more* interpretation than real clinicians (gap
+  `r gx_txt("no length adjustment", "model", "openai", "IP")`); at equal length it shows less
+  (`r gx_txt("length adjusted", "model", "openai", "IP")`). Both versions are reported
+  side by side (Section \@ref(res-len)).
+- **The results do not depend on how we handle the surplus of AI replies.**
+  Randomly thinning AI replies, instead of weighting them, changes estimated
+  odds ratios by at most `r sprintf("%.0f%%", sub_max_pct)` and does not change the pattern of
+  findings; only borderline comparisons change their credibility status (Section \@ref(res-sub)).
 
 Everything here describes what automatic classifiers detect in text, and the
 topic labels are themselves machine-made and imperfect (see
@@ -138,9 +199,9 @@ Each item is a patient question posted on Reddit's r/AskDocs. For each of the
 `r fmt(n_threads)` threads we have the replies of real, verified clinicians
 (`r fmt(n_real)` replies) and replies written by three AI models (Gemini,
 OpenAI, Grok) given the same post, each under three prompting strategies
-(`r fmt(n_synth)` AI replies in total). Prompting strategy is a nuisance factor
-here: we keep the nine model-by-strategy combinations apart in the models
-but report results per AI model.
+(`r fmt(n_synth)` AI replies in total). We keep the nine model-by-strategy
+combinations apart in the models. The main results are reported per AI model;
+Section \@ref(res-strat) examines the prompting strategies themselves.
 
 ## What was measured
 
@@ -171,7 +232,8 @@ raw_rates %>%
 ## The four moderators
 
 A *moderator* is a variable that changes the size of an effect; here, the
-real-vs-AI gap. We examined four.
+real-vs-AI gap. We examined these four in the main analysis; the prompting strategy, a fifth
+factor, is examined in Section \@ref(res-strat).
 
 1. **Topic.** A language model read each opening post and assigned one of
    17 medical disciplines (taxonomy from Chan et al., 2025). The label belongs
@@ -266,15 +328,21 @@ we report the effects on how often replies show empathy at all
   limits false alarms, but around one in forty estimates can look credible by
   chance. Treat individual topics as leads, not conclusions, especially the
   exploratory topic.
-- **Models, not strategies.** A topic shift is shared by an AI model's three
-  prompting strategies. Whether strategies differ is not tested here.
+- **Strategies and topic.** The per-model topic shifts in Section \@ref(res-llm)
+  are shared by a model's three prompting strategies. Whether topic effects
+  differ by strategy is examined only through variance components
+  (Section \@ref(res-strat)), not topic by topic.
+- **Reply length.** Length strongly affects what the classifiers detect and is
+  partly a consequence of the strategy. Gaps are shown with and without
+  adjusting for it; neither is the single "correct" answer (Section \@ref(res-len)).
 - **Classifiers, not people.** All results describe what the classifiers
   detect.
 - **Severity and specialty match are observational covariates.** Severity is
   a rating of the post; specialty match is partly a choice by whoever answers.
   We report associations, not causes.
-- **Subsampling check pending.** A sensitivity analysis that randomly subsamples
-  AI replies instead of weighting them is planned.
+- **Subsampling check is a single draw.** Randomly thinning AI replies instead
+  of weighting them gives the same picture (Section \@ref(res-sub)), but we ran
+  one random thinning, so draw-to-draw variation is not quantified.
 
 # Results {#results}
 
@@ -303,6 +371,38 @@ conv_msg <- if (nrow(bad) == 0) {
 
 `r conv_msg` Fits that initially fell short were rerun with twice as many
 iterations (Methods); this did not change which effects are credible.
+
+```{r conv-v3}
+v3lab <- c(L0_nolength = "strategy model without length adjustment", L1_length = "strategy model with length adjustment",
+           H_severity_by_group = "severity-by-group model", I_topic_by_group = "topic-by-model-and-strategy model",
+           C2_no_topic_intercept = "IP sensitivity model without topic intercept")
+conv_sentence <- function(cv, what) {
+  bad <- cv[!cv$converged, ]
+  if (nrow(bad) == 0) return(sprintf("All %d %s fits met the convergence criteria.", nrow(cv), what))
+  sprintf("%d of %d %s fits met every convergence criterion. The exception%s: %s.",
+          sum(cv$converged), nrow(cv), what, ifelse(nrow(bad) > 1, "s", ""),
+          paste(vapply(seq_len(nrow(bad)), function(k) {
+            r <- bad[k, ]
+            sprintf("%s, %s (%s)", mech_names[[r$mechanism]], v3lab[[r$model]],
+                    paste(c(if (r$max_rhat >= 1.01) sprintf("max Rhat %.4f", r$max_rhat),
+                            if (r$min_neff_ratio <= 0.1) sprintf("effective-sample-size ratio %.3f", r$min_neff_ratio),
+                            if (isTRUE(r$divergent_transitions > 0)) sprintf("%d divergent transition%s", r$divergent_transitions, ifelse(r$divergent_transitions == 1, "", "s"))),
+                          collapse = ", "))
+          }, character(1)), collapse = "; "))
+}
+v3_all <- bind_rows(v3conv, v3sens_conv)
+v3_msg <- conv_sentence(v3_all, "prompting-strategy")
+sub_msg <- conv_sentence(sub_conv, "subsampling-check")
+```
+
+`r v3_msg` The largest Rhat among them is `r sprintf("%.4f", max(v3_all$max_rhat))`
+and the smallest effective-sample-size ratio `r sprintf("%.3f", min(v3_all$min_neff_ratio))`;
+four fits that were marginal at 2,000 iterations were refitted with 4,000. The few
+divergent transitions that remain are a handful out of 12,000 draws per fit, and Rhat
+and effective sample size are fine for these fits; we report them with that caveat. The
+key results for the affected fits (severity for interpretations, topic variation for
+explorations) are reproduced in the independent subsampling check below. `r sub_msg` The shortfalls in the subsampling check
+are marginal as well (max Rhat `r sprintf("%.4f", max(sub_conv$max_rhat))`).
 
 ## The average gap, and how much it varies by topic
 
@@ -510,6 +610,258 @@ change the gap. Threads with no usable severity rating
 (`r fmt(n_sev_na)` threads) differ strongly in their overall gap, but this
 probably reflects what kind of post cannot be rated, so we do not interpret it.
 
+## Prompting strategies {#res-strat}
+
+Each AI model wrote its replies under three prompting strategies, DG, SAG and
+SAGII. Sections above pool them. Here we ask three questions: do the
+strategies differ in how far they fall short of real replies, does the
+strategy change how severity matters, and does it change how topic matters?
+We report strategy differences *within* each model, because a strategy can
+work differently in different models. All gaps in this section adjust for
+reply length unless stated otherwise (see next subsection for why).
+
+### Reply length and the interpretation gap {#res-len}
+
+How long a reply is matters a lot for what the classifiers detect. Each
+doubling of length multiplies the odds of showing interpretation by about
+`r f1(per_doubling("IP"))`, emotional reaction by `r f1(per_doubling("ER"))`, and
+exploration by `r f1(per_doubling("EX"))` (shorter replies are more often flagged as
+exploring). The AI models differ in length: the median real reply has
+`r wmed("real")` words (mean `r round(wavg("real"))`, a long tail), against
+`r wmed("gemini")` for Gemini, `r wmed("openai")` for OpenAI and `r wmed("grok")` for Grok.
+
+Table \@ref(tab:lentab) puts three comparisons side by side. *Raw* compares the
+shares in the first two columns directly. *Within thread, no length
+adjustment* compares real and AI replies in the same thread, as everywhere in this report.
+*Within thread, length adjusted* additionally compares replies of the same
+length.
+
+```{r lentab}
+rl <- raw_rates %>% tidyr::pivot_longer(c(ER, IP, EX), names_to = "mechanism", values_to = "rate")
+real_r <- rl %>% filter(who == "Real clinicians") %>% transmute(mechanism, real = rate)
+lt <- rl %>% filter(who != "Real clinicians") %>%
+  mutate(model = names(llm_names)[match(sub("AI: ", "", who), llm_names)]) %>%
+  left_join(real_r, by = "mechanism") %>%
+  mutate(raw_or = (rate / (1 - rate)) / (real / (1 - real))) %>%
+  left_join(ge %>% filter(level == "model", spec == "no length adjustment") %>%
+              transmute(mechanism, model = who, or0 = or3(or, lcl, ucl)), by = c("mechanism", "model")) %>%
+  left_join(ge %>% filter(level == "model", spec == "length adjusted") %>%
+              transmute(mechanism, model = who, or1 = or3(or, lcl, ucl)), by = c("mechanism", "model")) %>%
+  arrange(match(mechanism, names(mech_names)), match(model, model_order)) %>%
+  transmute(mechanism = mech_names[mechanism], model = llm_names[model], real = pct1(real), ai = pct1(rate),
+            raw = f1(raw_or), or0, or1)
+kable(lt, col.names = c("Empathy type", "AI model", "Real replies", "AI replies", "Raw odds ratio",
+                        "Within thread, no length adjustment", "Within thread, length adjusted"),
+      align = c("l", "l", "r", "r", "r", "r", "r"),
+      caption = "Real-vs-AI gap for each AI model: raw shares, within-thread gap, and within-thread gap adjusted for reply length (odds ratio, 95% CrI).")
+```
+
+For interpretations the adjustment changes the picture. OpenAI's replies are
+long, and long replies are classified as interpretation more often, so without
+the adjustment OpenAI appears to match or exceed real clinicians
+(raw `r pct1(rl$rate[rl$who == "AI: OpenAI" & rl$mechanism == "IP"])` vs.
+`r pct1(real_r$real[real_r$mechanism == "IP"])` for real replies; within-thread gap
+`r gx_txt("no length adjustment", "model", "openai", "IP")`). At equal length it falls
+behind (`r gx_txt("length adjusted", "model", "openai", "IP")`). For Gemini and Grok, whose
+replies are about as long as the *typical* real reply but shorter than the real
+average, the adjustment moves the other way: Gemini from
+`r gx_txt("no length adjustment", "model", "gemini", "IP")` to
+`r gx_txt("length adjusted", "model", "gemini", "IP")`, and Grok from
+`r gx_txt("no length adjustment", "model", "grok", "IP")` to
+`r gx_txt("length adjusted", "model", "grok", "IP")`. For emotional reactions the
+adjustment matters moderately and for explorations hardly at all.
+
+Which version to quote depends on the question. The unadjusted gap describes
+the replies as they are; the adjusted gap asks whether an AI reply is as empathic *as a
+real reply of the same length*. Since length is partly a result of the
+prompting strategy, the adjusted gap is not simply "more correct". Everything
+else in this section uses the adjusted version; the unadjusted one is in the
+saved results (`v3_group_effects.csv`).
+
+### Gap by model and strategy
+
+Table \@ref(tab:grouptab) gives the gap for each of the nine model-by-strategy
+groups, and for each model averaged over its three strategies.
+
+```{r grouptab}
+wide_groups <- function(spec_name, with_star) {
+  d <- ge %>% filter(spec == spec_name, level %in% c("group", "model")) %>%
+    mutate(model = sub("_.*$", "", who),
+           strat = ifelse(level == "group", sub("^.*_", "", who), "mean"),
+           txt = if (with_star) star(or3(or, lcl, ucl), credible) else or3(or, lcl, ucl)) %>%
+    select(mechanism, model, strat, txt) %>%
+    tidyr::pivot_wider(names_from = mechanism, values_from = txt) %>%
+    arrange(match(model, model_order), match(strat, c("dg", "sag", "sagii", "mean"))) %>%
+    mutate(model = llm_names[model], strat = ifelse(strat == "mean", "Mean of three strategies", strat_names[strat]))
+  d[, c("model", "strat", "ER", "IP", "EX")]
+}
+kable(wide_groups("length adjusted", FALSE),
+      col.names = c("AI model", "Strategy", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]),
+      align = c("l", "l", "r", "r", "r"),
+      caption = "Real-vs-AI gap (length adjusted) for each model-by-strategy group, odds ratio (95% CrI).")
+```
+
+```{r rangetxt}
+rng <- function(mech, level) {
+  d <- ge %>% filter(spec == "length adjusted", mechanism == mech, level == !!level)
+  max(d$or) / min(d$or)
+}
+```
+
+Differences between models are far larger than differences between
+strategies. Averaged over strategies, the largest gap between two
+models is a factor of `r f1(rng("ER", "model"))` for emotional reactions,
+`r f1(rng("IP", "model"))` for interpretations and `r f1(rng("EX", "model"))`
+for explorations; between strategies, averaged over models, it is only
+`r f1(rng("ER", "strategy"))`, `r f1(rng("IP", "strategy"))` and
+`r f1(rng("EX", "strategy"))`.
+
+### Do strategies differ within a model?
+
+Table \@ref(tab:contrasts) compares strategies directly. Each entry is the
+ratio of the two strategies' gaps within the same model: a value below 1 for
+"DG vs SAG" means DG falls further behind real replies than SAG does; above 1
+means DG is closer to real. The last block averages over the three models.
+
+```{r contrasts}
+cw <- ge %>% filter(spec == "length adjusted", level %in% c("strategy_within_model", "strategy_across_models")) %>%
+  mutate(who = ifelse(who == "all", "all", who),
+         contrast = gsub("sagii", "SAGII", contrast),
+         contrast = gsub("\\bsag\\b", "SAG", contrast),
+         contrast = gsub("\\bdg\\b", "DG", contrast),
+         contrast = gsub(" - ", " vs ", contrast),
+         txt = star(or3(or, lcl, ucl), credible)) %>%
+  select(mechanism, who, contrast, txt) %>%
+  tidyr::pivot_wider(names_from = mechanism, values_from = txt) %>%
+  arrange(match(who, c(model_order, "all")), match(contrast, c("DG vs SAG", "DG vs SAGII", "SAG vs SAGII"))) %>%
+  mutate(who = ifelse(who == "all", "All models (mean)", llm_names[who]))
+kable(cw[, c("who", "contrast", "ER", "IP", "EX")],
+      col.names = c("AI model", "Comparison", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]),
+      align = c("l", "l", "r", "r", "r"),
+      caption = "Differences between prompting strategies in the real-vs-AI gap (length adjusted): ratio of gaps, odds ratio (95% CrI). * = credible.")
+```
+
+`r n_within_cred` of the `r n_within` within-model comparisons and
+`r n_across_cred` of the `r n_across` pooled comparisons are credible. Three things stand out:
+
+- **Emotional reactions:** DG is the weakest strategy on average
+  (DG vs SAG `r gx_txt("length adjusted", "strategy_across_models", "all", "ER", "dg - sag")`,
+  DG vs SAGII `r gx_txt("length adjusted", "strategy_across_models", "all", "ER", "dg - sagii")`).
+  This is driven by OpenAI (DG vs SAG
+  `r gx_txt("length adjusted", "strategy_within_model", "openai", "ER", "dg - sag")`) and by
+  Grok, where SAG comes closest to real replies (DG vs SAG
+  `r gx_txt("length adjusted", "strategy_within_model", "grok", "ER", "dg - sag")`; SAG vs SAGII
+  `r gx_txt("length adjusted", "strategy_within_model", "grok", "ER", "sag - sagii")`).
+- **Interpretations:** the pooled comparisons are close to 1; only SAG vs SAGII
+  (`r gx_txt("length adjusted", "strategy_across_models", "all", "IP", "sag - sagii")`) is credible, and its
+  interval ends at 1. Within models, the credible differences are small: Gemini SAG vs SAGII
+  `r gx_txt("length adjusted", "strategy_within_model", "gemini", "IP", "sag - sagii")` and OpenAI DG vs SAG
+  `r gx_txt("length adjusted", "strategy_within_model", "openai", "IP", "dg - sag")`.
+- **Explorations:** no pooled difference. Within OpenAI the DG gap is about
+  twice that of SAG (DG vs SAG
+  `r gx_txt("length adjusted", "strategy_within_model", "openai", "EX", "dg - sag")`), i.e. DG is
+  *closer* to real replies, but the explorations gaps of OpenAI and Grok are very large
+  (odds roughly 30 to 40 times lower than real), so these ratios describe small differences between small rates.
+
+Because the sign and size of strategy differences change from model to model,
+"which strategy is best" has no model-independent answer. The evidence for the
+borderline comparisons (pd just above or below 0.975) is not strong enough to
+single any of them out (see Section \@ref(res-sub)).
+
+### Does severity matter differently for each strategy?
+
+Section \@ref(res-sev) tested whether the gap changes with severity, per model. Table
+\@ref(tab:sevgroup) does so for each of the nine groups (extra change in the gap
+per severity level; above 1 = the AI catches up as severity rises).
+
+```{r sevgroup}
+kable(wide_groups("severity by group", TRUE),
+      col.names = c("AI model", "Strategy", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]),
+      align = c("l", "l", "r", "r", "r"),
+      caption = "Change in the real-vs-AI gap per severity level, by model and strategy, factor (95% CrI). * = credible.")
+sev_grp <- ge %>% filter(spec == "severity by group", level == "group")
+sev_cmp_w <- ge %>% filter(spec == "severity by group", level %in% c("strategy_within_model", "strategy_across_models"))
+```
+
+For interpretations the severity effect is credible in `r sum(sev_grp$credible[sev_grp$mechanism == "IP"])` of 9 groups,
+whichever strategy was used. For emotional reactions it is credible in
+`r sum(sev_grp$credible[sev_grp$mechanism == "ER"])` of 9 groups and for explorations in
+`r sum(sev_grp$credible[sev_grp$mechanism == "EX"])`. Strategies barely differ in how
+severity matters: of the `r nrow(sev_cmp_w)` strategy comparisons of severity slopes (all three kinds of empathy,
+within models and pooled), `r sum(sev_cmp_w$credible)` `r ifelse(sum(sev_cmp_w$credible) == 1, "is", "are")` credible. So the
+severity result of Section \@ref(res-sev) holds for each prompting strategy, not
+only on average.
+
+### Does topic matter differently for each model or strategy?
+
+Estimating a separate topic effect for each of the nine groups (plus their
+correlations) is beyond what 11 topics can support (see Outlook). Instead we
+let each topic's shift have extra variation by AI model, by strategy and by
+model-strategy group, each with one shared spread (standard deviation).
+A spread near zero means topic does not matter differently for different
+models or strategies.
+
+```{r sdstrat}
+sd_names <- c("topic_slope_sd (common shift)" = "Topic shift shared by all groups (for reference)",
+              topic_x_model_sd = "Extra variation by AI model",
+              topic_x_strategy_sd = "Extra variation by prompting strategy",
+              topic_x_model_x_strategy_sd = "Extra variation by model-strategy group")
+sdt <- v3sd %>% filter(parameter %in% names(sd_names)) %>%
+  mutate(txt = sprintf("%.2f (%.2f-%.2f)", median, lcl, ucl), parameter = sd_names[parameter]) %>%
+  select(mechanism, parameter, txt) %>% tidyr::pivot_wider(names_from = mechanism, values_from = txt) %>%
+  arrange(match(parameter, unname(sd_names)))
+kable(sdt[, c("parameter", "ER", "IP", "EX")],
+      col.names = c("Source of variation in the topic shift", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]),
+      align = c("l", "r", "r", "r"),
+      caption = "Spread (SD, log-odds scale) of topic shifts of the real-vs-AI gap and its variation by model and strategy (95% CrI).")
+clear <- v3sd %>% filter(parameter %in% c("topic_x_model_sd", "topic_x_strategy_sd", "topic_x_model_x_strategy_sd"), lcl > 0.05)
+```
+
+Topic effects vary very little by prompting strategy or by model-strategy
+combination (estimated spreads of 0.04 or less). By AI model the variation is small for
+emotional reactions and interpretations but substantial for explorations
+(`r sprintf("%.2f", v3sd$median[v3sd$mechanism == "EX" & v3sd$parameter == "topic_x_model_sd"])`,
+interval clearly above zero), in line with the two credible model differences
+for explorations found in Section \@ref(res-llm). Strategy therefore does not
+change *how topic matters*, beyond what the model already does.
+
+```{r devcred, results='asis'}
+dv <- v3dev %>% filter(credible)
+if (nrow(dv) == 0) {
+  cat("No individual topic-by-model, topic-by-strategy or topic-by-group deviation is credible.\n")
+} else {
+  cat(sprintf("%d individual deviation%s %s credible:\n\n", nrow(dv), ifelse(nrow(dv) == 1, "", "s"), ifelse(nrow(dv) == 1, "is", "are")))
+  for (i in seq_len(nrow(dv))) {
+    r <- dv[i, ]
+    who <- paste(c(if (!is.na(r$model)) llm_names[[r$model]], if (!is.na(r$strategy)) strat_names[[r$strategy]]), collapse = ", ")
+    cat(sprintf("- **%s, %s, %s%s:** shift %s (pd %.3f).\n", mech_names[[r$mechanism]], r$topic_label, who,
+                ifelse(r$exploratory, " (exploratory topic)", ""), or3(r$or, r$lcl, r$ucl), r$pd))
+  }
+}
+```
+
+### Interpretations without the topic intercept {#res-sens}
+
+The pooled topic model for interpretations in v2 had a few divergent
+transitions, probably because the *baseline* differences between topics
+(the random topic intercept) are almost zero for interpretations. We refitted it
+without that intercept, with a stricter sampler setting, as a check.
+
+```{r sens}
+ip_v2 <- bt %>% filter(mechanism == "IP") %>%
+  transmute(topic, v2_txt = paste0(or3(shift_or, shift_lcl, shift_ucl), " (pd ", sprintf("%.3f", shift_pd), ")"), v2_cred = credible)
+sn <- v3sens %>% left_join(ip_v2, by = "topic") %>%
+  mutate(sens_txt = paste0(or3(or, lcl, ucl), " (pd ", sprintf("%.3f", pd), ")"), sens_cred = credible)
+sn_show <- sn %>% filter(v2_cred | sens_cred) %>% arrange(desc(n_threads)) %>%
+  transmute(topic = paste0(topic_label, ifelse(exploratory, " *", "")), v2 = star(v2_txt, v2_cred), sens = star(sens_txt, sens_cred))
+kable(sn_show, col.names = c("Topic", "Pooled topic model, shift (v2)", "Without topic intercept, shift"),
+      align = c("l", "r", "r"),
+      caption = "Interpretations: topic shifts of the gap, with and without the random topic intercept. * = credible; shown if credible in either.")
+```
+
+`r if (setequal(sn$topic[sn$v2_cred], sn$topic[sn$sens_cred])) sprintf("The same %d topics are credible in both versions and the shifts are almost identical (largest difference %.0f%% on the odds-ratio scale).", sum(sn$v2_cred), 100 * (exp(max(abs(log(sn$or / sn$v2_shift_or)))) - 1)) else sprintf("%d topics are credible in both versions, %d in only one (see table); the shifts are otherwise close (largest difference %.0f%%).", sum(sn$v2_cred & sn$sens_cred), sum(xor(sn$v2_cred, sn$sens_cred)), 100 * (exp(max(abs(log(sn$or / sn$v2_shift_or)))) - 1))`
+The divergences therefore did not distort the topic findings for interpretations.
+
 ## Other covariates {#res-cov}
 
 Table \@ref(tab:cov) shows how the other thread characteristics relate to
@@ -545,12 +897,89 @@ whether or not the specialty matches the topic. This probably reflects how
 specialists write, or who chooses to declare a specialty, rather than the
 match itself.
 
+## Robustness: thinning instead of weighting {#res-sub}
+
+The main models use all AI replies and give each a weight so that a thread's
+AI replies carry no more total weight than its real replies. A different way
+to treat the surplus is to randomly discard AI replies: in every thread, model
+and strategy, we kept as many AI replies as the thread has real replies
+(at random; cells with fewer replies are kept whole) and gave every reply
+weight 1. This leaves `r fmt(77603)` AI replies instead of `r fmt(n_synth)`. We then
+refitted all strategy models (length-adjusted and unadjusted gaps, severity
+by group, topic by model and strategy) on the thinned data and compared them with the weighted fits.
+
+```{r subsum}
+spec_lab <- c("length adjusted" = "gap, length adjusted", "no length adjustment" = "gap, no length adjustment",
+              "severity by group" = "severity slope")
+level_lab <- c(group = "per model-by-strategy group", model = "per AI model", strategy = "per strategy",
+               strategy_within_model = "strategy contrasts within a model", strategy_across_models = "strategy contrasts, pooled over models")
+sc <- sub_cmp %>%
+  group_by(spec, level) %>%
+  summarise(n = n(), cw = sum(cred_w), cs = sum(cred_s), flips = sum(cred_w != cred_s),
+            chg = 100 * (exp(max(abs(lratio))) - 1), .groups = "drop") %>%
+  arrange(match(spec, names(spec_lab)), match(level, names(level_lab))) %>%
+  transmute(what = paste0(spec_lab[spec], ", ", level_lab[level]), n, cw, cs, flips, chg = sprintf("%.0f%%", chg))
+kable(sc, col.names = c("Quantity", "Estimates", "Credible, weighted", "Credible, thinned",
+                        "Credibility differs", "Largest change in odds ratio"),
+      align = c("l", "r", "r", "r", "r", "r"),
+      caption = "Weighted vs. thinned fits: how many estimates are credible in each, and how much the odds ratios move.")
+```
+
+The estimates are almost the same: the median change in an odds ratio is
+`r sprintf("%.0f%%", 100 * (exp(median(abs(sub_cmp$lratio))) - 1))`, the largest
+`r sprintf("%.0f%%", 100 * (exp(max(abs(sub_cmp$lratio))) - 1))`, and the intervals have the same width
+(median ratio of interval widths `r sprintf("%.2f", median((sub_cmp$width_s) / sub_cmp$width_w))`).
+The effect of length, the severity effects and the model gaps all reproduce, and so does the
+topic-by-model spread for explorations (`r sprintf("%.2f", v3sd$median[v3sd$mechanism == "EX" & v3sd$parameter == "topic_x_model_sd"])` weighted).
+`r sub_flip_n` of the `r nrow(sub_cmp)` estimates differ in whether they are credible. All of them are
+comparisons between prompting strategies, with pd values between 0.92 and 0.99 in both fits:
+
+```{r subflips}
+who_lab <- function(w) vapply(w, function(x) {
+  if (x == "all") "All models" else if (x %in% names(llm_names)) llm_names[[x]]
+  else if (x %in% names(strat_names)) strat_names[[x]]
+  else { pr <- strsplit(x, "_")[[1]]; paste(llm_names[[pr[1]]], strat_names[[pr[2]]]) }
+}, character(1))
+con_lab <- function(x) { x <- gsub("sagii", "SAGII", x); x <- gsub("\\bsag\\b", "SAG", x); x <- gsub("\\bdg\\b", "DG", x); gsub(" - ", " vs ", x) }
+fl <- sub_cmp %>% filter(cred_w != cred_s) %>%
+  mutate(what = paste0(spec_lab[spec], ", ", level_lab[level]),
+         who_c = trimws(paste(who_lab(who), con_lab(contrast))),
+         w = paste0(or3(or_w, lcl_w, ucl_w), " (pd ", sprintf("%.3f", pd_w), ")"),
+         t = paste0(or3(or_s, lcl_s, ucl_s), " (pd ", sprintf("%.3f", pd_s), ")")) %>%
+  arrange(match(mechanism, names(mech_names))) %>%
+  transmute(mechanism = mech_names[mechanism], what, who_c, w, t)
+kable(fl, col.names = c("Empathy type", "Quantity", "Which", "Weighted", "Thinned"),
+      align = c("l", "l", "l", "r", "r"),
+      caption = "Estimates whose credibility status differs between the weighted and the thinned fits.")
+```
+
+Nine of the ten are credible in the thinned fit but not in the weighted one; one (OpenAI, DG vs SAGII
+for explorations) is the reverse. We therefore treat strategy
+comparisons near the threshold as inconclusive rather than as findings.
+
+```{r subtop}
+sub_top <- sub_top %>% left_join(lookup %>% select(topic, topic_label), by = "topic")
+drop <- sub_top %>% filter(cred_w, !cred_s)
+gain <- sub_top %>% filter(!cred_w, cred_s)
+```
+
+The topic findings are also stable. In the topic-by-model-and-strategy model,
+the pooled topic shifts change by at most
+`r sprintf("%.0f%%", 100 * (exp(max(abs(log(sub_top$or_s / sub_top$or_w)))) - 1))`.
+`r sum(sub_top$cred_w)` shifts are credible with weighting and
+`r sum(sub_top$cred_s)` after thinning;
+`r if (nrow(drop) + nrow(gain) == 0) "none changes status." else paste0("the ones that lose credibility are ", paste(sprintf("%s, %s (shift %s to %s, pd %.3f to %.3f)", mech_names[drop$mech], drop$topic_label, f1(drop$or_w), f1(drop$or_s), drop$pd_w, drop$pd_s), collapse = "; "), ".")`
+Weighting and thinning therefore give the same picture, which supports the choice
+not to discard any replies. This is a single random thinning; repeating it would
+show how much results vary between thinnings.
+
 # Methods {#methods}
 
 ## Data and outcomes
 
 All `r fmt(n_real + n_synth)` rated replies from `r fmt(n_threads)` threads
-are used, with no outlier exclusion and no subsampling. Synthetic replies come
+are used, with no outlier exclusion and no subsampling (a subsampling
+sensitivity check is described below). Synthetic replies come
 from Gemini, OpenAI and Grok, each under three prompting strategies (DG, SAG,
 SAGII), giving nine synthetic groups plus the real group. Empathy labels
 (0/1/2) for ER, IP and EX come from three fine-tuned RoBERTa bi-encoder
@@ -584,7 +1013,9 @@ topic-dependent missingness).
 With $n_c$ synthetic replies in a (thread, model, method) cell and $r$ real
 replies in the thread, real replies have weight 1 and synthetic ones
 $w = \min(1, r / n_c)$. Weights are computed on all threads before topic
-filtering. They enter the log-likelihood as multipliers (`brms`
+filtering. In the subsampling check (Section \@ref(res-sub)), each such cell with
+$n_c>r$ synthetic replies is instead thinned to $r$ randomly chosen replies
+(seed 1, one draw), all weights are 1, and everything else is unchanged. They enter the log-likelihood as multipliers (`brms`
 `weights()`), so estimates target the average over random per-thread
 subsampling but posterior intervals are approximate.
 
@@ -617,6 +1048,26 @@ severity level, over and above any effect of severity on real replies;
 the pooled value is the mean of the three. Topic effects stay in the model so
 severity does not stand in for topic.
 
+**L0 and L1 (strategy main effects).** Let $\beta_g$ be the coefficient of one of the nine
+synthetic groups $g$ (model-by-strategy), real replies being the reference:
+$$\operatorname{logit} P(y_i=1)=\alpha+\beta_{g(i)}+\mathbf{x}_i^\top\boldsymbol\delta\,[+\gamma\ell_i]+a_{p(i)}.$$
+L0 omits the length term, L1 includes it. A group's gap is $e^{\beta_g}$; a model's
+gap is the exponentiated mean of its three $\beta_g$; a strategy's gap the mean over the
+three models; strategy contrasts are differences of these quantities, computed from the draws.
+
+**H (severity per group).** Model C2 with the length term, plus $\sum_g\lambda_g\,\mathbb 1[g(i)=g]\,\mathrm{sev}_i+\kappa s_i\,\mathrm{sevNA}_i$,
+nine severity slopes instead of three. Slopes are summarised like the gaps above.
+
+**I (topic by model and strategy).** Model C2 with the length term, plus extra topic
+shifts $w_{t,L(i)}s_i+z_{t,m(i)}s_i+q_{t,g(i)}s_i$ by topic and AI model, topic and strategy,
+and topic and group, with $w_{tL}\sim\mathcal N(0,\sigma_{TL}^2)$, $z_{tm}\sim\mathcal N(0,\sigma_{TM}^2)$,
+$q_{tg}\sim\mathcal N(0,\sigma_{TG}^2)$ (one shared SD each; Normal(0, 1) prior truncated at 0). Real
+replies have a dummy level with no data. The SDs say how much topic moderation varies by model, strategy
+and group; individual deviations are reported but not interpreted as findings unless credible.
+
+**Sensitivity for IP.** C2 with length adjustment, without the random topic intercept
+$u_t$, `adapt_delta` = 0.99.
+
 ## Priors, sampling, convergence
 
 Fixed effects: Normal(0, 2.5). Intercept and thread SD: Student-$t$(3, 0, 2.5).
@@ -630,7 +1081,10 @@ were refitted with 4,000 iterations (1,000 warmup); the credible topic effects
 were unchanged. The refit of the IP pooled topic model improved
 $\hat R$ but still has divergent transitions (reported under Model checks),
 as in our earlier topic analysis; the topic-level intercept SD for
-interpretations is close to zero, which makes the sampler's job harder. Multithreaded summation makes draws non-reproducible from the seed
+interpretations is close to zero, which makes the sampler's job harder. The strategy fits (L0, L1, H, I and the IP sensitivity fit) and the subsampling-check
+fits use the same settings; four strategy fits that were marginal at 2,000 iterations
+(IP and EX severity-by-group, EX topic-by-group, IP sensitivity) were refitted with 4,000.
+Multithreaded summation makes draws non-reproducible from the seed
 alone, so the saved fits (`models_bayesian/`) and the run metadata are the
 reproducible artefacts.
 
@@ -639,12 +1093,20 @@ reproducible artefacts.
 Posterior median odds ratio, 95% highest-density interval and
 $pd=\max\{P(\theta>0),P(\theta<0)\}$ on the log-odds scale. Credible: pd > 0.975
 and the interval excludes 1. No frequentist multiplicity correction; topic
-effects are partially pooled instead. Code: `3i_topic_llm_moderation_v2.R`.
+effects are partially pooled instead. Code: `3i_topic_llm_moderation_v2.R` (topic, model, severity, cancer),
+`3j_strategy_models.R` (prompting strategies, length adjustment, IP sensitivity and, with
+`SUBS_SEED`, the subsampling check) and `3k_subsampling_*.R` (comparison of weighted
+and thinned fits).
 
 ## Limitations
 
 - Misclassified topics attenuate moderation estimates; no correction applied.
-- A topic effect is shared by a model's three strategies.
+- Topic effects by strategy and by model-strategy group are summarised by variance
+  components only; individual deviations are noisy and mostly not credible.
+- Length-adjusted gaps compare replies of the same length; since length is
+  partly caused by the strategy, they complement rather than replace the unadjusted gaps.
+- The subsampling check is one random draw; six of its twelve fits narrowly missed the
+  convergence rule (Model checks).
 - With 11 topics, correlations between models' topic shifts are poorly
   determined, and topic-specific cells for single models are noisy.
 - The cancer flag is a distinct construct from the Neoplasms topic.
@@ -652,37 +1114,17 @@ effects are partially pooled instead. Code: `3i_topic_llm_moderation_v2.R`.
   have a different gap, which we do not interpret.
 - Weighted intervals are approximate.
 
-# Outlook: do prompting strategies change the picture? {#outlook}
+# Outlook: what we did not do {#outlook}
 
-This report keeps the three prompting strategies (DG, SAG, SAGII) apart in
-the models, but reports topic and severity effects per AI model, not per
-strategy. Earlier analyses found that strategies often differ within a model
-(mostly modestly, but about two-fold for some of Grok's emotional reactions and
-explorations), far less than the differences between models. So strategy could
-plausibly also change how topic and severity matter. We have not tested this.
-The options, from most to least constrained:
-
-1. **Topic and severity effects per strategy, pooled over models.** Separate
-   severity interactions and topic shifts for DG, SAG and SAGII, each
-   averaged over the three AI models. Three effects per topic, comparable in
-   size to the per-model analysis here. The drawback is that strategies can
-   behave differently in different models (as they do for Grok), which this
-   version averages away.
-2. **Severity per model-by-strategy group.** Nine severity interactions as
-   ordinary fixed effects. Severity is one number per thread, so this is well
-   determined and cheap.
-3. **Topic shifts per group with a shared spread.** Each topic-by-group
-   combination (11 topics x 9 groups) gets its own deviation, all drawn from a
-   single common standard deviation. This is estimable, keeps all nine groups
-   and tells us whether the topic effects vary by group at all.
-4. **The full model: a separate topic shift for each of the nine groups, with
-   their correlations.** This is not impossible to run, but the data cannot
-   support it: it needs 55 covariance parameters estimated from 11 topics, the
-   cells are sparse (for example about 2% of Grok's replies show exploration),
-   and it would produce around 300 topic-by-group estimates per kind of
-   empathy to sift through. The result would be mostly prior-driven.
-
-Options 2 and 3 together are the closest feasible approximation to the full
-question. Whatever is chosen should come after the planned subsampling
-sensitivity check, since that determines how far the weighted intervals can be
-trusted.
+- **The full topic-by-strategy-by-model model.** A separate topic shift for each
+  of the nine groups with their correlations is not impossible to run, but the
+  data cannot support it: it needs 55 covariance parameters from 11 topics, cells
+  are sparse (for example about 2% of Grok's replies show exploration), and it would
+  produce around 300 topic-by-group estimates per kind of empathy. The variance
+  components in Section \@ref(res-strat) are the estimable version of the
+  question and say that, beyond the model, strategy hardly changes how topic matters.
+- **Topic by severity.** Whether severity matters differently in different topics
+  was not tested.
+- **More than one thinning.** The subsampling check used one random draw.
+- **Cleaner topic labels.** About one topic label in four may be wrong. A human-coded
+  validation set would quantify how much this blurs the topic results.

@@ -1,0 +1,7 @@
+"mechanism","model","parameter","median","lcl","ucl"
+"ER","I","topic_intercept_sd",0.393796,0.208227,0.655069
+"ER","I","topic_slope_sd (common shift)",0.198973,0.0496715,0.39765
+"ER","I","topic_x_model_sd",0.07928165,0.000458643,0.198161
+"ER","I","topic_x_strategy_sd",0.0397551,8.604e-06,0.106002
+"ER","I","topic_x_model_x_strategy_sd",0.0319869,6.37132e-05,0.0957039
+"ER","I","post_id_sd",1.440055,1.36891,1.51342

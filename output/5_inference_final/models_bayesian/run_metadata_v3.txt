@@ -1,0 +1,51 @@
+date: 2026-11-04 22:42:57.871838
+seed: 20260101
+test mode: FALSE
+chains: 4, iter: 2000, warmup: 1000, threads_per_chain: 4, adapt_delta: 0.95
+iteration overrides: v3_IP_H_severity_by_group = 4000, v3_EX_H_severity_by_group = 4000, v3_EX_I_topic_by_group = 4000, v3_IP_C2_nointercept = 4000
+topic file md5: 453163a8a882405ab4bd8d878c53bfee
+covariate md5: demographics b35a22b101e2130ee3689a87964cd5e5, severity a74ce049a3d897d1be98089c6ad627a8, roles 064fd03cf185e12337446641417a95bd
+covariate terms: subject + age10 + age_na + sex3 + sev_c + sev_na + real_match + real_mismatch
+weights: synthetic w = min(1, real_count / cell_n), real w = 1
+cmdstan_version: 2.36.0
+
+sessionInfo():
+R version 4.5.0 (2025-04-11)
+Platform: aarch64-apple-darwin20
+Running under: macOS 26.5.2
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C
+
+time zone: Europe/Zurich
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] bayestestR_0.16.0 brms_2.22.0       Rcpp_1.0.14       dplyr_1.1.4      
+
+loaded via a namespace (and not attached):
+ [1] bridgesampling_1.1-2 tensorA_0.36.2.1     generics_0.1.4      
+ [4] stringi_1.8.7        lattice_0.22-6       magrittr_2.0.3      
+ [7] evaluate_1.0.3       grid_4.5.0           estimability_1.5.1  
+[10] RColorBrewer_1.1-3   mvtnorm_1.3-3        Matrix_1.7-3        
+[13] processx_3.8.6       backports_1.5.0      ps_1.9.1            
+[16] Brobdingnag_1.2-9    scales_1.4.0         abind_1.4-8         
+[19] cli_3.6.5            rlang_1.1.6          cmdstanr_0.9.0.9000 
+[22] withr_3.0.2          tools_4.5.0          parallel_4.5.0      
+[25] rstantools_2.4.0     checkmate_2.3.2      coda_0.19-4.1       
+[28] ggplot2_4.0.3        vctrs_0.6.5          posterior_1.6.1     
+[31] R6_2.6.1             matrixStats_1.5.0    lifecycle_1.0.4     
+[34] emmeans_1.11.1       stringr_1.5.1        insight_1.3.0       
+[37] pkgconfig_2.0.3      RcppParallel_5.1.10  pillar_1.10.2       
+[40] gtable_0.3.6         loo_2.8.0            glue_1.8.0          
+[43] xfun_0.52            tibble_3.2.1         tidyselect_1.2.1    
+[46] knitr_1.50           farver_2.1.2         xtable_1.8-4        
+[49] bayesplot_1.12.0     nlme_3.1-168         compiler_4.5.0      
+[52] S7_0.2.2             distributional_0.5.0

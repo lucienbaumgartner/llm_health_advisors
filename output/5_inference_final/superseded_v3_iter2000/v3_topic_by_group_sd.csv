@@ -1,0 +1,19 @@
+"mechanism","model","parameter","median","lcl","ucl"
+"ER","I","topic_intercept_sd",0.3703015,0.200124,0.647495
+"ER","I","topic_slope_sd (common shift)",0.2134685,0.0466131,0.401378
+"ER","I","topic_x_model_sd",0.0853529,3.96863e-05,0.197399
+"ER","I","topic_x_strategy_sd",0.0426357,4.95461e-05,0.114431
+"ER","I","topic_x_model_x_strategy_sd",0.0346081,3.79665e-05,0.0981127
+"ER","I","post_id_sd",1.33698,1.26913,1.41196
+"IP","I","topic_intercept_sd",0.0615579,4.11522e-06,0.186055
+"IP","I","topic_slope_sd (common shift)",0.2451335,0.11791,0.429478
+"IP","I","topic_x_model_sd",0.0549154,0.000244232,0.109147
+"IP","I","topic_x_strategy_sd",0.02088885,8.66027e-07,0.0602278
+"IP","I","topic_x_model_x_strategy_sd",0.01931045,1.99134e-06,0.0542199
+"IP","I","post_id_sd",1.083265,1.03484,1.12775
+"EX","I","topic_intercept_sd",0.213723,0.0693082,0.398526
+"EX","I","topic_slope_sd (common shift)",0.2951925,0.00339007,0.570815
+"EX","I","topic_x_model_sd",0.363919,0.207415,0.566164
+"EX","I","topic_x_strategy_sd",0.02890025,1.29619e-05,0.0907807
+"EX","I","topic_x_model_x_strategy_sd",0.03182525,3.7611e-05,0.0958481
+"EX","I","post_id_sd",1.421815,1.34987,1.49892
