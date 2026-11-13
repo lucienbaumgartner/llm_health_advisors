@@ -1,0 +1,35 @@
+% Additional preamble for paper_empirical_section.Rmd (elsarticle layout, as in cognition_full_dcc.Rmd)
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{width=0.9\textwidth}
+\floatplacement{figure}{H}
+
+% pandoc pipe tables become longtables: set them like the booktabs tables of the Cognition manuscript
+\usepackage{etoolbox}
+\usepackage{needspace}
+\AtBeginEnvironment{longtable}{\small}
+% do not start a table in the last lines of a page (a table that follows this rule is not split after its first row)
+\BeforeBeginEnvironment{longtable}{\Needspace*{12\baselineskip}}
+\setlength{\LTpre}{1.2ex}
+\setlength{\LTpost}{1.2ex}
+\renewcommand{\arraystretch}{1.15}
+
+% number down to subsubsection, but not \paragraph headings (level 4)
+\setcounter{secnumdepth}{3}
+% no author block: suppress the template's "Corresponding author" footnote
+\makeatletter\renewcommand{\cortext}[2][]{}\makeatother
+% drop the "Preprint submitted to ... / date" footer on the first page; keep the page number
+\makeatletter
+\def\ps@pprintTitle{\let\@oddhead\@empty\let\@evenhead\@empty
+  \def\@oddfoot{\hfil\thepage\hfil}\let\@evenfoot\@oddfoot}
+\makeatother
+% pandoc >= 3.2 wraps figures in \pandocbounded, which the rticles template does not define
+\providecommand{\pandocbounded}[1]{#1}
+
+% subtitle (the rticles template has no subtitle field)
+\makeatletter
+\let\paperOldTitle\title
+\renewcommand{\title}[1]{\paperOldTitle{#1\\[0.8ex]\normalsize\itshape Empirical section (draft)}}
+\makeatother

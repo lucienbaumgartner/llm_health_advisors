@@ -1,0 +1,593 @@
+---
+title: "Empathy Gaps in LLM-Generated Health Advice"
+abstract: |
+  Replies from artificial intelligence (AI) chatbots to patient questions are often rated as more empathetic than physicians' replies. Which kinds of empathy the replies contain, and under which conditions, is less clear. We compared 8,625 verified-clinician replies to 6,600 patient questions on the forum r/AskDocs with 128,653 replies that three large language models (Gemini 2.5 Pro, GPT-5, Grok 4.6) generated as clinician responses to the same posts, using established classifiers for three empathy mechanisms: Emotional Reactions, Interpretations and Explorations. We find largely the opposite pattern: classifier-detected Emotional Reactions (pooled odds ratio 0.087) and Explorations (0.055) were far rarer in generated replies than in clinicians' replies, for all three models. For Interpretations the models diverged, with Grok exceeding the clinician level at matched reply length (1.97) and Gemini (0.44) and GPT-5 (0.74) falling below it. The Interpretation gap narrowed with the rated severity of the question, with further variation by medical topic and cancer relevance. Expressed empathy in AI-generated health advice thus depends on the mechanism, the model and the clinical context.
+keywords:
+  - empathy
+  - large language models
+  - patient-clinician communication
+  - online health communities
+  - EPITOME
+linenumbers: false
+numbersections: true
+biblio-style: elsarticle-harv
+classoption: preprint, 3p, authoryear
+subtitle: "Empirical section (draft)"
+output:
+  bookdown::pdf_book:
+    base_format: rticles::elsevier_article
+    keep_tex: false
+    citation_package: natbib
+    includes:
+      in_header: preamble_paper.tex
+  bookdown::word_document2:
+    number_sections: false
+    pandoc_args: ["--number-sections", "--citeproc", "--bibliography=references_word.bib", "--csl=elsevier-harvard.csl"]
+---
+
+```{r setup, include=FALSE}
+# Compile-time cost: only small CSV files are read (a few MB in total). The reply-level
+# file (inference_results.csv, 250 MB) is summarised once by paper_descriptives.R.
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, dev = "png", dpi = 130)
+options(knitr.table.format = "pipe")   # pandoc builds the (LaTeX/Word/HTML) table; raw LaTeX tables break on special characters
+invisible(Sys.setlocale("LC_CTYPE", "en_US.UTF-8"))   # non-ASCII characters (dagger) must survive in Rscript
+suppressMessages({ library(dplyr); library(tidyr); library(ggplot2); library(knitr) })
+rm(list = ls())
+
+out_dir   <- "../../output/5_inference_final"
+topic_path <- "../../input/topics/topic_labels.csv"
+cov_dir   <- "../../input/covariates"
+rd <- function(f) read.csv(file.path(out_dir, f), stringsAsFactors = FALSE)
+need <- c("paper_joint_tests.csv", "paper_interaction_pairs.csv", "paper_desc_groups.csv", "paper_desc_overall.csv", "paper_desc_authors.csv", "paper_desc_labels.csv", "paper_desc_threads.csv")
+if (!all(file.exists(file.path(out_dir, need)))) stop("Run paper_descriptives.R first (creates paper_desc_*.csv).")
+
+# ---- output-format helpers: the same source renders to PDF (xelatex/natbib) and Word (citeproc) ------------
+is_tex <- knitr::is_latex_output()
+if (!is_tex) {   # Word: citeproc does not understand BibTeX "and others", so truncated author lists become a literal "et al."
+  b <- readLines("references.bib", encoding = "UTF-8")
+  b <- sub("= \\{([A-Za-z]+)(, [A-Z.]+)? and others\\}", "= {{\\1 et al.}}", b)
+  b <- sub(" and others\\}", " and {et al.}}", b)
+  writeLines(b, "references_word.bib", useBytes = TRUE)
+}
+cp <- function(keys, pre = NULL) {                             # parenthetical citation
+  if (is_tex) return(paste0("\\citep", if (!is.null(pre)) paste0("[", pre, "][]"), "{", keys, "}"))
+  paste0("[", if (!is.null(pre)) paste0(pre, " "), paste0("@", strsplit(keys, ",")[[1]], collapse = "; "), "]")
+}
+ct <- function(key) if (is_tex) paste0("\\citet{", key, "}") else paste0("@", key)   # textual citation
+app_letter <- c("app-models" = "A", "app-convergence" = "B", "app-aivsai" = "C", "app-thinning" = "D")
+aref <- function(id) if (is_tex) paste0("\\@ref(", id, ")") else sprintf("[Appendix %s](#%s)", app_letter[[id]], id)   # LaTeX prints "Appendix A" itself
+app_h <- function(id, title) cat(if (is_tex) sprintf("\n# %s {#%s}\n\n", title, id) else sprintf("\n# Appendix %s. %s {#%s .unnumbered}\n\n", app_letter[[id]], title, id))
+
+# relative column widths of a pipe table: pandoc takes them from the dashes of the separator line
+kw <- function(tab, w) {
+  i <- grep("^\\|:?-+", tab)[1]; w <- pmax(3, round(100 * w / sum(w)))
+  seg <- strsplit(sub("\\|$", "", sub("^\\|", "", tab[i])), "|", fixed = TRUE)[[1]]
+  tab[i] <- paste0("|", paste(mapply(function(a, n) paste0(if (startsWith(a, ":")) ":", strrep("-", n), if (endsWith(a, ":")) ":"), seg, w), collapse = "|"), "|")
+  tab
+}
+
+# booktabs table as a raw LaTeX longtable (breaks across pages with a "Continuation of Table n" line): rules between blocks of rows, a repeated label shown only once per block
+# df: formatted strings; spec: tabular column spec; block: vector defining the blocks; once: columns whose repeated values per block are blanked
+ltab <- function(df, spec, caption, label, block = NULL, once = integer(0), header = names(df), size = "\\small", tabcolsep = NULL, header_lines = NULL, need = NULL) {
+  esc <- function(x) vapply(as.character(x), function(z) {           # escape %, &, _, # outside $...$ math
+    m <- gregexpr("\\$[^$]*\\$", z)
+    regmatches(z, m, invert = TRUE) <- list(gsub("([%&_#])", "\\\\\\1", regmatches(z, m, invert = TRUE)[[1]]))
+    z }, "", USE.NAMES = FALSE)
+  if (!is_tex) {                                             # Word: a plain pipe table (bookdown numbers it and resolves \@ref(tab:label))
+    if (!is.null(block)) for (j in once) { v <- as.character(df[[j]]); df[[j]] <- ifelse(duplicated(cbind(block, v)), "", v) }
+    names(df) <- if (any(grepl("\\\\", header)) || !is.null(header_lines)) names(df) else header
+    al <- vapply(seq_along(df), function(j) if (j > 1 && all(grepl("^[-+0-9<>.,]|^$", as.character(df[[j]])))) "r" else "l", "")
+    wd <- pmin(pmax(nchar(names(df)), vapply(df, function(x) max(nchar(as.character(x))), 1)), 40) + 7   # relative column widths from the content
+    cat("\n", kw(knitr::kable(df, format = "pipe", align = al, row.names = FALSE, caption = caption), wd), "\n", sep = "\n")
+    return(invisible())
+  }
+  df[] <- lapply(df, esc)
+  if (!is.null(block)) for (j in once) { v <- df[[j]]; df[[j]] <- ifelse(duplicated(cbind(block, v)), "", v) }
+  rows <- apply(df, 1, function(r) paste0("    ", paste(r, collapse = " & "), " \\\\"))
+  if (!is.null(block)) for (k in rev(which(block[-1] != block[-length(block)]))) rows <- append(rows, "    \\midrule", after = k)
+  hdr <- if (is.null(header_lines)) paste0("    ", paste(header, collapse = " & "), " \\\\") else paste0("    ", header_lines)
+  cat("```{=latex}", if (!is.null(need)) sprintf("\\Needspace*{%d\\baselineskip}", need), paste0("\\begingroup", size),
+      if (!is.null(tabcolsep)) sprintf("\\setlength{\\tabcolsep}{%s}", tabcolsep),
+      paste0("\\begin{longtable}{", spec, "}"),
+      paste0("\\caption{", esc(caption), "}\\label{tab:", label, "} \\\\"), "\\toprule", hdr, "\\midrule", "\\endfirsthead",
+      sprintf("\\multicolumn{%d}{@{}l@{}}{\\textit{Continuation of Table~\\thetable}} \\\\", ncol(df)), "\\toprule", hdr, "\\midrule", "\\endhead",
+      "\\bottomrule", "\\endfoot", "\\bottomrule", "\\endlastfoot",
+      rows, "\\end{longtable}", "\\endgroup", "```", sep = "\n")
+}
+
+LA <- ">{\\raggedright\\arraybackslash}p"     # left-aligned paragraph column,  e.g. paste0(LA, "{0.3\\linewidth}")
+RA <- ">{\\raggedleft\\arraybackslash}p"      # right-aligned paragraph column
+
+# ---- formatting helpers --------------------------------------------------------------
+nd <- intToUtf8(8211)                               # en dash in intervals
+fmt  <- function(x) format(round(x), big.mark = ",", trim = TRUE)
+f2   <- function(x) ifelse(abs(x) < 0.1, sprintf("%.3f", x), sprintf("%.2f", x))
+pct  <- function(x, d = 1) sprintf(paste0("%.", d, "f%%"), 100 * x)
+ci   <- function(m, l, u) sprintf("%s [%s%s%s]", f2(m), f2(l), nd, f2(u))     # OR [95% CrI]
+orci <- function(m, l, u) sprintf("OR = %s, 95%% CrI %s%s%s", f2(m), f2(l), nd, f2(u))
+pdf_ <- function(p) sprintf("pd = %.3f", p)
+inv  <- function(x) sprintf("%.1f", 1 / x)                                       # reciprocal OR
+CRED <- 0.975
+ADJ <- "length adjusted"; RAW <- "no length adjustment"; SEV <- "severity by group"
+is_cred <- function(pd, lcl, ucl) pd > CRED & (lcl > 1 | ucl < 1)
+STAR <- "\u2020"   # dagger: an asterisk breaks pandoc/LaTeX table parsing
+star <- function(txt, cred) paste0(txt, ifelse(cred, STAR, ""))
+
+mech_names <- c(ER = "Emotional Reaction", IP = "Interpretation", EX = "Exploration")
+mech_short <- c(ER = "Emotional Reactions", IP = "Interpretations", EX = "Explorations")
+llm_names  <- c(gemini = "Gemini", openai = "OpenAI", grok = "Grok")
+strat_names <- c(dg = "DG", sag = "SAG", sagii = "SAGII")
+model_order <- names(llm_names)
+
+# ---- descriptives (paper_descriptives.R) ----------------------------------------------
+dg_ <- rd("paper_desc_groups.csv"); ov <- rd("paper_desc_overall.csv")
+OV <- setNames(ov$value, ov$name)
+auth <- rd("paper_desc_authors.csv"); labs <- rd("paper_desc_labels.csv")
+rm_ <- readLines("../../README.md", warn = FALSE)
+rm_num <- function(pat) as.numeric(gsub("[^0-9]", "", sub(".*: ", "", rm_[grep(pat, rm_)[1]])))
+N_CORPUS <- rm_num("Submissions with at least one retained comment")
+thr <- rd("paper_desc_threads.csv"); TH <- as.list(setNames(thr$value, thr$name))
+for (k in c("threads", "post_words_median", "post_words_mean", "n_comments_sum")) TH[[k]] <- as.numeric(TH[[k]])
+auth_tab <- auth %>% group_by(category) %>% summarise(n = sum(n), .groups = "drop") %>% mutate(share = n / sum(n))
+auth_share <- function(cat) auth_tab$share[auth_tab$category == cat]
+real_row <- dg_[dg_$group == "real", ]
+syn_rows <- dg_[dg_$group != "real", ]
+model_rate <- function(m, mech) {                # weighted share of one model's replies (3 strategies pooled)
+  r <- syn_rows[startsWith(syn_rows$group, paste0(m, "_")), ]
+  sum(r[[paste0(mech, "_w")]] * r$weight_sum) / sum(r$weight_sum)
+}
+mw <- rd("paper_desc_models.csv")
+model_words <- function(m, what = "words_median") mw[[what]][mw$model == m]
+wmed <- function(m) model_words(m)
+all_syn_n <- sum(syn_rows$n)
+label1 <- function(mech, src) { x <- labs[labs$mechanism == mech & labs$source == src, ]; sum(x$n[x$label == 1]) / sum(x$n) }
+
+# ---- thread-level inputs --------------------------------------------------------------
+lookup <- rd("v2_topic_lookup.csv")
+topics <- read.csv(topic_path, stringsAsFactors = FALSE)
+n_cancer <- sum(tolower(topics$cancer_relevant) == "true", na.rm = TRUE)
+n_cancer_na <- sum(!tolower(topics$cancer_relevant) %in% c("true", "false"))
+sev_raw <- read.csv(file.path(cov_dir, "severity.csv"))
+n_sev_na <- sum(is.na(sev_raw$severity_score))
+n_topics <- nrow(lookup); n_threads_in <- sum(lookup$n_threads)
+
+# ---- model results ---------------------------------------------------------------------
+tp <- rd("v2_topic_gap_by_topic.csv"); tl <- rd("v2_topic_by_llm.csv"); dl <- rd("v2_llm_differences_by_topic.csv")
+sdp <- rd("v2_topic_sd_summary.csv"); sdl <- rd("v2_llm_sd_summary.csv")
+sevm <- rd("v2_severity_moderation.csv"); canc <- rd("v2_topic_cancer_moderation.csv"); covs <- rd("v2_covariate_effects.csv")
+conv2 <- rd("v2_topic_convergence.csv"); conv3 <- rd("v3_convergence.csv"); conv3s <- rd("v3_IP_sensitivity_convergence.csv")
+ge <- rd("v3_group_effects.csv") %>% mutate(credible = is_cred(pd, lcl, ucl))
+n_grp_cred <- sum(ge$credible[ge$spec == "length adjusted" & ge$level == "group"]); n_grp <- sum(ge$spec == "length adjusted" & ge$level == "group")
+len_eff <- rd("v3_length_effect.csv"); v3sd <- rd("v3_topic_by_group_sd.csv"); v3dev <- rd("v3_topic_by_group_deviations.csv")
+v3sens <- rd("v3_IP_sensitivity_no_topic_intercept.csv")
+sub_cmp <- rd("v3sub1_comparison_group_effects.csv"); sub_top <- rd("v3sub1_topic_shift_comparison.csv")
+jtests <- rd("paper_joint_tests.csv"); ipairs <- rd("paper_interaction_pairs.csv") %>% mutate(credible = is_cred(pd, lcl, ucl))
+jt_get <- function(h, m, v = "weighted") one(jtests, jtests$hypothesis == h, jtests$mechanism == m, jtests$version == v)
+fpd <- function(x) ifelse(x > 0.9995, ">0.999", sprintf("%.3f", x))
+fpl <- function(x) ifelse(x < 0.0005, "<0.001", sprintf("%.3f", x))
+jpd_txt <- function(h, m, v = "weighted") fpd(jt_get(h, m, v)$jpd)
+p_gt1 <- function(m) { r <- avg[avg$mechanism == m, ]; ifelse(r$gap_or > 1, r$gap_pd, 1 - r$gap_pd) }
+sub_conv <- bind_rows(lapply(c("ER", "IP", "EX"), function(m) rd(sprintf("v3sub1_%s_convergence.csv", m))))
+
+avg  <- tp %>% filter(is.na(topic))
+bt   <- tp %>% filter(!is.na(topic)) %>% mutate(credible = is_cred(shift_pd, shift_lcl, shift_ucl))
+avgl <- tl %>% filter(is.na(topic))
+btl  <- tl %>% filter(!is.na(topic)) %>% mutate(credible = is_cred(shift_pd, shift_lcl, shift_ucl))
+dl   <- dl %>% mutate(credible = is_cred(shift_ratio_pd, shift_ratio_lcl, shift_ratio_ucl))
+sevm <- sevm %>% mutate(credible = is_cred(sev_pd, sev_lcl, sev_ucl))
+
+one <- function(df, ...) { r <- df[Reduce(`&`, list(...)), ]; stopifnot(nrow(r) == 1); r }
+avg_gap  <- function(m) { r <- avg[avg$mechanism == m, ]; ci(r$gap_or, r$gap_lcl, r$gap_ucl) }
+avg_or   <- function(m) avg$gap_or[avg$mechanism == m]
+gx <- function(spec, level, who, mech, contrast = "")
+  one(ge, ge$spec == spec & ge$level == level & ge$who == who & ge$mechanism == mech & ge$contrast == contrast)
+gxt <- function(...) { r <- gx(...); ci(r$or, r$lcl, r$ucl) }
+gxo <- function(...) gx(...)$or
+per_doubling <- function(m) len_eff$or[len_eff$mechanism == m]^log(2)
+
+rng_ratio <- function(mech, level) { d <- ge[ge$spec == ADJ & ge$mechanism == mech & ge$level == level, ]; max(d$or) / min(d$or) }
+rng_within <- function(mech) { d <- ge[ge$spec == ADJ & ge$mechanism == mech & ge$level == "group", ]; max(tapply(d$or, sub("_.*$", "", d$who), function(x) max(x) / min(x))) }
+n_within <- sum(ge$spec == ADJ & ge$level == "strategy_within_model")
+n_within_cred <- sum(ge$credible[ge$spec == ADJ & ge$level == "strategy_within_model"])
+n_across <- sum(ge$spec == ADJ & ge$level == "strategy_across_models")
+n_across_cred <- sum(ge$credible[ge$spec == ADJ & ge$level == "strategy_across_models"])
+sev_grp <- ge %>% filter(spec == SEV, level == "group")
+sev_cmp <- ge %>% filter(spec == SEV, level %in% c("strategy_within_model", "strategy_across_models"))
+sdv <- function(mech, par) v3sd[v3sd$mechanism == mech & v3sd$parameter == par, ]
+sd_txt <- function(mech, par) { r <- sdv(mech, par); sprintf("%.2f [%.2f%s%.2f]", r$median, r$lcl, nd, r$ucl) }
+sub_len <- sub_cmp %>% filter(spec == ADJ, level == "group")
+sub_max_pct <- 100 * (exp(max(abs(sub_len$lratio))) - 1)
+sub_med_pct <- 100 * (exp(median(abs(sub_cmp$lratio))) - 1)
+sub_all_max_pct <- 100 * (exp(max(abs(sub_cmp$lratio))) - 1)
+sub_flip <- sub_cmp %>% filter(cred_w != cred_s)
+nconv <- function(cv) sprintf("%d of %d", sum(cv$converged), nrow(cv))
+```
+
+```{r claims-check}
+# The prose below states some qualitative findings in words. If a re-run of the models
+# contradicts one of them, compilation stops here instead of silently printing a wrong claim.
+stopifnot(
+  avg_or("ER") < 0.2, avg_or("EX") < 0.2, avg_or("IP") > 0.5, avg_or("IP") < 1.5,
+  gxo(ADJ, "model", "grok", "IP") > 1, gxo(ADJ, "model", "gemini", "IP") < 1, gxo(ADJ, "model", "openai", "IP") < 1,
+  gxo(RAW, "model", "openai", "IP") > 1,                                   # OpenAI looks better than real before length adjustment
+  all(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism %in% c("ER", "EX")] < 0.4),
+  all(len_eff$or[len_eff$mechanism %in% c("ER", "IP")] > 1), len_eff$or[len_eff$mechanism == "EX"] < 1,
+  with(gx(ADJ, "strategy_across_models", "all", "ER", "dg - sag"), or < 1 & credible),
+  with(gx(ADJ, "strategy_across_models", "all", "ER", "dg - sagii"), or < 1 & credible),
+  sum(bt$credible) > 0, sum(btl$credible) > 0,
+  sum(sev_grp$credible[sev_grp$mechanism == "IP"]) == 9,
+  all(sevm$sev_or[sevm$mechanism == "IP" & sevm$who %in% names(llm_names)] > 1),
+  !any(sevm$credible[sevm$mechanism == "EX" & sevm$who %in% names(llm_names)]),
+  sdv("EX", "topic_x_model_sd")$lcl > 0.05,
+  all(v3sd$median[v3sd$parameter %in% c("topic_x_strategy_sd", "topic_x_model_x_strategy_sd")] < 0.1),
+  with(canc[canc$mechanism == "IP", ], shift_or > 1 & is_cred(shift_pd, shift_lcl, shift_ucl)),
+  with(canc[canc$mechanism == "EX", ], shift_or < 1 & is_cred(shift_pd, shift_lcl, shift_ucl)),
+  setequal(v3sens$topic[v3sens$credible], bt$topic[bt$mechanism == "IP" & bt$credible]),
+  wmed("openai") > 2 * real_row$words_median, wmed("gemini") < real_row$words_mean, wmed("grok") < real_row$words_mean,
+  min(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism %in% c("ER", "EX")]) < 0.05,
+  all(jtests$jpd[jtests$hypothesis == "model"] > CRED), all(jtests$jpd[jtests$hypothesis == "interaction"] > CRED),
+  all(ge$credible[ge$spec == ADJ & ge$level == "group"]),
+  all(ge$or[ge$spec == ADJ & ge$level == "group" & ge$mechanism %in% c("ER", "EX")] < 1),
+  all(ge$or[ge$spec == ADJ & ge$level == "group" & ge$mechanism == "IP" & grepl("^grok", ge$who)] > 1),
+  all(ge$or[ge$spec == ADJ & ge$level == "group" & ge$mechanism == "IP" & !grepl("^grok", ge$who)] < 1),
+  with(ge[ge$spec == ADJ & ge$level == "model" & ge$mechanism == "IP" & ge$who == "grok", ], or > 1.5 & credible),
+  with(ge[ge$spec == RAW & ge$level == "model" & ge$mechanism == "IP" & ge$who == "grok", ], lcl < 1 & ucl > 1),
+  jtests$jpd[jtests$hypothesis == "strategy" & jtests$mechanism == "ER" & jtests$version == "weighted"] > CRED,
+  all(jtests$jpd[jtests$hypothesis == "strategy" & jtests$mechanism %in% c("IP", "EX") & jtests$version == "weighted"] < CRED),
+  all(jtests$jpd[jtests$hypothesis == "severity" & jtests$mechanism %in% c("ER", "IP")] > CRED),
+  jtests$jpd[jtests$hypothesis == "severity" & jtests$mechanism == "EX"] < CRED,
+  all(sdp$lcl[sdp$parameter == "topic_slope_sd"] > 0.05),
+  p_gt1("ER") < 1 - CRED, p_gt1("EX") < 1 - CRED, p_gt1("IP") < CRED,
+  sub_all_max_pct < 25, nrow(sub_flip) > 0, all(grepl("strategy", sub_flip$level))
+)
+```
+
+```{r abstract-check, include=FALSE}
+# The abstract (YAML header) is static text: compilation stops if its numbers no longer match the results.
+ab <- rmarkdown::metadata$abstract
+chk <- c(fmt(OV[["n_real"]]), fmt(OV[["n_threads"]]), fmt(all_syn_n), f2(avg_or("ER")), f2(avg_or("EX")),
+         f2(gxo(ADJ, "model", "grok", "IP")), f2(gxo(ADJ, "model", "gemini", "IP")), f2(gxo(ADJ, "model", "openai", "IP")))
+stopifnot(!is.null(ab), all(vapply(chk, grepl, NA, x = ab, fixed = TRUE)))
+```
+
+```{r conv-setup, include=FALSE}
+all_conv <- bind_rows(conv2, conv3, conv3s)
+fit_lab <- c(C2_topic_gap = "pooled topic model", D2_cancer = "cancer model", E_topic_by_llm = "topic-by-model model", F_severity = "severity model",
+             L0_nolength = "gap model without length adjustment", L1_length = "gap model with length adjustment",
+             H_severity_by_group = "severity-by-group model", I_topic_by_group = "topic-by-model-and-strategy model",
+             C2_no_topic_intercept = "sensitivity model without topic intercept")
+bad <- all_conv[!all_conv$converged, ]
+why <- function(r) paste(c(if (r$divergent_transitions > 0) sprintf("%d divergent transition%s", r$divergent_transitions, ifelse(r$divergent_transitions == 1, "", "s")),
+                           if (r$min_neff_ratio <= 0.1) sprintf("effective-sample-size ratio %.3f", r$min_neff_ratio),
+                           if (r$max_rhat >= 1.01) sprintf("max Rhat %.4f", r$max_rhat)), collapse = ", ")
+bad_txt <- paste(vapply(seq_len(nrow(bad)), function(k) sprintf("%s, %s (%s)", mech_short[bad$mechanism[k]], fit_lab[bad$model[k]], why(bad[k, ])), ""), collapse = "; ")
+sig <- function(mech, who) one(sevm, sevm$mechanism == mech, sevm$who == who)
+sevt <- function(mech, who) { r <- sig(mech, who); ci(r$sev_or, r$sev_lcl, r$sev_ucl) }
+spread <- function(mech) with(sdp[sdp$mechanism == mech & sdp$parameter == "topic_slope_sd", ], sprintf("%.2f [%.2f%s%.2f]", median, lcl, nd, ucl))
+```
+
+```{r keywords-word, results = "asis"}
+if (!is_tex) cat("*Keywords:* ", paste(unlist(rmarkdown::metadata$keywords), collapse = "; "), "\n\n", sep = "")
+```
+
+# Introduction
+
+\noindent Over the past two decades, online health-information seeking has moved from resources such as WebMD to peer-and-expert forums like r/AskDocs, where users can pose questions to verified clinicians. More recently, LLM-powered AI chatbots have also become a standard part of health-information seeking, consulted in some cases instead of clinicians `r cp("west2026,pew2026")`. This uptake has raised questions about how chatbot advice compares with advice from clinicians on r/AskDocs, particularly in terms of perceived empathy, a key driver of patient trust and adherence.
+
+The prevailing finding in the literature is that chatbot responses to patient questions are rated more empathetic than those of physicians. A seminal study compared ChatGPT and physician responses to the same questions on r/AskDocs and found that healthcare professionals preferred the AI responses in 78.6% of evaluations and rated them higher on empathy `r cp("ayers2023")`. Similar findings have been reported for cancer-related questions evaluated by oncology clinicians `r cp("chen2024")` and by patients `r cp("chen2025")`. Moreover, patients rated ChatGPT's replies to their real patient-portal messages as more empathetic than their physicians' `r cp("luo2024")`. A recent systematic review and meta-analysis maintains that replies by chatbots are generally evaluated as more empathetic than those of healthcare professionals `r cp("howcroft2025")`.
+
+While these findings indicate that chatbot replies are perceived as globally more empathetic, they largely leave open what drives those judgments. Research has therefore begun to unpack the global rating, separating the distinct forms that empathy takes in a written reply. The cancer comparison above rated emotional and cognitive empathy separately and found chatbots ahead on both `r cp("chen2024")`. A coding study of replies to 65 r/AskDocs questions located the advantage in specific features (e.g., validation, reassurance and non-judgmental language) `r cp("ruben2025")`. A sentence-by-sentence emotion analysis of physician, ChatGPT and Gemini replies to 100 patient questions found a neutral, rational tone dominant in all three, with the chatbot replies distinguished mainly by their greater length `r cp("burns2026")`.
+
+These studies provide a first decomposition of the perceived-empathy advantage, but they have three limitations. They (a) rest on samples of between 65 and 200 patient questions, too small to examine which conditions moderate the differences between AI and clinician replies. Moreover, they (b) cover one or two model families, and (c) each measure empathy with a scheme of their own. The present study improves on all three counts. With respect to the first two, it draws on `r fmt(OV[["n_threads"]])` patient questions, a scale at which the moderating conditions can be estimated, and compares the replies of verified clinicians with replies that three LLMs (Gemini 2.5 Pro, GPT-5, Grok 4.6) generated as clinician responses to the same posts, each model under three prompting procedures for robustness. With respect to the third, empathy is measured with an established computational framework EPITOME `r cp("sharma2020")`, which has been applied to compare LLM responses with those of peer supporters in mental-health support `r cp("gabriel2024")`. EPITOME distinguishes three mechanisms, each scored independently by its own trained classifier: *Emotional Reactions*, which express warmth or concern, *Interpretations*, which express an understanding of the other's feelings, and *Explorations*, which probe the experiences.
+
+Three research questions structure the analysis. How often clinician replies and AI-generated replies to the same posts show each of the three mechanisms? Does the AI--clinician gap differs across the three models? Does vary with the context of the question, its medical topic (including cancer) and its rated severity? We show largely the opposite pattern: generated replies display far fewer Emotional Reactions and Explorations than clinicians' replies, while Interpretations show no consistent gap. All three models show these deficits; for Interpretations, by contrast, some models lie above the clinician level and some below. Context matters as well: the gaps vary modestly across medical topics, and the Interpretation gap narrows as the rated severity of the question rises. These distinctions matter for practice, because the components do different work: a reply without an Exploration is a follow-up question never asked, and a reply without warmth is one the patient is less likely to trust or act on. As LLMs move into patient-facing communication, we need to identify which components a system under-produces, for which questions and from which model.
+
+# Research questions and hypotheses
+
+## Research questions
+
+- $RQ_1$: Is there an empathy gap between real clinicians' advice and AI-generated advice?
+- $RQ_2$: Do AI replies differ from real replies in each model-by-strategy group?
+- $RQ_3$: Do the severity of the problem and the topic of the post affect the gap?
+
+## Hypotheses
+
+\noindent LLMs are pre-trained on large amounts of human text and tuned to be considerate, which led us to expect AI replies to be more empathic than real replies ($H_1$). For $RQ_2$ and $RQ_3$ we expected differences without specifying their direction ($H_2$ to $H_4$). We also tested whether the AI models and prompting strategies differ from each other (`r aref("app-aivsai")`); these AI-versus-AI comparisons are secondary and not part of the main research questions. Each hypothesis is tested separately for each of the three mechanisms; Table \@ref(tab:hyp) lists the hypotheses and their predictions, and Table \@ref(tab:hyptests) gives the null hypotheses and the decision rules, which are explained in Section \@ref(sec-tests).
+
+```{r hyp, results = "asis"}
+hy <- data.frame(
+  RQ = c("$RQ_1$", "$RQ_2$", "$RQ_3$", "$RQ_3$"), Hypothesis = sprintf("$H_%d$", 1:4),
+  Prediction = c("Pooled over all AI groups, AI replies are more likely than real replies to show the mechanism (gap above 1).",
+                 "In each of the nine model-by-strategy groups, AI replies differ from real replies in how often they show the mechanism (gap different from 1).",
+                 "The gap varies between the medical topics of the posts.", "The gap changes with the severity of the patient's problem."),
+  Direction = c("directed", "undirected", "undirected", "undirected"))
+ltab(hy, paste0("@{}", LA, "{0.07\\linewidth}", LA, "{0.12\\linewidth}", LA, "{0.56\\linewidth}", LA, "{0.15\\linewidth}@{}"),
+     "Research questions, hypotheses, predictions and whether the predicted direction is specified.", "hyp", block = hy$RQ, once = 1, need = 16)
+```
+
+# Methods
+
+## Data
+
+### Real replies
+
+\noindent We analysed `r fmt(OV[["n_threads"]])` threads from the forum r/AskDocs posted between `r TH[["window_start"]]` and `r TH[["window_end"]]`, a random sample (seed 42) of the `r fmt(N_CORPUS)` threads of a public Reddit archive (Arctic Shift) that have a post text of at least 30 characters and at least one top-level comment that was neither removed nor posted by the moderation bot. The `r fmt(OV[["n_real"]])` real replies (median `r OV[["real_per_thread_median"]]` per thread) come mostly from physicians (`r pct(auth_share("Physician"), 0)`), nurses and midwives (`r pct(auth_share("Nurse / midwife"), 0)`), medical students (`r pct(auth_share("Medical student"), 0)`) and other health professionals (`r pct(auth_share("Other health professional"), 0)`); `r pct(auth_share("Layperson / not verified"), 0)` come from users whose flair marks them as laypeople or not verified. We kept all of them as "real" replies.
+
+### AI replies
+
+\noindent For each thread, three LLMs, i.e. Gemini 2.5 Pro, GPT-5, and Grok 4.6 (called Gemini, OpenAI and Grok below), wrote replies under three prompting strategies.^[Gemini 2.5 Pro and GPT-5 were called through their providers' API, Grok 4.6 through OpenRouter.] In *discourse generation* (DG), one call produces all replies of the thread. In *single advice generation* (SAG), each reply comes from an independent call that sees only the opening post. In *single advice generation with incremental information* (SAGII), replies are sequentially across calls and each call also sees the replies already generated. All prompts asked the model to imitate a clinician answering on r/AskDocs, to keep comments "brief and natural" (usually one to four sentences, matching the typical length of real comments), and not to add disclaimers or state credentials. Temperature was 1.0 with no system prompt, and no seed was set, so the replies cannot be regenerated identically. The number of replies requested per thread, model and strategy equalled the number of top-level comments of the thread, including removed and deleted ones, which explains why the real replies available for analysis are only `r pct(OV[["n_real"]] / TH[["n_comments_sum"]], 0)` of that number. The nine AI groups contribute `r fmt(all_syn_n)` replies. Replies differ in length: the median is `r real_row$words_median` words for real replies (mean `r round(real_row$words_mean)`), `r model_words("gemini")` for Gemini, `r model_words("grok")` for Grok and `r model_words("openai")` for OpenAI.
+
+### Outcomes
+
+\noindent Three RoBERTa classifiers scored each reply, together with its post, for the three mechanisms, i.e., Emotional Reactions, Interpretation, and Exploration. The discrete classifier labels range indicate three empathy labels ($0=$ none, $1=$ weak, $2=$ strong) `r cp("sharma2020")`. We used the architecture and code of `r ct("sharma2020")`, retrained on the Reddit part of their mental-health support corpus (3,084 pairs per mechanism), with inputs truncated at 64 tokens.^[Mention classifier performance breakdown.] In our data, the classifiers for Interpretations and Explorations never output the weak label, so we analyse whether a reply shows a mechanism at all (label 1 or 2). Importantly, the classifiers detect explicit textual markers, not how empathic a patient would find a reply. Table \@ref(tab:desc) gives descriptive rates.
+
+```{r desc, results = "asis"}
+d <- dg_ %>% mutate(
+  Group = ifelse(group == "real", "Real replies",
+                 paste(llm_names[sub("_.*$", "", group)], strat_names[sub("^.*_", "", group)])),
+  ord = match(sub("_.*$", "", group), c("real", model_order)) * 10 + match(sub("^.*_", "", group), c("real", "dg", "sag", "sagii"))) %>%
+  arrange(ord)
+t1 <- d %>% transmute(Group, Replies = fmt(n), `Words, median` = words_median,
+                      `Emotional Reaction` = pct(ER_w), Interpretation = pct(IP_w), Exploration = pct(EX_w))
+ltab(t1, "@{}lrrrrr@{}", "Replies, length and share of replies showing each mechanism (weighted as in the models; weighting only changes AI rows).", "desc",
+     block = ifelse(d$group == "real", "real", sub("_.*$", "", d$group)))
+```
+
+### Thread characteristics
+
+\noindent The thread-level variables come from prompting Gemini 2.5 Pro, not from trained classifiers. For each opening post, the model chose one of 17 medical disciplines from a closed list `r cp("chan2025", "taken from")`.^[The prompt contained a codebook that resolves unclear cases by ICD-10 chapter (e.g., benign and malignant neoplasms both count as "Neoplasms", poisonings as "Medical; other"). Only the category names are taken from `r ct("chan2025")`; the labelling method is our collaborator's. The model also returned a confidence and a supporting quote.] After merging related disciplines and dropping two residual labels, `r n_topics` topics and `r fmt(n_threads_in)` threads remain (smallest: neoplasms, `r pct(min(lookup$n_threads) / n_threads_in, 1)`, flagged exploratory). On a reference sample of 200 posts, labelled by two other LLMs (Claude Sonnet 5.5, GPT-6) with a human settling their 41 disagreements, the labels agreed in 77% of cases, so roughly one in four may be wrong. The same kind of prompt flagged cancer relevance (a malignancy is involved; `r fmt(n_cancer)` flagged threads; 98% agreement with the reference) and rated severity on a four-level triage scale (self-care, routine, urgent, emergency; scored 1 to 4), which asks for the seriousness of the condition rather than the tone of the post.^[Posts without a triageable problem or without model output (`r fmt(n_sev_na)` threads) carry a missing-value indicator. No human rated severity. Two rule-based signals that the model did not see rise with the scale: for example, clinicians had already escalated care in 25\% of emergency posts but 4\% of self-care posts.] Models also adjust for post subject, age and sex (extracted from the posts) and, for real replies, whether the responder's specialty matches the topic.
+
+## Statistical analysis
+
+\noindent Replies to one question are not independent, and AI models wrote more replies than there were real ones. All models are Bernoulli logistic regressions, fitted separately for each mechanism, with a random intercept per thread so that real and AI replies are compared *within* threads, thread covariates and log reply length. An AI reply receives the weight $min(1, r/n)$, where $r$ is the number of real replies and $n$ the number of AI replies in its thread-model-strategy cell; real replies have weight 1 (weights make the resulting intervals approximate). The gap is the AI-versus-real odds ratio (OR) within a thread: below 1, an AI reply is less likely than a real one to show the mechanism. The pooled gap is the equally weighted mean over the nine AI groups. We estimated gaps for the nine model-by-strategy groups with and without the length term (the length-adjusted gap is primary; adjustment changes the question to the gap at equal length). Topic and severity enter as moderators of the gap. A topic *shift* is the extra factor by which a topic multiplies the AI-versus-real OR; topics are random slopes, so estimates for small topics are pulled towards the average (partial pooling). Moderation by cancer relevance was tested with an interaction. Further models test whether topic effects differ by AI model or strategy (`r aref("app-models")`).
+
+Models were fitted with `brms` `r cp("burkner2017")` and Stan (4 chains, 2,000 iterations, 1,000 warm-up; marginal fits repeated with 4,000), with weakly informative priors. We report posterior medians, 95% credible intervals (CrI; ranges that contain the true value with 95% probability under the model) and the probability of direction (pd, the posterior probability that an effect has the stated sign) `r cp("makowski2019")`. An effect is *credible* if pd exceeds 0.975 and the interval excludes 1, judged on unrounded values. A two-sided 5% rule flags about 5% of comparisons even if nothing is going on, so credible effects among many comparisons need care. Of the `r nrow(all_conv)` main fits, `r sum(all_conv$converged)` met all convergence criteria (maximum Rhat below 1.01, effective-sample-size ratio above 0.1, no divergent transitions); the other `r nrow(bad)` missed one criterion marginally (`r aref("app-convergence")`). As robustness checks we refitted the strategy models after randomly thinning each thread-model-strategy cell to the thread's number of real replies (weights all 1; one draw).
+
+## Hypothesis tests {#sec-tests}
+
+\noindent $H_1$ is evaluated with the posterior probability that the pooled gap exceeds 1. $H_2$ concerns the gap of each of the nine groups against the real replies and is supported for a mechanism if the gap is credible (see above) in every one of the nine groups; we report how many groups meet this and in which direction. For $H_3$, a spread of the topic shifts of at most 0.05 on the log-odds scale would mean that a typical topic changes the gap by less than about 5%, which we regard as negligible. $H_4$ involves three contrasts at once, the severity slopes of the three AI models. For such sets we compute the *joint probability of direction*: the posterior probability that a draw lies closer to the posterior mean (in Mahalanobis distance, using the posterior covariance of the contrasts) than the point of no difference does. A hypothesis is supported if this exceeds 0.975, that is, if "no difference" lies outside the 95% joint credible region; for a single contrast this equals the probability of direction. We did not correct for testing three mechanisms. The AI-versus-AI comparisons in `r aref("app-aivsai")` use the same joint test.
+
+```{r hyptests, results = "asis"}
+ht <- data.frame(
+  RQ = c("$RQ_1$", "$RQ_2$", "$RQ_3$", "$RQ_3$"), Hypothesis = sprintf("$H_%d$", 1:4),
+  `Null hypothesis` = c("Gap at most 1.", "In at least one group, the gap is 1.", "The gap is the same in all topics.", "The gap does not change with severity in any model."),
+  `Support if` = c("P(gap above 1) above 0.975", "In all nine groups pd above 0.975 and 95% CrI of the gap excludes 1",
+                   "Lower limit of the 95% CrI of the topic spread above 0.05", "Joint pd of the 3 model-specific severity slopes above 0.975"),
+  check.names = FALSE)
+ltab(ht, paste0("@{}", LA, "{0.07\\linewidth}", LA, "{0.10\\linewidth}", LA, "{0.30\\linewidth}", LA, "{0.38\\linewidth}@{}"),
+     "Research questions, hypotheses, null hypotheses and decision rules (pd: probability of direction, CrI: credible interval).", "hyptests", block = ht$RQ, once = 1, need = 14)
+```
+
+
+# Results
+
+## Overall gap and reply length ($H_1$)
+
+\noindent On average, AI replies were much less likely than real replies to express Emotional Reactions (gap `r avg_gap("ER")`; odds about `r inv(avg_or("ER"))` times lower) or to explore the patient's experience (`r avg_gap("EX")`; about `r inv(avg_or("EX"))` times lower), contrary to $H_1$. For Interpretations the pooled gap was close to parity (`r avg_gap("IP")`). The posterior probability that the pooled gap exceeds 1 was `r fpl(p_gt1("ER"))` for Emotional Reactions, `r fpl(p_gt1("IP"))` for Interpretations and `r fpl(p_gt1("EX"))` for Explorations, so $H_1$ was not supported for any mechanism, and for Emotional Reactions and Explorations the data point the other way. Reply length was strongly related to what the classifiers detect: each doubling of length multiplied the odds of an Interpretation by `r f2(per_doubling("IP"))`, of an Emotional Reaction by `r f2(per_doubling("ER"))` and of an Exploration by `r f2(per_doubling("EX"))`.
+
+## AI replies compared with real replies in each group ($H_2$)
+
+\noindent The gap differed from 1 in every one of the nine groups for all three mechanisms, so $H_2$ was supported for each: `r n_grp_cred` of `r n_grp` group gaps were credible (Figure \@ref(fig:forest)). For Emotional Reactions and Explorations all nine gaps were below 1, that is, AI replies were less likely than real replies to show the mechanism in every model and strategy. For Interpretations, the three Grok groups were above 1 and the six other groups below 1. Tests between the AI models and strategies themselves showed that the models differed far more than the strategies, whose effect was small and depended on the model (`r aref("app-aivsai")`).
+
+The pooled gap hides large differences between models (Table \@ref(tab:modelgap)). Gaps for Emotional Reactions ranged from `r f2(min(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism == "ER"]))` to `r f2(max(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism == "ER"]))` and for Explorations from `r f2(min(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism == "EX"]))` to `r f2(max(ge$or[ge$spec == ADJ & ge$level == "model" & ge$mechanism == "EX"]))`; Gemini came closest to real replies. The lowest gaps, Grok for Emotional Reactions and OpenAI for Explorations, mean odds about `r inv(gxo(ADJ, "model", "grok", "ER"))` and `r inv(gxo(ADJ, "model", "openai", "EX"))` times lower. For Interpretations the models point in different directions. Grok is the only model whose replies were *more* likely than real replies to contain an Interpretation (`r gxt(ADJ, "model", "grok", "IP")`), whereas Gemini's (`r gxt(ADJ, "model", "gemini", "IP")`) and OpenAI's (`r gxt(ADJ, "model", "openai", "IP")`) were less likely. This is a comparison at equal reply length: Grok's replies are short (median `r wmed("grok")` words against `r real_row$words_median` for real replies) and show an Interpretation about as often as real replies (`r pct(model_rate("grok", "IP"))` against `r pct(real_row$IP_w)`; unadjusted gap `r gxt(RAW, "model", "grok", "IP")`), so a Grok reply of the same length as a real reply has about twice the odds of containing one.
+
+Length adjustment changes the picture for Interpretations. OpenAI's replies are long, and its replies contain an Interpretation about as often as real ones (`r pct(model_rate("openai", "IP"))` against `r pct(real_row$IP_w)`); without adjustment the gap exceeds 1 (`r gxt(RAW, "model", "openai", "IP")`), and at equal length it falls below 1. The adjustment moves Gemini (from `r gxt(RAW, "model", "gemini", "IP")` to `r gxt(ADJ, "model", "gemini", "IP")`) and Grok (from `r gxt(RAW, "model", "grok", "IP")` to `r gxt(ADJ, "model", "grok", "IP")`) the other way, presumably because their replies are about as long as the typical real reply but shorter than the real average. For Emotional Reactions and Explorations it changes little.
+
+```{r modelgap, results = "asis"}
+rl <- lapply(c("ER", "IP", "EX"), function(m) {
+  data.frame(Mechanism = mech_names[[m]], Model = llm_names[model_order],
+             `Real replies` = pct(real_row[[paste0(m, "_w")]]),
+             `AI replies` = vapply(model_order, function(x) pct(model_rate(x, m)), ""),
+             `Gap, no length adjustment` = vapply(model_order, function(x) star(gxt(RAW, "model", x, m), gx(RAW, "model", x, m)$credible), ""),
+             `Gap, length adjusted` = vapply(model_order, function(x) star(gxt(ADJ, "model", x, m), gx(ADJ, "model", x, m)$credible), ""),
+             check.names = FALSE)
+})
+mg <- bind_rows(rl)
+ltab(mg, "@{}llrrrr@{}", "Share of replies showing each mechanism, and within-thread gap (AI versus real, OR [95% CrI]) per AI model, without and with adjustment for reply length. \u2020 = credible.", "modelgap",
+     block = mg$Mechanism, once = 1,
+     header = c("Mechanism", "Model", "Real replies", "AI replies", "\\shortstack[r]{Gap, no length\\\\adjustment}", "\\shortstack[r]{Gap, length\\\\adjusted}"))
+```
+
+```{r forest, fig.width=7.2, fig.height=3.4, out.width="100%", fig.cap="Gap between AI and real replies for each model-by-strategy group (odds ratio, log scale; below 1 = AI less likely to show the mechanism). Filled symbols: adjusted for reply length; open symbols: not adjusted. Bars: 95% credible intervals. Dashed line: no gap."}
+pf <- ge %>% filter(level == "group", spec %in% c(ADJ, RAW)) %>%
+  mutate(model = llm_names[sub("_.*$", "", who)], strategy = strat_names[sub("^.*_", "", who)],
+         mechanism = factor(mech_names[mechanism], levels = unname(mech_names)),
+         adj = factor(ifelse(spec == ADJ, "Length adjusted", "Not adjusted"), levels = c("Length adjusted", "Not adjusted")),
+         lab = paste(model, strategy), lab = factor(lab, levels = rev(unique(lab[order(match(sub(" .*$", "", lab), llm_names), match(sub("^.* ", "", lab), strat_names))]))))
+ggplot(pf, aes(or, lab, colour = model, shape = adj)) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey40") +
+  geom_pointrange(aes(xmin = lcl, xmax = ucl), position = position_dodge(width = 0.55), size = 0.28, linewidth = 0.35) +
+  scale_shape_manual(values = c(`Length adjusted` = 16, `Not adjusted` = 1), name = NULL) +
+  scale_colour_manual(values = c(Gemini = "#0072B2", OpenAI = "#D55E00", Grok = "#009E73"), guide = "none") +
+  scale_x_log10() + facet_wrap(~mechanism, scales = "free_x") +
+  labs(x = "Gap: odds ratio, AI vs. real (95% CrI)", y = NULL) +
+  theme_bw(base_size = 10) + theme(panel.grid.minor = element_blank(), legend.position = "bottom", legend.margin = margin(t = -4), strip.text = element_text(face = "plain"))
+```
+
+## Topic ($H_3$)
+
+\noindent The gap varied across the `r n_topics` topics for all three mechanisms, and $H_3$ was supported for each (the lower limits of the 95% CrIs of the spread exceed 0.05; spread of the topic shifts on the log-odds scale: Emotional Reactions `r spread("ER")`, Interpretations `r spread("IP")`, Explorations `r spread("EX")`). `r sum(bt$credible)` of the `r nrow(bt)` pooled topic shifts were credible, against about `r round(0.05 * nrow(bt), 1)` expected by chance (Table \@ref(tab:topiccred)). The pattern was topic-specific: dermatology, for example, had a larger Emotional-Reaction gap but a smaller Exploration gap than average. Topic effects were largely shared across AI models and strategies: the extra spread by model was small for Emotional Reactions (`r sd_txt("ER", "topic_x_model_sd")`) and Interpretations (`r sd_txt("IP", "topic_x_model_sd")`) but clear for Explorations (`r sd_txt("EX", "topic_x_model_sd")`), and by strategy it was at most about `r sprintf("%.2f", max(v3sd$median[v3sd$parameter %in% c("topic_x_strategy_sd", "topic_x_model_x_strategy_sd")]))`. Single topic-by-model shifts (`r sum(btl$credible)` of `r nrow(btl)` credible, about `r round(0.05 * nrow(btl), 1)` expected by chance) are leads only.
+
+```{r topiccred, results = "asis"}
+cr <- bt %>% filter(credible) %>%
+  arrange(match(mechanism, names(mech_names)), desc(n_threads)) %>%
+  transmute(Mechanism = mech_names[mechanism], Topic = paste0(topic_label, ifelse(exploratory, " \u2020", "")), Threads = fmt(n_threads),
+            `Gap in topic` = ci(gap_or, gap_lcl, gap_ucl), `Shift vs. average gap` = ci(shift_or, shift_lcl, shift_ucl),
+            pd = ifelse(shift_pd > 0.9995, ">0.999", sprintf("%.3f", shift_pd)))
+ltab(cr, "@{}l>{\\raggedright\\arraybackslash}p{0.28\\linewidth}rrrr@{}", "Topics whose gap credibly differs from the average gap (OR [95% CrI]). A shift above 1 means that the AI is relatively more likely to show the mechanism than on average; below 1, relatively less likely. \u2020 = exploratory topic.", "topiccred",
+     block = cr$Mechanism, once = 1, size = "\\footnotesize", tabcolsep = "4pt",
+     header = c("Mechanism", "Topic", "Threads", "Gap in topic", "\\shortstack[r]{Shift vs.\\\\average gap}", "pd"))
+```
+
+## Severity ($H_4$)
+
+\noindent Severity changed the gap ($H_4$), supported for Emotional Reactions (joint pd `r jpd_txt("severity", "ER")`) and Interpretations (`r jpd_txt("severity", "IP")`) but not for Explorations (`r jpd_txt("severity", "EX")`). For Interpretations it did so in every AI model: each extra severity level multiplied the AI-versus-real OR by `r sevt("IP", "gemini")` for Gemini, `r sevt("IP", "openai")` for OpenAI and `r sevt("IP", "grok")` for Grok (Table \@ref(tab:sevtab)); the odds of an Interpretation rose more steeply with severity in AI replies than in real ones. The same held for Emotional Reactions in Gemini (`r sevt("ER", "gemini")`) and OpenAI (`r sevt("ER", "openai")`) but not Grok, and for Explorations severity did not change the gap in any model. The Interpretation effect was credible in `r sum(sev_grp$credible[sev_grp$mechanism == "IP"])` of 9 model-by-strategy groups, and `r sum(sev_cmp$credible)` of `r nrow(sev_cmp)` strategy contrasts of severity slopes `r ifelse(sum(sev_cmp$credible) == 1, "was", "were")` credible.
+
+```{r sevtab, results = "asis"}
+st <- sevm %>% filter(grepl("per severity", term)) %>%
+  mutate(who = ifelse(who %in% names(llm_names), llm_names[who], "All AI (mean of three)"), txt = star(ci(sev_or, sev_lcl, sev_ucl), credible)) %>%
+  select(mechanism, who, txt) %>% pivot_wider(names_from = mechanism, values_from = txt)
+ltab(st[, c("who", "ER", "IP", "EX")], "@{}lrrr@{}", "Extra change in the gap per additional severity level (factor [95% CrI]); above 1: the AI-versus-real odds ratio increases with severity. † = credible.", "sevtab",
+     block = ifelse(st$who %in% llm_names, "model", "all"), header = c("", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]))
+```
+
+## Cancer (exploratory)
+
+\noindent In the exploratory analysis, cancer-related threads (n = `r fmt(n_cancer)`) had a gap closer to parity for Interpretations (shift `r ci(canc$shift_or[canc$mechanism == "IP"], canc$shift_lcl[canc$mechanism == "IP"], canc$shift_ucl[canc$mechanism == "IP"])`) but a larger gap for Explorations (shift `r ci(canc$shift_or[canc$mechanism == "EX"], canc$shift_lcl[canc$mechanism == "EX"], canc$shift_ucl[canc$mechanism == "EX"])`); for Emotional Reactions the difference was not credible (`r ci(canc$shift_or[canc$mechanism == "ER"], canc$shift_lcl[canc$mechanism == "ER"], canc$shift_ucl[canc$mechanism == "ER"])`).
+
+## Robustness
+
+\noindent Thinning instead of weighting left the picture unchanged except for borderline strategy contrasts (`r aref("app-thinning")`). Across `r nrow(sub_cmp)` estimates of gaps, strategy contrasts and severity slopes, the median change in an odds ratio was `r sprintf("%.0f%%", sub_med_pct)` and the largest `r sprintf("%.0f%%", sub_all_max_pct)`. `r nrow(sub_flip)` estimates differed in whether they were credible, all strategy contrasts with pd between `r sprintf("%.2f", min(c(sub_flip$pd_w, sub_flip$pd_s)))` and `r sprintf("%.2f", max(c(sub_flip$pd_w, sub_flip$pd_s)))`; the model gaps, the length effect, the severity effects and the Explorations topic-by-model spread were reproduced.
+
+# Discussion
+
+## Principal findings
+
+\noindent We expected AI replies to be more empathic than real replies ($RQ_1$). They were not: AI replies much less often showed Emotional Reactions or explored the patient's experience, and for Interpretations the pooled gap was close to parity. The pooled figure conceals the more important result ($RQ_2$): AI replies differed from real ones in every one of the nine model-by-strategy groups, but for Interpretations in opposite directions depending on the model. Notably, Grok's replies were, at equal length, about twice as likely as real replies to contain an Interpretation (`r gxt(ADJ, "model", "grok", "IP")`); it is the only model, and Interpretations the only mechanism, for which AI replies exceeded real ones. The models differed greatly from each other, whereas the prompting strategy mattered much less and its effect depended on the model, so there is no single best strategy. The gap also depended on the topic and, for Interpretations and for Emotional Reactions in two models, on severity ($RQ_3$), but the evidence on single topics and strategy contrasts is tentative. All findings rest on classifier outputs, whose validity for this material is the main threat to them.
+
+## Interpretation
+
+\noindent Our result does not contradict earlier findings of higher perceived empathy `r cp("ayers2023")`, because holistic ratings and the detection of specific textual markers capture different things. A speculative reading is that models readily frame a problem but rarely express a feeling or ask a question they need answered. The dependence on reply length is a warning: a detected "Interpretation" is partly a function of how much a reply says, and length adjustment reverses the sign of OpenAI's Interpretation gap. Whether longer replies are more empathic or merely offer more room for the marker is a question about the classifiers that these data cannot answer, so we report both versions. The same holds for Grok's advantage: it appears only at equal length, because Grok's short replies match the real replies' rate of Interpretations, and we cannot tell whether it reflects a more empathic style or a style the classifier favours. The severity result shows that the gap is not a fixed property of "AI", but it is not evidence of good calibration: for Explorations, where the shortfall is largest, severity changed nothing. Studies that compare "AI" with human replies should name the model, report each mechanism separately and show how conclusions depend on length. A study of messages from patients with cancer similarly found that medical raters preferred the chatbot while patient raters preferred physicians `r cp("bai2025")`.
+
+## Limitations
+
+(i) The outcomes are classifier outputs, not human judgments or patient outcomes. The classifiers were trained on mental-health peer support, have not been validated on medical or AI-written replies, and may truncate texts at 64 tokens. Markers late in a reply, such as a closing question, would then be missed, biasing Explorations downwards for long replies such as OpenAI's. Differences in accuracy between real and AI text would bias the gaps in unknown ways.
+
+(ii) The comparison group is volunteer replies on one platform and time window, partly from non-physicians and unverified users, and possibly AI-assisted.
+
+(iii) Prompt design drives the AI results. The models were told to imitate a clinician and to write brief comments of the length of typical forum replies without disclaimers, so our gaps describe this setup, not the models' default advice style; the brevity instruction in particular limits how much emotional or exploratory content a reply can contain. We studied three models under three strategies, with replies generated in a single run at temperature 1.0.
+
+(iv) Topic, severity and cancer labels were produced by language models (one of them, Gemini, also a generator), and topic labels are noisy.
+
+(v) Moderator analyses are observational and uncorrected for testing three mechanisms; the joint tests assume an approximately Gaussian posterior and use weighted-likelihood intervals; weighted intervals are approximate; we used one thinning and did not model dependence between replies of the same responder.
+
+(vi) We measured neither the accuracy nor the safety of the advice.
+
+\noindent Human ratings of a sample of these replies, chunked scoring of long replies, and replication of the topic and strategy findings would address the main gaps.
+
+## Conclusions
+
+\noindent Under these prompts, the three AI models rarely expressed Emotional Reactions or asked about the patient's experience, whereas for Interpretations the direction of the gap depended on the model and on the adjustment for reply length: Grok matched the real replies and, at equal length, exceeded them. The shortfall depended mainly on the model, and less on strategy, topic and severity.
+
+# Data availability
+
+\noindent Code for corpus construction, reply generation and covariates is at github.com/cmstewart/llm_health_advisors; the analysis code and the summary results behind every number are in the project repository [AUTHORS TO COMPLETE: archive link]. The reply-level data contain Reddit text and are shared out of band; sharing is subject to the terms of use.
+
+```{r refs-appendix, results = "asis"}
+if (is_tex) cat("\\bibliography{references}\n\n\\clearpage\n\n\\appendix\n\\makeatletter\\@addtoreset{table}{section}\\makeatother\n\n\\noindent\\emph{Supplementary material; not part of the word count.}\n\n") else
+  cat("# References {-}\n\n::: {#refs}\n:::\n\n*Supplementary material; not part of the word count.*\n\n")
+```
+
+```{r app-h-a, results = "asis"}
+app_h("app-models", "Model specifications")
+```
+
+\noindent Table \@ref(tab:models) lists the models. Priors: Normal(0, 2.5) on fixed effects, Student-*t*(3, 0, 2.5) on the intercept and thread standard deviation, Normal(0, 1) truncated at 0 on topic-level standard deviations, LKJ(2) on topic-slope correlations; `adapt_delta` = 0.95. A full model with separate, correlated topic slopes for all nine groups would need 55 covariance parameters from `r n_topics` topics and is not estimable here. Because every reply carries its thread's covariates and each thread has its own baseline, only interactions of a covariate with the AI-versus-real contrast change the gap; covariate main effects shift the baseline of both kinds of reply. The gap refers to real replies whose responder did not declare a body-system specialty (specialty match is defined for real replies only). Missing age, sex, severity and subject were coded with indicator categories. Reply length was not modelled as a moderator.
+
+```{r models, results = "asis"}
+mt <- data.frame(
+  Model = c("Gap by group (L0, L1)", "Topic moderation (C2)", "Topic by AI model (E)", "Cancer (D2)", "Severity by AI model (F)", "Severity by group (H)", "Topic by model and strategy (I)", "Sensitivity (IP only)"),
+  `What it estimates` = c(
+    "Gap of each of the nine model-by-strategy groups, without (L0) and with (L1) the length term; strategy contrasts within models",
+    "Gap per topic: a topic-level random slope on the AI-versus-real contrast",
+    "As C2, with a separate topic slope for each AI model (correlated)",
+    "Gap in cancer-related versus other threads",
+    "Extra change in each model's gap per severity level",
+    "As F, with nine severity slopes (one per model-by-strategy group)",
+    "Common topic shift plus extra topic shifts by model, by strategy and by group, each with one shared standard deviation",
+    "Pooled topic model for Interpretations without the thread-level topic intercept"),
+  check.names = FALSE)
+ltab(mt, paste0("@{}", LA, "{0.27\\linewidth}", LA, "{0.68\\linewidth}@{}"), "Overview of the statistical models. All include thread random intercepts, thread covariates and log reply length.", "models")
+```
+
+```{r app-h-b, results = "asis"}
+app_h("app-convergence", "Convergence")
+```
+
+\noindent Of the `r nrow(all_conv)` main fits, `r sum(all_conv$converged)` met all criteria. The other `r nrow(bad)` missed one criterion marginally (these fits have 12,000 post-warm-up draws): `r bad_txt`. Of the `r nrow(sub_conv)` fits of the thinned data, `r sum(!sub_conv$converged)` narrowly missed the criteria: `r sum(sub_conv$max_rhat >= 1.01)` with $\hat R$ just above 1.01 (largest `r sprintf("%.4f", max(sub_conv$max_rhat))`) and `r sum(sub_conv$max_rhat < 1.01 & sub_conv$divergent_transitions > 0)` with a single divergent transition. Computation used `cmdstanr`; multithreaded sampling means that the saved fits and run metadata, not the seed, are the reproducible record.
+
+```{r app-h-c, results = "asis"}
+app_h("app-aivsai", "AI-versus-AI comparisons")
+```
+
+\noindent The main text compares AI replies with real replies. Here we compare the AI models and prompting strategies with each other. The real replies cancel out of any contrast between two AI groups, because each group's gap is measured against the same real replies in the same threads; a contrast between two gaps therefore equals the contrast between the two groups' replies, and the tests below can be read either way. Table \@ref(tab:hypA) lists the hypotheses, which we tested for each mechanism with the joint probability of direction (Section \@ref(sec-tests)) on the length-adjusted gaps of the nine groups.
+
+```{r hypA, results = "asis"}
+hA <- data.frame(
+  H = c("$H_{A1}$", "$H_{A2}$", "$H_{A3}$"),
+  `Null hypothesis` = c("The three models are equally empathic, averaged over strategies.", "The three strategies are equally empathic, averaged over models.",
+                        "Strategy differences in empathy are the same in all models."),
+  `Support if` = c("Joint pd of the 2 model contrasts above 0.975", "Joint pd of the 2 strategy contrasts above 0.975", "Joint pd of the 4 interaction contrasts above 0.975"),
+  check.names = FALSE)
+ltab(hA, paste0("@{}", LA, "{0.10\\linewidth}", LA, "{0.38\\linewidth}", LA, "{0.42\\linewidth}@{}"), "AI-versus-AI hypotheses (undirected), null hypotheses and decision rules.", "hypA", header = c("Hypothesis", "Null hypothesis", "Support if"))
+```
+
+$H_{A1}$ was supported for all three mechanisms, $H_{A2}$ only for Emotional Reactions, and $H_{A3}$ for all three (Table \@ref(tab:jthin)). The AI models therefore differed greatly in empathy, the strategies only for Emotional Reactions, and the effect of the strategy depended on the model.
+
+The interaction means that strategy contrasts differed between models: `r sum(ipairs$credible[ipairs$version == "weighted"])` of the 27 pairwise comparisons of strategy contrasts between two models were credible (Emotional Reactions `r sum(ipairs$credible[ipairs$version == "weighted" & ipairs$mechanism == "ER"])`, Interpretations `r sum(ipairs$credible[ipairs$version == "weighted" & ipairs$mechanism == "IP"])`, Explorations `r sum(ipairs$credible[ipairs$version == "weighted" & ipairs$mechanism == "EX"])`). For example, the ratio of the DG gap to the SAG gap in Emotional Reactions was `r f2(one(ipairs, ipairs$version == "weighted", ipairs$mechanism == "ER", ipairs$model_pair == "gemini vs openai", ipairs$strategy_pair == "dg vs sag")$or)` times higher in Gemini than in OpenAI, and for Explorations the DG-versus-SAG contrast of OpenAI was `r f2(one(ipairs, ipairs$version == "weighted", ipairs$mechanism == "EX", ipairs$model_pair == "openai vs grok", ipairs$strategy_pair == "dg vs sag")$or)` times that of Grok. All three interaction tests were also supported in the thinned data.
+
+Differences between strategies were smaller than differences between models (Figure \@ref(fig:forest) in the main text). The largest ratio between two models' gaps was `r f2(rng_ratio("ER", "model"))` for Emotional Reactions, `r f2(rng_ratio("IP", "model"))` for Interpretations and `r f2(rng_ratio("EX", "model"))` for Explorations; the largest ratio between two strategies within one model was `r f2(rng_within("ER"))`, `r f2(rng_within("IP"))` and `r f2(rng_within("EX"))`. `r n_within_cred` of `r n_within` within-model strategy contrasts were credible, and the pattern depended on the model (Table \@ref(tab:contrasts)). Averaged over models, DG fell furthest behind on Emotional Reactions (DG versus SAG, `r gxt(ADJ, "strategy_across_models", "all", "ER", "dg - sag")`; DG versus SAGII, `r gxt(ADJ, "strategy_across_models", "all", "ER", "dg - sagii")`), driven by OpenAI and Grok. For Explorations OpenAI's DG replies were closer to real replies than its SAG replies (`r gxt(ADJ, "strategy_within_model", "openai", "EX", "dg - sag")`). There was no model-independent best strategy, and several contrasts changed credibility in the robustness analysis, so we regard them as tentative.
+
+Table \@ref(tab:contrasts) compares strategies within each model (ratio of the two strategies' gaps; below 1 for "DG vs SAG": DG falls further behind real replies).
+
+```{r contrasts, results = "asis"}
+cw <- ge %>% filter(spec == ADJ, level %in% c("strategy_within_model", "strategy_across_models")) %>%
+  mutate(contrast = gsub("sagii", "SAGII", contrast), contrast = gsub("\\bsag\\b", "SAG", contrast),
+         contrast = gsub("\\bdg\\b", "DG", contrast), contrast = gsub(" - ", " vs ", contrast),
+         txt = star(ci(or, lcl, ucl), credible)) %>%
+  select(mechanism, who, contrast, txt) %>% pivot_wider(names_from = mechanism, values_from = txt) %>%
+  arrange(match(who, c(model_order, "all")), match(contrast, c("DG vs SAG", "DG vs SAGII", "SAG vs SAGII"))) %>%
+  mutate(who = ifelse(who == "all", "All models (mean)", llm_names[who]))
+ltab(cw[, c("who", "contrast", "ER", "IP", "EX")], "@{}llrrr@{}", "Differences between prompting strategies in the real-vs-AI gap (length adjusted), ratio of gaps, OR [95% CrI]. † = credible.", "contrasts",
+     block = cw$who, once = 1, header = c("AI model", "Comparison", mech_names[["ER"]], mech_names[["IP"]], mech_names[["EX"]]))
+```
+
+Table \@ref(tab:jthin) gives the joint tests for the weighted and the thinned fits, and Table \@ref(tab:ipairs) lists the credible pairwise interaction contrasts (ratio of the strategy contrast between two models; weighted fits).
+
+```{r jthin, results = "asis"}
+jt2 <- jtests %>% filter(hypothesis != "severity") %>% mutate(txt = sprintf("%s (W\u00a0=\u00a0%.1f)", fpd(jpd), W), Test = c(model = "$H_{A1}$: models", strategy = "$H_{A2}$: strategies", interaction = "$H_{A3}$: interaction")[hypothesis],
+                         col = paste(c(ER = "ER", IP = "IP", EX = "EX")[mechanism], version)) %>%
+  select(Test, col, txt) %>% pivot_wider(names_from = col, values_from = txt)
+jt2 <- jt2[match(c("$H_{A1}$: models", "$H_{A2}$: strategies", "$H_{A3}$: interaction"), jt2$Test), ]
+cn <- setdiff(names(jt2), "Test")
+cn <- cn[order(match(sub(" .*$", "", cn), c("ER", "IP", "EX")), match(sub("^.* ", "", cn), c("weighted", "thinned")))]
+jt2 <- jt2[, c("Test", cn)]
+names(jt2) <- c("Test", sub("^IP", "Interpretation,", sub("^ER", "Emotional Reaction,", sub("^EX", "Exploration,", cn))))
+ltab(jt2, paste0("@{}", LA, "{0.15\\linewidth}", strrep(paste0(RA, "{0.115\\linewidth}"), ncol(jt2) - 1), "@{}"), "Joint probability of direction (Wald statistic W) for the weighted and the thinned fits.", "jthin",
+     size = "\\footnotesize", tabcolsep = "4pt",
+     header_lines = c("& \\multicolumn{2}{c}{Emotional Reaction} & \\multicolumn{2}{c}{Interpretation} & \\multicolumn{2}{c}{Exploration} \\\\",
+                      "\\cmidrule(lr){2-3}\\cmidrule(lr){4-5}\\cmidrule(lr){6-7}",
+                      "Test & weighted & thinned & weighted & thinned & weighted & thinned \\\\"))
+```
+
+```{r ipairs, results = "asis"}
+ip <- ipairs %>% filter(version == "weighted", credible) %>% arrange(match(mechanism, names(mech_names))) %>%
+  transmute(Mechanism = mech_names[mechanism], Models = gsub("gemini", "Gemini", gsub("openai", "OpenAI", gsub("grok", "Grok", model_pair))),
+            Strategies = gsub("sagii", "SAGII", gsub("sag vs", "SAG vs", gsub("dg vs", "DG vs", gsub("vs sag$", "vs SAG", strategy_pair)))),
+            `Ratio of strategy contrasts` = ci(or, lcl, ucl))
+ltab(ip, "@{}lllr@{}", "Credible pairwise interaction contrasts (weighted fits): ratio of the strategy contrast in the first model to that in the second model, OR [95% CrI].", "ipairs",
+     block = ip$Mechanism, once = 1)
+```
+
+```{r app-h-d, results = "asis"}
+app_h("app-thinning", "Thinning comparison")
+```
+
+\noindent Table \@ref(tab:subflips) lists the estimates whose credibility status differs between the weighted and the thinned fits. Of the `r sum(sub_top$cred_w)` credible pooled topic shifts in the topic-by-model-and-strategy model, `r sum(sub_top$cred_w & sub_top$cred_s)` were credible after thinning, and the shifts changed by at most about `r sprintf("%.0f%%", 100 * (exp(max(abs(log(sub_top$or_s / sub_top$or_w)))) - 1))`. Without the thread-level topic intercept, the same `r sum(v3sens$credible)` pooled topic shifts for Interpretations were credible.
+
+```{r subflips, results = "asis"}
+spec_lab <- c("length adjusted" = "gap, length adjusted", "no length adjustment" = "gap, no length adjustment", "severity by group" = "severity slope")
+level_lab <- c(group = "per group", model = "per AI model", strategy = "per strategy", strategy_within_model = "strategy contrast within a model", strategy_across_models = "strategy contrast, pooled")
+who_lab <- function(w) vapply(w, function(x) {
+  if (x == "all") "All models" else if (x %in% names(llm_names)) llm_names[[x]]
+  else if (x %in% names(strat_names)) strat_names[[x]]
+  else { pr <- strsplit(x, "_")[[1]]; paste(llm_names[[pr[1]]], strat_names[[pr[2]]]) }
+}, character(1))
+con_lab <- function(x) { x <- gsub("sagii", "SAGII", x); x <- gsub("\\bsag\\b", "SAG", x); x <- gsub("\\bdg\\b", "DG", x); gsub(" - ", " vs ", x) }
+fl <- sub_cmp %>% filter(cred_w != cred_s) %>%
+  mutate(what = paste0(spec_lab[spec], ", ", level_lab[level]), who_c = trimws(paste(who_lab(who), con_lab(contrast))),
+         w = paste0(ci(or_w, lcl_w, ucl_w), "\u00a0(pd\u00a0", sprintf("%.3f", pd_w), ")"), t = paste0(ci(or_s, lcl_s, ucl_s), "\u00a0(pd\u00a0", sprintf("%.3f", pd_s), ")")) %>%
+  arrange(match(mechanism, names(mech_names))) %>% transmute(mechanism = mech_names[mechanism], what, who_c, w, t)
+ltab(fl, paste0("@{}l", LA, "{0.25\\linewidth}", LA, "{0.14\\linewidth}", RA, "{0.18\\linewidth}", RA, "{0.18\\linewidth}@{}"), "Estimates whose credibility status differs between the weighted and the thinned fits.", "subflips",
+     block = fl$mechanism, once = 1, size = "\\footnotesize", tabcolsep = "4pt", header = c("Mechanism", "Quantity", "Which", "Weighted", "Thinned"))
+```

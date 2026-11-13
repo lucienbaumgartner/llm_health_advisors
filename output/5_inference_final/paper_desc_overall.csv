@@ -1,0 +1,16 @@
+name,value
+n_replies,137278
+n_real,8625
+n_synthetic,128653
+n_threads,6600
+n_threads_with_real,6600
+real_per_thread_mean,1.30681818181818
+real_per_thread_median,1
+real_per_thread_max,73
+real_threads_single_reply,5372
+synthetic_cells,59384
+cells_downweighted,15375
+cell_n_median,1
+cell_n_max,110
+synthetic_weight_sum,77602.999999991
+real_weight_sum,8625
