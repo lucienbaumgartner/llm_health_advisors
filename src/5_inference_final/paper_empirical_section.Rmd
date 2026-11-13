@@ -34,7 +34,10 @@ invisible(Sys.setlocale("LC_CTYPE", "en_US.UTF-8"))   # non-ASCII characters (da
 suppressMessages({ library(dplyr); library(tidyr); library(ggplot2); library(knitr) })
 rm(list = ls())
 
-out_dir   <- "../../output/5_inference_final"
+# EXCLUDE_LAYPEOPLE=1 (environment variable) switches to the experts-only sensitivity analysis: reads the results
+# of that run and adapts the description of the real replies (see paper_config.R and README.md)
+source("paper_config.R")
+out_dir   <- OUT_DIR
 topic_path <- "../../input/topics/topic_labels.csv"
 cov_dir   <- "../../input/covariates"
 rd <- function(f) read.csv(file.path(out_dir, f), stringsAsFactors = FALSE)
@@ -122,6 +125,7 @@ model_order <- names(llm_names)
 # ---- descriptives (paper_descriptives.R) ----------------------------------------------
 dg_ <- rd("paper_desc_groups.csv"); ov <- rd("paper_desc_overall.csv")
 OV <- setNames(ov$value, ov$name)
+for (k in c("real_laypeople_excluded", "threads_lost_no_real_reply", "synthetic_replies_lost")) if (is.na(OV[k])) OV[k] <- 0   # absent in CSVs written before the switch existed
 auth <- rd("paper_desc_authors.csv"); labs <- rd("paper_desc_labels.csv")
 rm_ <- readLines("../../README.md", warn = FALSE)
 rm_num <- function(pat) as.numeric(gsub("[^0-9]", "", sub(".*: ", "", rm_[grep(pat, rm_)[1]])))
@@ -311,7 +315,7 @@ ltab(hy, paste0("@{}", LA, "{0.07\\linewidth}", LA, "{0.12\\linewidth}", LA, "{0
 
 ### Real replies
 
-\noindent We analysed `r fmt(OV[["n_threads"]])` threads from the forum r/AskDocs posted between `r TH[["window_start"]]` and `r TH[["window_end"]]`, a random sample (seed 42) of the `r fmt(N_CORPUS)` threads of a public Reddit archive (Arctic Shift) that have a post text of at least 30 characters and at least one top-level comment that was neither removed nor posted by the moderation bot. The `r fmt(OV[["n_real"]])` real replies (median `r OV[["real_per_thread_median"]]` per thread) come mostly from physicians (`r pct(auth_share("Physician"), 0)`), nurses and midwives (`r pct(auth_share("Nurse / midwife"), 0)`), medical students (`r pct(auth_share("Medical student"), 0)`) and other health professionals (`r pct(auth_share("Other health professional"), 0)`); `r pct(auth_share("Layperson / not verified"), 0)` come from users whose flair marks them as laypeople or not verified. We kept all of them as "real" replies.
+\noindent We analysed `r fmt(OV[["n_threads"]])` threads from the forum r/AskDocs posted between `r TH[["window_start"]]` and `r TH[["window_end"]]`, a random sample (seed 42) of the `r fmt(N_CORPUS)` threads of a public Reddit archive (Arctic Shift) that have a post text of at least 30 characters and at least one top-level comment that was neither removed nor posted by the moderation bot. The `r fmt(OV[["n_real"]])` real replies (median `r OV[["real_per_thread_median"]]` per thread) come mostly from physicians (`r pct(auth_share("Physician"), 0)`), nurses and midwives (`r pct(auth_share("Nurse / midwife"), 0)`), medical students (`r pct(auth_share("Medical student"), 0)`) and other health professionals (`r pct(auth_share("Other health professional"), 0)`)`r if (EXCLUDE_LAYPEOPLE) paste0(". The sample was drawn from all replies; we then excluded ", fmt(OV[["real_laypeople_excluded"]]), " replies from users whose flair marks them as laypeople or not verified, and ", fmt(OV[["threads_lost_no_real_reply"]]), " threads that had no other real reply, and with them ", fmt(OV[["synthetic_replies_lost"]]), " AI replies.") else paste0("; ", pct(auth_share("Layperson / not verified"), 0), " come from users whose flair marks them as laypeople or not verified. We kept all of them as \"real\" replies.")`
 
 ### AI replies
 
@@ -453,7 +457,7 @@ ltab(st[, c("who", "ER", "IP", "EX")], "@{}lrrr@{}", "Extra change in the gap pe
 
 (i) The outcomes are classifier outputs, not human judgments or patient outcomes. The classifiers were trained on mental-health peer support, have not been validated on medical or AI-written replies, and may truncate texts at 64 tokens. Markers late in a reply, such as a closing question, would then be missed, biasing Explorations downwards for long replies such as OpenAI's. Differences in accuracy between real and AI text would bias the gaps in unknown ways.
 
-(ii) The comparison group is volunteer replies on one platform and time window, partly from non-physicians and unverified users, and possibly AI-assisted.
+(ii) The comparison group is volunteer replies on one platform and time window, `r if (EXCLUDE_LAYPEOPLE) "from verified health professionals only (laypeople and unverified users were excluded)" else "partly from non-physicians and unverified users"`, and possibly AI-assisted.
 
 (iii) Prompt design drives the AI results. The models were told to imitate a clinician and to write brief comments of the length of typical forum replies without disclaimers, so our gaps describe this setup, not the models' default advice style; the brevity instruction in particular limits how much emotional or exploratory content a reply can contain. We studied three models under three strategies, with replies generated in a single run at temperature 1.0.
 

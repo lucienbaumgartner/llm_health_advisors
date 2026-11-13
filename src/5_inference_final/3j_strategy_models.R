@@ -61,7 +61,8 @@ suppressMessages({
   library(bayestestR)
 })
 
-out_dir <- "../../output/5_inference_final"
+source("paper_config.R")   # EXCLUDE_LAYPEOPLE=1 -> experts-only run into a separate output folder
+out_dir <- OUT_DIR
 topic_path <- "../../input/topics/topic_labels.csv"
 cov_dir <- "../../input/covariates"
 MECHS <- strsplit(Sys.getenv("MECHS", "ER,IP,EX"), ",")[[1]]
@@ -114,7 +115,8 @@ set.seed(SEED)
 # data (identical to 3i, plus group indicators and topic-by-group labels)
 # ---------------------------------------------------------------------
 cat("Loading data...\n")
-results <- read.csv(file.path(out_dir, "inference_results.csv")) %>%
+results <- read.csv(file.path(IN_DIR, "inference_results.csv")) %>%
+  drop_laypeople() %>%
   filter(!is.na(response_post) & response_post != "") %>%
   mutate(
     group = factor(ifelse(source == "real", "real", paste(model, method, sep = "_")), levels = GROUP_LEVELS),
@@ -221,7 +223,7 @@ cat(sprintf("topic-model data: %d rows / %d threads / %d topics\n", nrow(dat_top
 
 md5 <- function(f) unname(tools::md5sum(f))
 writeLines(c(
-  sprintf("date: %s", Sys.time()), sprintf("seed: %d", SEED), sprintf("test mode: %s", TEST),
+  sprintf("date: %s", Sys.time()), sprintf("seed: %d", SEED), sprintf("test mode: %s", TEST), sprintf("exclude laypeople / unverified real replies: %s", EXCLUDE_LAYPEOPLE),
   sprintf("chains: %d, iter: %d, warmup: %d, threads_per_chain: %d, adapt_delta: %s", CHAINS, ITER, WARMUP, THREADS_PER_CHAIN, ADAPT_DELTA),
   sprintf("iteration overrides: %s", if (length(ITER_OVERRIDES)) paste(names(ITER_OVERRIDES), ITER_OVERRIDES, sep = " = ", collapse = ", ") else "none"),
   sprintf("topic file md5: %s", md5(topic_path)),

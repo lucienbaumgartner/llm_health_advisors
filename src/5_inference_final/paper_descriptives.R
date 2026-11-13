@@ -7,14 +7,26 @@
 # that compiling it stays fast. Re-run this script only if inference_results.csv changes.
 #
 # Run from src/5_inference_final:  Rscript paper_descriptives.R
+# Experts-only sensitivity run (see paper_config.R):  EXCLUDE_LAYPEOPLE=1 Rscript paper_descriptives.R
 
 suppressMessages(library(data.table))
 
-out_dir <- "../../output/5_inference_final"
-d <- fread(file.path(out_dir, "inference_results.csv"),
-           select = c("post_id", "source", "model", "method", "author_type", "response_post",
+source("paper_config.R")
+out_dir <- OUT_DIR
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+d <- fread(file.path(IN_DIR, "inference_results.csv"),
+           select = c("post_id", "submission_id", "source", "model", "method", "author_type", "response_post",
                       "ER_label", "IP_label", "EX_label"))
 d <- d[!is.na(response_post) & response_post != ""]
+
+# laypeople / unverified users (EXCLUDE_LAYPEOPLE=1): count what is removed, then remove it
+n_real_before <- d[source == "real", .N]
+n_syn_before <- d[source == "synthetic", .N]
+syn_pre <- d[source == "synthetic", .(n_syn = .N), by = post_id]
+threads_real_before <- d[source == "real", unique(post_id)]
+d <- drop_laypeople(d)
+n_lay_excluded <- if (EXCLUDE_LAYPEOPLE) n_real_before - d[source == "real", .N] else 0L
+n_threads_lost <- if (EXCLUDE_LAYPEOPLE) length(setdiff(threads_real_before, d[source == "real", unique(post_id)])) else 0L
 d[, n_words := pmax(lengths(strsplit(response_post, "\\s+")), 1L)]
 d[, response_post := NULL]
 d[, group := ifelse(source == "real", "real", paste(model, method, sep = "_"))]
@@ -26,6 +38,11 @@ d[is.na(real_count), real_count := 0L]
 d[, cell_n := .N, by = .(post_id, model, method)]
 d[, w := ifelse(source == "real", 1, pmin(1, real_count / cell_n))]
 d <- d[w > 0]
+# check: no AI reply is left in a thread without a real reply, and exactly the AI replies of the lost threads are gone
+stopifnot(all(d[source == "synthetic", unique(post_id)] %in% d[source == "real", unique(post_id)]))
+lost_threads <- setdiff(threads_real_before, d[source == "real", unique(post_id)])
+stopifnot(n_syn_before - d[source == "synthetic", .N] == syn_pre[post_id %in% lost_threads, sum(n_syn)])
+cat(sprintf("Threads without a real reply after exclusion: %d (AI replies removed with them: %d of %d)\n", length(lost_threads), syn_pre[post_id %in% lost_threads, sum(n_syn)], n_syn_before))
 
 wm <- function(x, w) sum(w * x) / sum(w)
 grp <- d[, .(n = .N, n_threads = uniqueN(post_id),
@@ -45,7 +62,7 @@ fwrite(lab, file.path(out_dir, "paper_desc_labels.csv"))
 
 # who wrote the real replies (verification flair on r/AskDocs), coarse categories + full list
 auth_cat <- function(x) {
-  fcase(grepl("Layperson|not yet been verified", x, ignore.case = TRUE), "Layperson / not verified",
+  fcase(is_layperson(x), "Layperson / not verified",
         grepl("Physician Assistant", x), "Other health professional",
         grepl("Physician|Surgeon|Neurosurg|^IM/", x), "Physician",
         grepl("Nurse|^RN|^ED RN|Midwife|Nursing", x), "Nurse / midwife",
@@ -63,11 +80,13 @@ overall <- data.table(
   name = c("n_replies", "n_real", "n_synthetic", "n_threads", "n_threads_with_real",
           "real_per_thread_mean", "real_per_thread_median", "real_per_thread_max",
           "real_threads_single_reply", "synthetic_cells", "cells_downweighted",
-          "cell_n_median", "cell_n_max", "synthetic_weight_sum", "real_weight_sum"),
+          "cell_n_median", "cell_n_max", "synthetic_weight_sum", "real_weight_sum",
+           "real_laypeople_excluded", "threads_lost_no_real_reply", "synthetic_replies_lost"),
   value = c(nrow(d), d[source == "real", .N], d[source == "synthetic", .N], uniqueN(d$post_id), nrow(th),
             mean(th$real_count), median(th$real_count), max(th$real_count),
             sum(th$real_count == 1), nrow(cells), sum(cells$cell_n > cells$real_count),
-            median(cells$cell_n), max(cells$cell_n), d[source == "synthetic", sum(w)], d[source == "real", sum(w)]))
+            median(cells$cell_n), max(cells$cell_n), d[source == "synthetic", sum(w)], d[source == "real", sum(w)],
+            n_lay_excluded, n_threads_lost, n_syn_before - d[source == "synthetic", .N]))
 fwrite(overall, file.path(out_dir, "paper_desc_overall.csv"))
 cat("Wrote paper_desc_{groups,labels,authors,overall}.csv\n")
 print(overall)
@@ -76,6 +95,8 @@ print(overall)
 if (requireNamespace("jsonlite", quietly = TRUE)) {
   con <- gzfile("../../input/calls_final/analysis_dataset_6600.jsonl.gz")
   th_all <- jsonlite::stream_in(con, verbose = FALSE)
+  # experts-only run: describe only the threads that keep at least one real reply
+  if (EXCLUDE_LAYPEOPLE) th_all <- th_all[th_all$submission_id %in% unique(d$submission_id), ]
   tt <- data.table(created = as.numeric(th_all$created_utc), n_comments = as.numeric(th_all$n_comments),
                    post_words = lengths(strsplit(as.character(th_all$selftext), "\\s+")))
   fwrite(data.table(

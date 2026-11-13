@@ -14,3 +14,6 @@ cell_n_median,1
 cell_n_max,110
 synthetic_weight_sum,77602.999999991
 real_weight_sum,8625
+real_laypeople_excluded,0
+threads_lost_no_real_reply,0
+synthetic_replies_lost,0

@@ -90,7 +90,8 @@ suppressMessages({
   library(bayestestR)
 })
 
-out_dir <- "../../output/5_inference_final"
+source("paper_config.R")   # EXCLUDE_LAYPEOPLE=1 -> experts-only run into a separate output folder
+out_dir <- OUT_DIR
 model_dir <- file.path(out_dir, "models_bayesian")
 dir.create(model_dir, showWarnings = FALSE, recursive = TRUE)
 topic_path <- "../../input/topics/topic_labels.csv"
@@ -135,7 +136,8 @@ set.seed(SEED)
 # data
 # ---------------------------------------------------------------------
 cat("Loading data...\n")
-results <- read.csv(file.path(out_dir, "inference_results.csv")) %>%
+results <- read.csv(file.path(IN_DIR, "inference_results.csv")) %>%
+  drop_laypeople() %>%
   filter(!is.na(response_post) & response_post != "") %>%
   mutate(
     group = factor(ifelse(source == "real", "real", paste(model, method, sep = "_")), levels = GROUP_LEVELS),
@@ -234,6 +236,7 @@ writeLines(c(
           md5(file.path(cov_dir, "first_responder_roles.csv"))),
   sprintf("covariate terms: %s", COV),
   "weights: synthetic w = min(1, real_count / cell_n), real w = 1",
+  sprintf("exclude laypeople / unverified real replies: %s", EXCLUDE_LAYPEOPLE),
   sprintf("cmdstan_version: %s", as.character(cmdstanr::cmdstan_version())),
   "", "sessionInfo():", capture.output(sessionInfo())
 ), file.path(model_dir, "run_metadata_v2.txt"))

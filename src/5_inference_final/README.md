@@ -12,6 +12,7 @@ Run all steps from this folder unless stated otherwise.
 | `../../input/topics/topic_labels.csv` | Discipline and cancer labels (Gemini 2.5 Pro; collaborator repo, see `SOURCE.txt`) |
 | `../../input/covariates/*.csv` | Severity, poster demographics, responder roles (collaborator repo, see `SOURCE.txt`) |
 | `../../output/2_training/reddit_{ER,IP,EX}.pth` | Trained EPITOME classifiers (training code: `../2_training`) |
+| `paper_config.R` | Shared settings, incl. the switch `EXCLUDE_LAYPEOPLE` (see below) |
 | `../../Readme.md` | Corpus description; the paper reads the corpus size from it (corpus built by `../1_preprocessing`) |
 
 ## Steps
@@ -33,6 +34,35 @@ Steps 3 to 5 take many hours (brms/cmdstanr, 4 chains); finished fits are cached
 The `.rds` files and `inference_results.csv` are not under version control (`.gitignore`).
 The paper reads only small CSV files, so step 9 is fast; it stops with an error if a claim in the text
 is contradicted by the results (claims check in the setup chunk).
+
+## Sensitivity run without laypeople and unverified users
+
+The main analysis keeps all real replies, including the 377 (4%) from users whose flair marks them as laypeople or
+not verified. To repeat everything without them, set `EXCLUDE_LAYPEOPLE=1` for every R script (settings in
+`paper_config.R`; the filter is the regular expression `Layperson|not yet been verified` on the reply's `author_type`).
+Results go to the separate folder `../../output/5_inference_final_expert`, so the main results are not overwritten;
+`inference_results.csv` is always read from the main folder. Threads left without a real reply drop out with their AI
+replies, and the response weights are recomputed from the remaining real replies. Steps 1 and 2 are not repeated.
+Excluded are the 377 replies with a layperson / unverified flair plus 1 reply without any flair (378; 147 threads end up
+without a real reply and are dropped with their 2,394 AI replies, i.e. 1.9% of all AI replies; in 67 further threads the
+number of real replies falls and the AI replies get lower weights). `paper_descriptives.R` checks these counts and
+`drop_laypeople()` stops if any lay/unverified flair is left.
+
+```bash
+export EXCLUDE_LAYPEOPLE=1
+Rscript 3i_topic_llm_moderation_v2.R          # hours; fits are cached in the new folder
+Rscript 3j_strategy_models.R                  # hours
+SUBS_SEED=1 MECHS=ER Rscript 3j_strategy_models.R   # thinned fits, one mechanism per run (ER, IP, EX), if the robustness section is wanted
+(cd ../../output/5_inference_final_expert && Rscript ../../src/5_inference_final/3k_subsampling_comparison.R && Rscript ../../src/5_inference_final/3k_subsampling_topic_shifts.R)
+Rscript paper_descriptives.R
+Rscript paper_joint_tests.R
+Rscript -e 'rmarkdown::render("paper_empirical_section.Rmd", output_file = "paper_empirical_section_expert.pdf")'
+```
+
+The Rmd then describes the exclusion in the data section and in the limitations; all numbers come from the new folder.
+The thread-level descriptives (`paper_desc_threads.csv`) then refer to the retained threads only. The responder
+covariate `first_responder_roles.csv` is the collaborator's file and still describes each thread's first responder,
+who may be one of the excluded users.
 
 ## Paper files
 

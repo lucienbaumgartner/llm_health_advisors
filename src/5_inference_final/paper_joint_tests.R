@@ -18,10 +18,12 @@
 # the real replies cancel out of any contrast between AI groups, so H2 to H4 are comparisons between AI groups (RQ2).
 # H5 (RQ3: AI versus real in each of the nine groups) uses the group gaps themselves (v3_group_effects.csv).
 #
-# Run from the repository root of src/5_inference_final:  Rscript paper_joint_tests.R
+# Run from src/5_inference_final:  Rscript paper_joint_tests.R
+# Experts-only sensitivity run (see paper_config.R):  EXCLUDE_LAYPEOPLE=1 Rscript paper_joint_tests.R
 
 suppressMessages({ library(brms); library(bayestestR) })
-out_dir <- "../../output/5_inference_final"
+source("paper_config.R")
+out_dir <- OUT_DIR
 mod_dir <- file.path(out_dir, "models_bayesian")
 MODELS <- c("gemini", "openai", "grok"); STRATS <- c("dg", "sag", "sagii")
 mechs <- c("ER", "IP", "EX")
