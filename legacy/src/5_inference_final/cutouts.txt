@@ -1,0 +1,6 @@
+Earlier work on a public forum found that chatbot replies to patients' questions were rated as more empathic than physicians' replies \citep{ayers2023}. Holistic ratings may reward length and politeness.
+
+## Status of the analyses
+
+\noindent The hypotheses were not preregistered [AUTHORS TO CONFIRM]. The sample size was set by a power analysis, based on a pilot, for the `r sum(ge$spec == ADJ & ge$level == "group")` contrasts of the AI groups with the real replies. $H_1$, $H_2$, $H_5$ and $H_6$ correspond to analyses that were run first. The joint tests of $H_3$ and $H_4$ were specified after the gaps of the nine groups were known and are therefore less strictly confirmatory, as are the robustness analyses. Reply length and cancer relevance were examined as exploratory analyses.
+
