@@ -1,0 +1,143 @@
+rows 243 243 243 
+
+== Summary by spec x level: n, flips in credibility, max |log OR diff|, median |diff|, median CI width ratio (sub/weighted)
+                   spec                  level  n flips cred_w cred_s max_abs_dlogOR med_abs width_ratio
+1       length adjusted                  group 27     0     27     27          0.188   0.036        1.01
+2       length adjusted                  model  9     0      9      9          0.131   0.032        0.99
+3       length adjusted               strategy  9     0      9      9          0.120   0.048        1.00
+4       length adjusted strategy_across_models  9     0      4      4          0.074   0.017        1.02
+5       length adjusted  strategy_within_model 27     5     10     13          0.160   0.021        1.02
+6  no length adjustment                  group 27     0     23     23          0.178   0.034        1.01
+7  no length adjustment                  model  9     0      8      8          0.123   0.033        1.01
+8  no length adjustment               strategy  9     0      9      9          0.113   0.044        1.01
+9  no length adjustment strategy_across_models  9     0      5      5          0.071   0.016        1.01
+10 no length adjustment  strategy_within_model 27     6     13     15          0.163   0.029        1.00
+11    severity by group                  group 27     1     14     13          0.219   0.036        1.01
+12    severity by group                  model  9     1      6      5          0.114   0.026        1.02
+13    severity by group               strategy  9     1      3      4          0.063   0.016        1.01
+14    severity by group strategy_across_models  9     1      0      1          0.068   0.022        1.01
+15    severity by group  strategy_within_model 27     3      1      4          0.165   0.042        1.01
+
+== Flips
+                   spec mechanism                  level     who    contrast or_w lcl_w ucl_w  pd_w or_s lcl_s ucl_s  pd_s
+1  no length adjustment        ER  strategy_within_model  gemini    dg - sag 0.87  0.75  1.02 0.959 0.84  0.73  0.98 0.990
+2       length adjusted        ER  strategy_within_model  gemini    dg - sag 0.88  0.76  1.03 0.952 0.85  0.73  0.99 0.984
+3     severity by group        ER                  group grok_dg             0.68  0.47  1.00 0.984 0.72  0.48  1.06 0.954
+4     severity by group        ER                  model    grok             0.79  0.63  0.97 0.986 0.82  0.65  1.01 0.961
+5     severity by group        ER               strategy     sag             1.15  1.00  1.32 0.977 1.21  1.04  1.40 0.993
+6     severity by group        ER  strategy_within_model  gemini    dg - sag 0.87  0.74  1.03 0.955 0.78  0.65  0.92 0.999
+7     severity by group        ER  strategy_within_model  gemini  dg - sagii 0.85  0.73  1.00 0.972 0.75  0.63  0.88 1.000
+8     severity by group        ER  strategy_within_model  openai  dg - sagii 1.26  0.98  1.63 0.963 1.29  1.01  1.64 0.982
+9     severity by group        ER strategy_across_models     all    dg - sag 0.86  0.72  1.05 0.944 0.82  0.69  1.00 0.979
+10 no length adjustment        IP  strategy_within_model    grok    dg - sag 0.89  0.80  0.99 0.984 0.91  0.81  1.01 0.963
+11 no length adjustment        EX  strategy_within_model  openai  dg - sagii 1.51  1.08  2.13 0.991 1.29  0.90  1.83 0.918
+12 no length adjustment        EX  strategy_within_model  openai sag - sagii 0.73  0.49  1.10 0.947 0.62  0.42  0.94 0.987
+13 no length adjustment        EX  strategy_within_model    grok    dg - sag 0.77  0.57  1.04 0.950 0.67  0.49  0.90 0.996
+14 no length adjustment        EX  strategy_within_model    grok  dg - sagii 0.75  0.56  1.00 0.974 0.70  0.51  0.95 0.986
+15      length adjusted        EX  strategy_within_model  openai  dg - sagii 1.42  1.01  1.98 0.979 1.21  0.87  1.71 0.855
+16      length adjusted        EX  strategy_within_model  openai sag - sagii 0.72  0.47  1.08 0.940 0.62  0.42  0.96 0.988
+17      length adjusted        EX  strategy_within_model    grok    dg - sag 0.75  0.56  1.02 0.966 0.65  0.48  0.90 0.995
+18      length adjusted        EX  strategy_within_model    grok  dg - sagii 0.74  0.54  1.00 0.971 0.69  0.52  0.95 0.992
+
+== Opposite direction (sign) between weighted and sub, any
+                   spec mechanism                  level        who    contrast or_w or_s cred_w cred_s
+1     severity by group        ER                  group  gemini_dg             1.04 0.97  FALSE  FALSE
+2       length adjusted        IP  strategy_within_model       grok    dg - sag 0.98 1.00  FALSE  FALSE
+3     severity by group        IP  strategy_within_model     gemini  dg - sagii 0.95 1.03  FALSE  FALSE
+4     severity by group        IP  strategy_within_model     openai sag - sagii 1.00 1.06  FALSE  FALSE
+5     severity by group        IP  strategy_within_model       grok  dg - sagii 1.03 1.00  FALSE  FALSE
+6     severity by group        IP strategy_across_models        all  dg - sagii 0.99 1.01  FALSE  FALSE
+7  no length adjustment        EX  strategy_within_model       grok sag - sagii 0.97 1.05  FALSE  FALSE
+8  no length adjustment        EX strategy_across_models        all  dg - sagii 1.05 0.98  FALSE  FALSE
+9       length adjusted        EX  strategy_within_model       grok sag - sagii 0.98 1.06  FALSE  FALSE
+10      length adjusted        EX strategy_across_models        all  dg - sagii 1.02 0.95  FALSE  FALSE
+11    severity by group        EX                  group  gemini_dg             0.98 1.01  FALSE  FALSE
+12    severity by group        EX                  group openai_sag             1.05 0.85  FALSE  FALSE
+13    severity by group        EX                  group   grok_sag             0.98 1.03  FALSE  FALSE
+14    severity by group        EX  strategy_within_model     gemini sag - sagii 1.01 0.94  FALSE  FALSE
+
+== Model-level gaps, length adjusted, side by side
+   mechanism    level    who or_w      ci_w or_s      ci_s
+1         ER    model gemini 0.32 0.29-0.36 0.32 0.29-0.35
+2         ER    model openai 0.08 0.07-0.09 0.07 0.06-0.08
+3         ER    model   grok 0.03 0.02-0.03 0.02 0.02-0.03
+4         ER strategy     dg 0.07 0.06-0.08 0.07 0.06-0.08
+5         ER strategy    sag 0.10 0.09-0.12 0.10 0.09-0.11
+6         ER strategy  sagii 0.09 0.07-0.10 0.08 0.07-0.10
+7         IP    model gemini 0.43 0.37-0.48 0.43 0.37-0.48
+8         IP    model openai 0.72 0.65-0.79 0.72 0.65-0.79
+9         IP    model   grok 1.89 1.68-2.14 1.89 1.68-2.11
+10        IP strategy     dg 0.82 0.73-0.92 0.83 0.75-0.93
+11        IP strategy    sag 0.80 0.72-0.90 0.79 0.71-0.89
+12        IP strategy  sagii 0.87 0.78-0.98 0.88 0.79-0.97
+13        EX    model gemini 0.16 0.15-0.18 0.16 0.14-0.17
+14        EX    model openai 0.02 0.02-0.03 0.02 0.02-0.02
+15        EX    model   grok 0.03 0.03-0.03 0.03 0.02-0.03
+16        EX strategy     dg 0.05 0.04-0.06 0.04 0.04-0.05
+17        EX strategy    sag 0.05 0.04-0.05 0.04 0.04-0.05
+18        EX strategy  sagii 0.05 0.04-0.06 0.05 0.04-0.05
+
+== Severity by model, side by side
+  mechanism    who or_w      ci_w or_s      ci_s
+1        ER gemini 1.15 1.04-1.28 1.16 1.04-1.30
+2        ER openai 1.30 1.15-1.50 1.35 1.18-1.55
+3        ER   grok 0.79 0.63-0.97 0.82 0.65-1.01
+4        IP gemini 1.52 1.32-1.73 1.54 1.35-1.77
+5        IP openai 1.21 1.08-1.35 1.23 1.10-1.38
+6        IP   grok 1.62 1.44-1.82 1.65 1.47-1.86
+7        EX gemini 0.94 0.84-1.04 0.96 0.86-1.07
+8        EX openai 1.00 0.82-1.23 0.89 0.73-1.10
+9        EX   grok 0.93 0.79-1.11 0.97 0.81-1.14
+
+== Strategy within model, length adjusted: credible in either
+   mechanism    who    contrast or_w      ci_w or_s      ci_s cred_w cred_s
+1         ER gemini    dg - sag 0.88 0.76-1.03 0.85 0.73-0.99  FALSE   TRUE
+2         ER gemini  dg - sagii 0.83 0.72-0.95 0.82 0.71-0.96   TRUE   TRUE
+3         ER openai    dg - sag 0.61 0.49-0.77 0.64 0.51-0.80   TRUE   TRUE
+4         ER openai  dg - sagii 0.56 0.45-0.69 0.60 0.49-0.74   TRUE   TRUE
+5         ER   grok    dg - sag 0.59 0.40-0.86 0.58 0.39-0.87   TRUE   TRUE
+6         ER   grok sag - sagii 2.00 1.31-2.90 1.87 1.25-2.85   TRUE   TRUE
+7         IP gemini    dg - sag 1.23 1.03-1.48 1.32 1.09-1.58   TRUE   TRUE
+8         IP gemini sag - sagii 0.76 0.63-0.91 0.72 0.59-0.86   TRUE   TRUE
+9         IP openai    dg - sag 0.89 0.80-0.98 0.88 0.79-0.98   TRUE   TRUE
+10        EX openai    dg - sag 1.96 1.36-2.90 1.94 1.31-2.90   TRUE   TRUE
+11        EX openai  dg - sagii 1.42 1.01-1.98 1.21 0.87-1.71   TRUE  FALSE
+12        EX openai sag - sagii 0.72 0.47-1.08 0.62 0.42-0.96  FALSE   TRUE
+13        EX   grok    dg - sag 0.75 0.56-1.02 0.65 0.48-0.90  FALSE   TRUE
+14        EX   grok  dg - sagii 0.74 0.54-1.00 0.69 0.52-0.95  FALSE   TRUE
+
+== Length effect
+  src mechanism                      term   or  lcl  ucl pd
+1   w        ER log_length (per log word) 1.82 1.69 1.96  1
+2   w        IP log_length (per log word) 3.67 3.39 3.97  1
+3   w        EX log_length (per log word) 0.77 0.72 0.81  1
+4 sub        ER log_length (per log word) 1.82 1.69 1.97  1
+5 sub        IP log_length (per log word) 3.71 3.43 4.03  1
+6 sub        EX log_length (per log word) 0.77 0.73 0.82  1
+
+== SDs
+   mechanism                     parameter                   w                 sub
+1         ER            topic_intercept_sd 0.376 (0.200-0.633) 0.386 (0.208-0.650)
+2         ER topic_slope_sd (common shift) 0.192 (0.026-0.397) 0.199 (0.032-0.395)
+3         ER              topic_x_model_sd 0.120 (0.001-0.242) 0.127 (0.000-0.247)
+4         ER           topic_x_strategy_sd 0.046 (0.000-0.124) 0.063 (0.000-0.146)
+5         ER   topic_x_model_x_strategy_sd 0.034 (0.000-0.098) 0.057 (0.000-0.145)
+6         ER                    post_id_sd 1.297 (1.229-1.370) 1.393 (1.320-1.469)
+7         IP            topic_intercept_sd 0.059 (0.000-0.182) 0.065 (0.000-0.187)
+8         IP topic_slope_sd (common shift) 0.246 (0.118-0.443) 0.250 (0.108-0.444)
+9         IP              topic_x_model_sd 0.056 (0.000-0.111) 0.075 (0.003-0.136)
+10        IP           topic_x_strategy_sd 0.022 (0.000-0.061) 0.023 (0.000-0.066)
+11        IP   topic_x_model_x_strategy_sd 0.019 (0.000-0.055) 0.020 (0.000-0.058)
+12        IP                    post_id_sd 1.081 (1.035-1.130) 1.154 (1.105-1.202)
+13        EX            topic_intercept_sd 0.223 (0.083-0.428) 0.222 (0.063-0.423)
+14        EX topic_slope_sd (common shift) 0.294 (0.001-0.590) 0.309 (0.000-0.648)
+15        EX              topic_x_model_sd 0.348 (0.177-0.536) 0.395 (0.207-0.598)
+16        EX           topic_x_strategy_sd 0.031 (0.000-0.092) 0.036 (0.000-0.110)
+17        EX   topic_x_model_x_strategy_sd 0.034 (0.000-0.098) 0.042 (0.000-0.119)
+18        EX                    post_id_sd 1.425 (1.351-1.502) 1.527 (1.447-1.610)
+
+== Deviations: credible tm/tt/tmm
+weighted credible: 1  sub credible: 1 
+  src mechanism term     topic  model strategy   or  lcl  ucl   pd
+1   w        EX   tm neoplasms gemini     <NA> 0.54 0.29 0.95 0.99
+2 sub        EX   tm neoplasms gemini     <NA> 0.52 0.27 0.93 0.99

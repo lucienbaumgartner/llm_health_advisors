@@ -1,0 +1,17 @@
+[2026-11-15 23:08:34] START 3i topic/severity models
+[2026-11-16 06:04:36] DONE  3i
+[2026-11-16 06:04:36] START 3j strategy models (weighted)
+[2026-11-16 21:22:10] DONE  3j
+[2026-11-16 21:22:10] START 3j thinned fits ER
+[2026-11-16 22:15:27] DONE  3j thinned ER
+[2026-11-16 22:15:27] START 3j thinned fits IP
+[2026-11-16 23:36:54] DONE  3j thinned IP
+[2026-11-16 23:36:54] START 3j thinned fits EX
+[2026-11-17 01:01:23] DONE  3j thinned EX
+[2026-11-17 01:01:23] START 3k comparisons
+[2026-11-17 01:01:48] DONE  3k
+[2026-11-17 01:01:48] START descriptives
+[2026-11-17 01:01:54] DONE  descriptives
+[2026-11-17 01:01:54] START joint tests
+[2026-11-17 01:02:32] DONE  joint tests
+[2026-11-17 01:02:32] START paper

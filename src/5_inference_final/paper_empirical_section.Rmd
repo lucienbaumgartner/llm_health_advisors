@@ -204,6 +204,9 @@ sub_max_pct <- 100 * (exp(max(abs(sub_len$lratio))) - 1)
 sub_med_pct <- 100 * (exp(median(abs(sub_cmp$lratio))) - 1)
 sub_all_max_pct <- 100 * (exp(max(abs(sub_cmp$lratio))) - 1)
 sub_flip <- sub_cmp %>% filter(cred_w != cred_s)
+sub_flip_sev <- sub_flip %>% filter(grepl("^extra change", quantity_w))                 # severity slopes
+sub_flip_str <- sub_flip %>% filter(!grepl("^extra change", quantity_w), grepl("strategy", level))   # strategy contrasts
+sub_flip_oth <- nrow(sub_flip) - nrow(sub_flip_sev) - nrow(sub_flip_str)                # anything else (e.g., gaps) must be 0
 nconv <- function(cv) sprintf("%d of %d", sum(cv$converged), nrow(cv))
 ```
 
@@ -242,7 +245,7 @@ stopifnot(
   jtests$jpd[jtests$hypothesis == "severity" & jtests$mechanism == "EX"] < CRED,
   all(sdp$lcl[sdp$parameter == "topic_slope_sd"] > 0.05),
   p_gt1("ER") < 1 - CRED, p_gt1("EX") < 1 - CRED, p_gt1("IP") < CRED,
-  sub_all_max_pct < 25, nrow(sub_flip) > 0, all(grepl("strategy", sub_flip$level))
+  sub_all_max_pct < 25, nrow(sub_flip) > 0, sub_flip_oth == 0, nrow(sub_flip_str) > 0
 )
 ```
 
@@ -441,7 +444,7 @@ ltab(st[, c("who", "ER", "IP", "EX")], "@{}lrrr@{}", "Extra change in the gap pe
 
 ## Robustness
 
-\noindent Thinning instead of weighting left the picture unchanged except for borderline strategy contrasts (`r aref("app-thinning")`). Across `r nrow(sub_cmp)` estimates of gaps, strategy contrasts and severity slopes, the median change in an odds ratio was `r sprintf("%.0f%%", sub_med_pct)` and the largest `r sprintf("%.0f%%", sub_all_max_pct)`. `r nrow(sub_flip)` estimates differed in whether they were credible, all strategy contrasts with pd between `r sprintf("%.2f", min(c(sub_flip$pd_w, sub_flip$pd_s)))` and `r sprintf("%.2f", max(c(sub_flip$pd_w, sub_flip$pd_s)))`; the model gaps, the length effect, the severity effects and the Explorations topic-by-model spread were reproduced.
+\noindent Thinning instead of weighting left the picture unchanged except for borderline strategy contrasts`r if (nrow(sub_flip_sev) > 0) " and severity slopes"` (`r aref("app-thinning")`). Across `r nrow(sub_cmp)` estimates of gaps, strategy contrasts and severity slopes, the median change in an odds ratio was `r sprintf("%.0f%%", sub_med_pct)` and the largest `r sprintf("%.0f%%", sub_all_max_pct)`. `r nrow(sub_flip)` estimates differed in whether they were credible, `r if (nrow(sub_flip_sev) == 0) "all strategy contrasts" else sprintf("%d strategy contrasts and %d severity slopes", nrow(sub_flip_str), nrow(sub_flip_sev))` with pd between `r sprintf("%.2f", min(c(sub_flip$pd_w, sub_flip$pd_s)))` and `r sprintf("%.2f", max(c(sub_flip$pd_w, sub_flip$pd_s)))`; the model gaps, the length effect, `r if (nrow(sub_flip_sev) == 0) "the severity effects "`and the Explorations topic-by-model spread were reproduced.
 
 # Discussion
 

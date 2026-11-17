@@ -1,0 +1,7 @@
+Loading required namespace: rstan
+credible weighted: 4  sub: 3  flips: 1  max |dlogOR|: 0.06 
+  mech                                             topic or_w      ci_w  pd_w or_s      ci_s  pd_s
+1   IP                        cardiopulmonary_conditions 1.29 1.02-1.64 0.988 1.30 1.03-1.69 0.985
+2   IP hematologic_immunologic_and_infectious_conditions 0.78 0.61-0.98 0.981 0.78 0.60-1.00 0.975
+3   IP  musculoskeletal_and_connective_tissue_conditions 1.43 1.12-1.91 0.996 1.42 1.09-1.93 0.996
+4   IP                      psychiatry_and_mental_health 0.78 0.60-0.98 0.988 0.77 0.59-0.98 0.985

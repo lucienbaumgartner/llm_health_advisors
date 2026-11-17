@@ -1,0 +1,15 @@
+source,label,n,mechanism
+real,0,7024,ER
+synthetic,0,121184,ER
+real,1,1015,ER
+synthetic,1,4031,ER
+synthetic,2,1044,ER
+real,2,208,ER
+real,0,7405,IP
+synthetic,0,114657,IP
+synthetic,2,11602,IP
+real,2,842,IP
+real,2,1521,EX
+synthetic,0,122539,EX
+real,0,6726,EX
+synthetic,2,3720,EX

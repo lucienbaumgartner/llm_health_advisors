@@ -1,0 +1,8 @@
+Error:
+! all(grepl("strategy", sub_flip$level)) is not TRUE
+Backtrace:
+    x
+ 1. \-base::stopifnot(...)
+
+Quitting from paper_empirical_section.Rmd:210-247 [claims-check]
+Execution halted

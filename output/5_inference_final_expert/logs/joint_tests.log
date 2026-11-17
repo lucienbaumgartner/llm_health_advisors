@@ -1,0 +1,33 @@
+EXCLUDE_LAYPEOPLE=1: real replies of laypeople / unverified users are removed; output to ../../output/5_inference_final_expert 
+Loading required namespace: rstan
+    version mechanism  hypothesis df        W    jpd
+1  weighted        ER       model  2 1132.098 1.0000
+2  weighted        ER    strategy  2   23.829 1.0000
+3  weighted        ER interaction  4   23.014 0.9999
+4  weighted        IP       model  2 1211.103 1.0000
+5  weighted        IP    strategy  2    5.378 0.9320
+6  weighted        IP interaction  4   14.193 0.9933
+7  weighted        EX       model  2  892.076 1.0000
+8  weighted        EX    strategy  2    1.970 0.6265
+9  weighted        EX interaction  4   17.273 0.9983
+10  thinned        ER       model  2 1131.448 1.0000
+11  thinned        ER    strategy  2   22.878 1.0000
+12  thinned        ER interaction  4   15.672 0.9965
+13  thinned        IP       model  2 1216.656 1.0000
+14  thinned        IP    strategy  2    6.362 0.9585
+15  thinned        IP interaction  4   20.548 0.9996
+16  thinned        EX       model  2  922.074 1.0000
+17  thinned        EX    strategy  2    1.865 0.6065
+18  thinned        EX interaction  4   19.171 0.9993
+19 weighted        ER    severity  3   27.444 1.0000
+20 weighted        IP    severity  3  105.254 1.0000
+21 weighted        EX    severity  3    1.898 0.4062
+
+Credible pairwise interaction contrasts:
+   version mechanism credible
+1  thinned        ER        5
+2 weighted        ER        5
+3  thinned        EX        7
+4 weighted        EX        3
+5  thinned        IP        5
+6 weighted        IP        4

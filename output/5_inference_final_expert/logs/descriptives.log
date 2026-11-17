@@ -1,0 +1,25 @@
+EXCLUDE_LAYPEOPLE=1: real replies of laypeople / unverified users are removed; output to ../../output/5_inference_final_expert 
+Threads without a real reply after exclusion: 147 (AI replies removed with them: 2394 of 128653)
+Wrote paper_desc_{groups,labels,authors,overall}.csv
+                          name       value
+                        <char>       <num>
+ 1:                  n_replies 1.34506e+05
+ 2:                     n_real 8.24700e+03
+ 3:                n_synthetic 1.26259e+05
+ 4:                  n_threads 6.45300e+03
+ 5:        n_threads_with_real 6.45300e+03
+ 6:       real_per_thread_mean 1.27801e+00
+ 7:     real_per_thread_median 1.00000e+00
+ 8:        real_per_thread_max 1.00000e+01
+ 9:  real_threads_single_reply 5.27500e+03
+10:            synthetic_cells 5.80610e+04
+11:         cells_downweighted 1.56360e+04
+12:              cell_n_median 1.00000e+00
+13:                 cell_n_max 1.10000e+02
+14:       synthetic_weight_sum 7.42030e+04
+15:            real_weight_sum 8.24700e+03
+16:    real_laypeople_excluded 3.78000e+02
+17: threads_lost_no_real_reply 1.47000e+02
+18:     synthetic_replies_lost 2.39400e+03
+Wrote paper_desc_threads.csv
+Wrote paper_desc_models.csv
