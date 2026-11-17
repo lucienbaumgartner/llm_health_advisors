@@ -56,8 +56,12 @@ SUBS_SEED=1 MECHS=ER Rscript 3j_strategy_models.R   # thinned fits, one mechanis
 (cd ../../output/5_inference_final_expert && Rscript ../../src/5_inference_final/3k_subsampling_comparison.R && Rscript ../../src/5_inference_final/3k_subsampling_topic_shifts.R)
 Rscript paper_descriptives.R
 Rscript paper_joint_tests.R
-Rscript -e 'rmarkdown::render("paper_empirical_section.Rmd", output_file = "paper_empirical_section_expert.pdf")'
+Rscript render_expert.R                       # writes paper_empirical_section_expert.pdf and .docx
 ```
+
+`run_expert_pipeline.sh` runs all of these steps in sequence, logging to `../../output/5_inference_final_expert/logs`
+(about 26 h; finished fits are cached, so it can be restarted). `render_expert.R` replaces the numbers in the static
+abstract by those of the experts-only run (in a temporary copy of the Rmd) and renders PDF and Word.
 
 The Rmd then describes the exclusion in the data section and in the limitations; all numbers come from the new folder.
 The thread-level descriptives (`paper_desc_threads.csv`) then refer to the retained threads only. The responder
@@ -66,7 +70,7 @@ who may be one of the excluded users.
 
 ## Paper files
 
-`paper_empirical_section.Rmd` (source), `.pdf` and `.docx` (outputs), `preamble_paper.tex`, `references.bib`,
+`paper_empirical_section.Rmd` (source), `.pdf` and `.docx` (outputs; `_expert` versions from the experts-only run), `preamble_paper.tex`, `references.bib`,
 `references_word.bib`, `elsevier-harvard.csl` (bibliography and layout).
 
 ## Legacy

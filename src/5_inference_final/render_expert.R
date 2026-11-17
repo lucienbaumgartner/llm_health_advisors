@@ -17,4 +17,6 @@ rep <- c("8,625" = fmt(ov[["n_real"]]), "6,600" = fmt(ov[["n_threads"]]), "128,6
 for (k in names(rep)) { i <- grep(k, x[1:end], fixed = TRUE); stopifnot(length(i) == 1); x[i] <- sub(k, rep[[k]], x[i], fixed = TRUE) }
 tmp <- ".paper_expert_tmp.Rmd"; writeLines(x, tmp, useBytes = TRUE)
 print(rep)
-rmarkdown::render(tmp, output_file = "paper_empirical_section_expert.pdf", quiet = TRUE); unlink(".paper_expert_tmp.Rmd")
+rmarkdown::render(".paper_expert_tmp.Rmd", output_format = "bookdown::pdf_book", output_file = "paper_empirical_section_expert.pdf", quiet = TRUE)
+rmarkdown::render(".paper_expert_tmp.Rmd", output_format = "bookdown::word_document2", output_file = "paper_empirical_section_expert.docx", quiet = TRUE)
+unlink(".paper_expert_tmp.Rmd")
